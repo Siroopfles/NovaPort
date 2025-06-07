@@ -1,0 +1,148 @@
+customModes:
+  - slug: nova-orchestrator
+    name: Nova-Orchestrator
+    roleDefinition: "Strategic Project CEO/CTO and workflow orchestrator for the Nova system."
+    groups:
+      - read
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-leadarchitect
+    name: Nova-LeadArchitect
+    roleDefinition: "Head of system design, project knowledge structure, and architectural strategy for the Nova system."
+    groups:
+      - read
+      - edit # For .nova/workflows/ management
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-leaddeveloper
+    name: Nova-LeadDeveloper
+    roleDefinition: "Head of software implementation and technical code quality for the Nova system."
+    groups:
+      - read
+      - edit # For overseeing code changes
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-leadqa
+    name: Nova-LeadQA
+    roleDefinition: "Head of Quality Assurance, bug lifecycle management, and test strategy for the Nova system."
+    groups:
+      - read
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-flowask
+    name: Nova-FlowAsk
+    roleDefinition: "Specialized information retrieval and analysis agent for the Nova system."
+    groups:
+      - read
+      - edit:
+          - fileRegex: \.nova/summary/session_summary_.*\.md$
+            description: "Session summary Markdown files"
+      - mcp
+    source: project
+
+  - slug: nova-specializedsystemdesigner
+    name: Nova-SpecializedSystemDesigner
+    roleDefinition: "Nova specialist for detailed system/component design, API specification, and data modeling."
+    groups:
+      - read
+      - mcp
+    source: project
+
+  - slug: nova-specializedconportsteward
+    name: Nova-SpecializedConPortSteward
+    roleDefinition: "Nova specialist for ConPort data integrity, quality, glossary management, and administrative tasks."
+    groups:
+      - read
+      - edit:
+          - fileRegex: \.nova/reports/architect/.*\.md$
+            description: "Architect reports Markdown files"
+      - mcp
+    source: project
+
+  - slug: nova-specializedworkflowmanager
+    name: Nova-SpecializedWorkflowManager
+    roleDefinition: "Nova specialist for creating, updating, and managing workflow definition files and their ConPort registration."
+    groups:
+      - read
+      - edit:
+          - fileRegex: \.nova/(workflows/.*\.md|README\.md)$
+            description: "Workflow and .nova README Markdown files"
+      - mcp
+    source: project
+
+  - slug: nova-specializedfeatureimplementer
+    name: Nova-SpecializedFeatureImplementer
+    roleDefinition: "Nova specialist for writing new code for specific features or components."
+    groups:
+      - read
+      - edit # General edit for source code
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-specializedcoderefactorer
+    name: Nova-SpecializedCodeRefactorer
+    roleDefinition: "Nova specialist for improving existing code quality, structure, and performance, or addressing technical debt."
+    groups:
+      - read
+      - edit # General edit for source code
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-specializedtestautomator
+    name: Nova-SpecializedTestAutomator
+    roleDefinition: "Nova specialist for writing, maintaining, and executing automated tests and linters."
+    groups:
+      - read
+      - edit # General edit for test scripts and specific reports
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-specializedcodedocumenter
+    name: Nova-SpecializedCodeDocumenter
+    roleDefinition: "Nova specialist for creating and maintaining inline code documentation and technical documentation for code modules."
+    groups:
+      - read
+      - edit # General edit for source files (inline docs) and MD doc files
+      - mcp
+    source: project
+
+  - slug: nova-specializedbuginvestigator
+    name: Nova-SpecializedBugInvestigator
+    roleDefinition: "Nova specialist for in-depth root cause analysis of reported bugs."
+    groups:
+      - read
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-specializedtestexecutor
+    name: Nova-SpecializedTestExecutor
+    roleDefinition: "Nova specialist for executing defined test cases (manual or automated) and meticulously reporting results."
+    groups:
+      - read
+      - edit: # Specific edit for QA reports
+          - fileRegex: \.nova/reports/qa/.*\.(log|xml|json|html|md)$
+            description: "QA report files"
+      - command
+      - mcp
+    source: project
+
+  - slug: nova-specializedfixverifier
+    name: Nova-SpecializedFixVerifier
+    roleDefinition: "Nova specialist for verifying that reported bugs have been correctly fixed by the development team."
+    groups:
+      - read
+      - command
+      - mcp
+    source: project
