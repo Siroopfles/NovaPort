@@ -1,0 +1,144 @@
+# Workflow: Change Impact Assessment (WF_ARCH_IMPACT_ANALYSIS_001_v1)
+
+**Goal:** To assess and document the potential impact of a proposed significant change (e.g., major refactor, API version change, dependency upgrade, architectural shift) on the project, including effects on code, ConPort items, documentation, and project timelines/risks.
+
+**Primary Actor:** Nova-LeadArchitect (receives task from Nova-Orchestrator, or initiates if a proposed architectural change warrants it).
+**Primary Specialist Actors (delegated to by Nova-LeadArchitect):** Nova-SpecializedSystemDesigner (for system impact), Nova-SpecializedConPortSteward (for ConPort impact/logging), (potentially Nova-FlowAsk via LeadArchitect for broad searches).
+
+**Trigger / Recognition:**
+- Nova-Orchestrator delegates "Perform Impact Analysis for change [ChangeDescription] on Project [ProjectName]".
+- Nova-LeadArchitect or another Lead Mode proposes a significant change and deems an impact analysis necessary before approval.
+- Part of a larger project planning or risk assessment workflow.
+
+**Pre-requisites by Nova-LeadArchitect (from Nova-Orchestrator's briefing):**
+- A clear description of the "Proposed Change" is available (potentially as a `Decision` (integer `id`) with status 'Proposed' or a `CustomData FeatureScope:[key]`).
+- The scope/boundaries of the impact analysis are reasonably defined (e.g., "focus on backend services", "assess impact on public API consumers").
+
+**Phases & Steps (managed by Nova-LeadArchitect within its single active task from Nova-Orchestrator):**
+
+**Phase IA.1: Initial Planning & Information Gathering**
+
+1.  **Nova-LeadArchitect: Receive Task & Plan Analysis**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action:**
+        *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` ("Perform Impact Analysis for [ChangeDescriptionShort]") and `Required_Input_Context` (detailed description/ConPort ref of the proposed change, scope of analysis).
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Impact Analysis: [ChangeDescriptionShort] - [Date]". Let this be `[IAProgressID]`.
+        *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[IAProgressID]_ArchitectPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Example plan items:
+            1.  Identify Affected ConPort Items (Delegate to ConPortSteward).
+            2.  Identify Affected Code Areas (LeadArchitect or delegate to SystemDesigner; may need input from LeadDeveloper via Orchestrator for deep dives).
+            3.  Assess Risks & Benefits (LeadArchitect).
+            4.  Estimate Effort & Timeline Impact (LeadArchitect, potentially with input from other Leads via Orchestrator).
+            5.  Formulate Mitigation/Recommendations (LeadArchitect).
+            6.  Compile & Log Report (Delegate to ConPortSteward).
+    *   **Output:** Plan ready. Main `Progress` (integer `id`) created. `LeadPhaseExecutionPlan` (key) created.
+
+2.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Identify Affected ConPort Items**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Task:** "Search ConPort for all items potentially impacted by the Proposed Change: [DetailedProposedChange]."
+    *   **`new_task` message for Nova-SpecializedConPortSteward:**
+        ```json
+        {
+          "Context_Path": "[ProjectName] (ImpactAnalysis) -> Identify Affected ConPort Items (ConPortSteward)",
+          "Overall_Architect_Phase_Goal": "Impact Analysis for [ChangeDescriptionShort].",
+          "Specialist_Subtask_Goal": "Identify and list ConPort items potentially affected by: [DetailedProposedChange].",
+          "Specialist_Specific_Instructions": [
+            "Log your own `Progress` (integer `id`) for this scan, parented to `[IAProgressID]`.",
+            "Use `use_mcp_tool` (`server_name: 'conport'`, `workspace_id: 'ACTUAL_WORKSPACE_ID'`) with appropriate ConPort tools:",
+            "  - `semantic_search_conport` and keyword searches (`search_decisions_fts`, `search_custom_data_value_fts`, etc.) with terms related to the change (e.g., [keywords from change description]).",
+            "  - Search categories: `Decisions`, `SystemPatterns`, `SystemArchitecture`, `APIEndpoints`, `DBMigrations`, `ConfigSettings`, `CodeSnippets`, `DefinedWorkflows`, `ProjectConfig`, `NovaSystemConfig`, `ErrorLogs`, `LessonsLearned`, `TechDebtCandidates`, `FeatureScope`, `AcceptanceCriteria`.",
+            "  - For highly relevant items, use `get_linked_items` to find direct dependencies (provide correct `item_type` and `item_id` - integer `id` as string or `category:key` string).",
+            "Compile a list of all potentially impacted ConPort items (Type, ID/Key, Brief reason for impact)."
+          ],
+          "Required_Input_Context_For_Specialist": {
+            "Detailed_Proposed_Change_Description_Or_Ref": "[Description or ConPort Key/ID of the change proposal]",
+            "Keywords_For_Search": "[Keywords relevant to the change]",
+            "Parent_Progress_ID_String": "[IAProgressID_as_string]"
+          },
+          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
+            "List of potentially impacted ConPort items (Type, ID/Key, Reason)."
+          ]
+        }
+        ```
+    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review list. Update `[IAProgressID]_ArchitectPlan` and specialist `Progress` in ConPort.
+
+3.  **Nova-LeadArchitect (or delegate to Nova-SpecializedSystemDesigner): Identify Affected Code Areas**
+    *   **Actor:** Nova-LeadArchitect (may delegate to SystemDesigner, or request assistance from LeadDeveloper via Orchestrator for deep code analysis)
+    *   **Task:** "Identify source code modules, files, or specific functions/classes potentially impacted by the Proposed Change."
+    *   **Action (if self-executing or guiding SystemDesigner):**
+        *   Use `search_files` with regex based on the change description (e.g., affected class names, method signatures, technology keywords).
+        *   Use `list_code_definition_names` on suspected modules/files.
+        *   Analyze dependencies using code understanding and ConPort `SystemArchitecture` (key) if available.
+    *   **Output to LeadArchitect:** List of potentially impacted code areas (files, classes, functions). Update `[IAProgressID]_ArchitectPlan`.
+
+**Phase IA.2: Risk Assessment & Mitigation Formulation**
+
+4.  **Nova-LeadArchitect: Assess Risks & Benefits, Estimate Effort, Formulate Recommendations**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action (Can be broken into further self-steps or minor specialist delegations for data gathering):**
+        *   Based on affected ConPort items and code areas:
+            *   List potential benefits of the change (e.g., improved performance, new capability, tech debt reduction).
+            *   List potential risks:
+                *   Technical risks (e.g., regressions, breaking changes to internal/external APIs, data migration complexity, security vulnerabilities introduced).
+                *   Operational risks (e.g., increased maintenance, new monitoring needs).
+                *   Project risks (e.g., schedule impact, resource skill gaps, cost).
+            *   Consult existing ConPort `RiskAssessment` (key) items for similar past changes or related components.
+            *   Provide a high-level effort estimate (e.g., S, M, L, XL person-days/weeks) and any special resources/skills needed.
+            *   Suggest mitigation strategies for key risks.
+            *   Formulate a recommendation: Proceed, Proceed with Caution (listing key mitigations), Reconsider (suggesting alternatives), or Reject (with strong justification).
+    *   **ConPort Action:** Log significant findings or intermediate decisions as new `Decisions` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`). Prepare content for the final `ImpactAnalyses` report.
+
+**Phase IA.3: Documentation & Reporting**
+
+5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Compile & Log Impact Analysis Report**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Task:** "Compile all findings into a structured Impact Analysis Report and log it to ConPort."
+    *   **`new_task` message for Nova-SpecializedConPortSteward:**
+        ```json
+        {
+          "Context_Path": "[ProjectName] (ImpactAnalysis) -> Log Report (ConPortSteward)",
+          "Overall_Architect_Phase_Goal": "Impact Analysis for [ChangeDescriptionShort].",
+          "Specialist_Subtask_Goal": "Compile and log the final Impact Analysis Report.",
+          "Specialist_Specific_Instructions": [
+            "Consolidate the following information (provided by LeadArchitect) into a structured JSON object for the 'value' field of the ConPort entry:",
+            "  1. `proposed_change_summary`: \"[From LeadArchitect]\"",
+            "  2. `proposed_change_reference`: { \"type\": \"[e.g., decision/feature_scope]\", \"id_or_key\": \"[ID or Key of change proposal]\" }",
+            "  3. `affected_conport_items`: [ { \"type\": \"...\", \"id_or_key\": \"...\", \"impact_description\": \"...\" }, ... ]",
+            "  4. `affected_code_areas`: [ { \"path\": \"...\", \"element_type\": \"module/class/function\", \"impact_description\": \"...\" }, ... ]",
+            "  5. `potential_benefits`: [\"Benefit 1...\", ...]",
+            "  6. `potential_risks`: [ { \"risk_description\": \"...\", \"likelihood\": \"High/Medium/Low\", \"impact_severity\": \"Critical/High/Medium/Low\", \"mitigation_suggestion\": \"...\" }, ... ]",
+            "  7. `estimated_effort`: \"[e.g., Medium (5-10 person-days)]\"",
+            "  8. `recommendation`: \"[Proceed / Proceed with Caution / Reconsider / Reject]\"",
+            "  9. `recommendation_rationale`: \"[Justification for recommendation]\"",
+            "Log this structured value to ConPort `CustomData` category `ImpactAnalyses`, key: `IA_[ChangeDescriptionShortKeyable]_[YYYYMMDD]` using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
+            "Link this new `ImpactAnalyses` (key) entry to the main `Progress` (integer `id`) item for this Impact Analysis phase (`[IAProgressID]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type: 'documents_progress'`)."
+          ],
+          "Required_Input_Context_For_Specialist": {
+            "All_Analyzed_Sections_Content_As_Structured_Data": "{ /* JSON object from LeadArchitect matching the value structure above */ }",
+            "Main_Impact_Analysis_Progress_ID_String": "[IAProgressID_as_string]",
+            "Report_Key_Name_Suggestion": "IA_[ChangeDescriptionShortKeyable]_[YYYYMMDD]"
+          },
+          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
+            "ConPort key of the logged `ImpactAnalyses` report.",
+            "Confirmation of link creation to Progress item."
+          ]
+        }
+        ```
+    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review logged report. Update `[IAProgressID]_ArchitectPlan` and specialist `Progress` in ConPort.
+
+6.  **Nova-LeadArchitect: Finalize & Report to Nova-Orchestrator**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action:**
+        *   Update main `Progress` (`[IAProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Impact analysis for [ChangeDescriptionShort] completed. Report: `ImpactAnalyses:[Key]`."
+        *   Update `active_context.state_of_the_union` using `use_mcp_tool` (`tool_name: 'update_active_context'`, `patch_content: {'state_of_the_union': 'Impact analysis for [Change] complete. Recommendation: [Rec]. See ImpactAnalyses:[Key].'}`).
+    *   **Output:** Impact analysis completed and documented.
+
+7.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
+    *   **Action:** Report completion, summary of the analysis (especially the recommendation), and the ConPort key of the full `ImpactAnalyses` report.
+
+**Key ConPort Items Involved:**
+- Progress (integer `id`)
+- CustomData LeadPhaseExecutionPlan:[IAProgressID]_ArchitectPlan (key)
+- CustomData ImpactAnalyses:[ChangeDescriptionShort]_ImpactReport_[YYYYMMDD] (key): The main deliverable.
+- Decisions (integer `id`) (for the proposed change, and for decisions made during analysis)
+- (Reads) SystemArchitecture (key), APIEndpoints (key), DBMigrations (key), ErrorLogs (key), LessonsLearned (key), etc.
+- ActiveContext (`state_of_the_union` update)
