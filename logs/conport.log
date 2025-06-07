@@ -1,0 +1,8 @@
+2025-06-07 12:45:18,165 - INFO - __main__ - Logging to file: ./logs/conport.log
+2025-06-07 12:45:18,165 - INFO - __main__ - Starting ConPort in STDIO mode using FastMCP for initial CLI arg workspace_id: ${workspaceFolder}
+2025-06-07 12:45:18,165 - WARNING - __main__ - MAIN.PY: WARNING - Workspace ID was literally '${workspaceFolder}'. This variable was not expanded by the client IDE. Falling back to current working directory as workspace_id: d:\Desktop\Projecten\NovaPort. Ensure CWD in MCP config ('d:\Desktop\Projecten\NovaPort') is the correct project workspace.
+2025-06-07 12:45:18,166 - INFO - __main__ - STDIO mode: Using effective_workspace_id 'd:\Desktop\Projecten\NovaPort'. Database directory will be created on first actual DB use.
+2025-06-07 12:45:18,173 - INFO - __main__ - ConPort FastMCP server lifespan starting.
+2025-06-07 12:45:18,179 - INFO - mcp.server.lowlevel.server - Processing request of type ListToolsRequest
+2025-06-07 12:45:18,183 - INFO - mcp.server.lowlevel.server - Processing request of type ListResourcesRequest
+2025-06-07 12:45:18,185 - INFO - mcp.server.lowlevel.server - Processing request of type ListResourceTemplatesRequest
