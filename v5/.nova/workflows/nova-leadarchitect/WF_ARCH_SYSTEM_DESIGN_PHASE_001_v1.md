@@ -2,129 +2,128 @@
 
 **Goal:** To manage and execute a complete system design phase for a new project or major feature, resulting in a documented architecture, key technical decisions, and defined interfaces, all logged in ConPort.
 
-**Primary Orchestrator Actor:** Nova-LeadArchitect (receives phase task from Nova-Orchestrator)
+**Primary Actor:** Nova-LeadArchitect (receives phase task from Nova-Orchestrator)
 **Primary Specialist Actors (delegated to by Nova-LeadArchitect):** Nova-SpecializedSystemDesigner, Nova-SpecializedConPortSteward
 
-**Trigger / Orchestrator Recognition (for Nova-Orchestrator to delegate to Nova-LeadArchitect):**
-- User requests initiation of a new project requiring full design.
-- User requests a major new feature that requires significant architectural design/changes.
-- Output of a `WF_ORCH_NEW_PROJECT_FULL_CYCLE_001.md` indicating the design phase is next.
+**Trigger / Recognition:**
+- Nova-Orchestrator delegates: "Define system architecture and detailed design for Project [ProjectName] / Feature [FeatureName]".
+- Output of a `WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md` or `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md` indicating the design phase is next.
 
-**Pre-requisites by Nova-Orchestrator (before delegating this phase to Nova-LeadArchitect):**
--   A clear overall project goal or feature request exists (potentially in ConPort `ProjectFeatures:[key]` or `FeatureScope:[key]`).
--   Relevant `ProjectConfig:ActiveConfig` and `NovaSystemConfig:ActiveSettings` are available in ConPort.
--   User has confirmed readiness to start the design phase.
+**Pre-requisites by Nova-LeadArchitect (from Nova-Orchestrator's briefing):**
+- A clear overall project goal or feature request exists (potentially in ConPort `CustomData ProjectFeatures:[key]` or `CustomData FeatureScope:[key]`).
+- Relevant `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) are available in ConPort.
+- User (via Nova-Orchestrator) has confirmed readiness to start the design phase.
 
 **Phases & Steps (managed by Nova-LeadArchitect within its single active task from Nova-Orchestrator):**
 
-**Phase 1.1: Initial Planning & Decomposition by Nova-LeadArchitect**
+**Phase SD.1: Initial Planning & Decomposition by Nova-LeadArchitect**
 
 1.  **Nova-LeadArchitect: Receive Phase Task & Initial Planning**
-    *   **Action:** Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Define system architecture for Project Alpha"), `Required_Input_Context` (e.g., user requirements summary, `ProjectConfig:ActiveConfig` JSON string), and `Expected_Deliverables_In_Attempt_Completion_From_Lead`.
-    *   **ConPort:**
-        *   Log a main `Progress` (integer `id`) item for this entire "System Design Phase".
-        *   Create an internal plan (sequence of specialist subtasks). Log this plan to `CustomData LeadPhaseExecutionPlan:[YourPhaseProgressID]_ArchitectPlan` (key). Example plan items:
-            1.  Define High-Level Architecture (LeadArchitect self, or SystemDesigner).
-            2.  Detail Component A (SystemDesigner).
-            3.  Detail Component B (SystemDesigner).
-            4.  Define Core APIs (SystemDesigner).
-            5.  Define Database Schema (SystemDesigner).
-            6.  Log Key Architectural Decisions (LeadArchitect self, or ConPortSteward).
-            7.  Review & Finalize Architecture Document (LeadArchitect self).
-    *   **Output:** Internal plan ready. Main `Progress` (integer `id`) item created. `LeadPhaseExecutionPlan` (key) created.
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action:**
+        *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Define system architecture for Project Alpha"), `Required_Input_Context` (e.g., user requirements summary, `ProjectConfig:ActiveConfig` (key) JSON string), and `Expected_Deliverables_In_Attempt_Completion_From_Lead`.
+        *   Log a main `Progress` (integer `id`) item for this entire "System Design Phase: [Project/Feature Name]" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[DesignPhaseProgressID]`.
+        *   Create an internal plan (sequence of specialist subtasks). Log this plan to `CustomData LeadPhaseExecutionPlan:[DesignPhaseProgressID]_ArchitectPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Example plan items:
+            1.  Define High-Level Architecture & Key Technologies (Delegate to SystemDesigner, review and log Decisions).
+            2.  Detail Component A (Delegate to SystemDesigner).
+            3.  Detail Component B (Delegate to SystemDesigner).
+            4.  Define Core APIs for Component A & B (Delegate to SystemDesigner).
+            5.  Define Core Database Schema(s) (Delegate to SystemDesigner).
+            6.  Log Key Architectural Decisions (Delegate to ConPortSteward or self).
+            7.  Review & Finalize Overall Architecture Document (LeadArchitect self).
+    *   **Output:** Internal plan ready. Main `Progress` (`[DesignPhaseProgressID]`) item created. `LeadPhaseExecutionPlan` (key) created.
 
-**Phase 1.2: Sequential Execution of Specialist Subtasks by Nova-LeadArchitect**
+**Phase SD.2: Sequential Execution of Specialist Design Subtasks by Nova-LeadArchitect**
 
-*(Nova-LeadArchitect iterates through its `LeadPhaseExecutionPlan`, delegating one subtask at a time using `new_task` to the appropriate specialist, awaiting their `attempt_completion`, processing results, and then initiating the next subtask. Below are examples for a few key specialist subtasks within this phase.)*
+*(Nova-LeadArchitect iterates through its `LeadPhaseExecutionPlan`, delegating one subtask at a time using `new_task` to the appropriate specialist, awaiting their `attempt_completion`, processing results, and then initiating the next subtask.)*
 
 2.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Define High-Level Architecture**
-    *   **Task:** "Define and document the high-level system architecture, main components, and their interactions for [Project/Feature Name]."
+    *   **Actor:** Nova-LeadArchitect
+    *   **Task:** "Define and document the high-level system architecture, main components, their interactions, and propose key technology choices for [Project/Feature Name]."
     *   **`new_task` message for Nova-SpecializedSystemDesigner:**
+        ```json
+        {
+          "Context_Path": "[ProjectName] (DesignPhase) -> HighLevelArchitecture (SystemDesigner)",
+          "Overall_Architect_Phase_Goal": "Define system architecture for Project [ProjectName].",
+          "Specialist_Subtask_Goal": "Draft high-level system architecture and propose key technology choices for Project [ProjectName].",
+          "Specialist_Specific_Instructions": [
+            "Based on requirements (e.g., `FeatureScope:[ProjectName_Scope_Key]`), identify major system components (e.g., Web Frontend, API Gateway, User Service, Product Service, Database).",
+            "Create a textual or PlantUML/MermaidJS representation of component interactions and high-level data flows.",
+            "Propose choices for key technologies (e.g., primary backend language/framework, database type, messaging queue if needed) based on `ProjectConfig:ActiveConfig` hints and project needs. Justify proposals.",
+            "Log this as a new `CustomData SystemArchitecture:[ProjectName]_HighLevelArch_v1` (key) entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Include description, diagram source, and technology proposals.",
+            "Identify 2-3 critical architectural decisions that need final approval from LeadArchitect (e.g., Monolith vs. Microservices, specific DB product choice) and list them in your `attempt_completion` or in the `SystemArchitecture` notes."
+          ],
+          "Required_Input_Context_For_Specialist": {
+            "Feature_Scope_Ref": { "type": "custom_data", "category": "FeatureScope", "key": "[ProjectName_Scope_Key]" },
+            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig" }
+          },
+          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
+            "ConPort key of the created `SystemArchitecture` entry.",
+            "List of proposed key technologies and critical architectural decision points for LeadArchitect's review."
+          ]
+        }
         ```
-        Subtask_Briefing:
-          Overall_Architect_Phase_Goal: "Define system architecture for Project Alpha."
-          Specialist_Subtask_Goal: "Draft high-level system architecture for Project Alpha."
-          Specialist_Specific_Instructions:
-            - "Based on requirements ([ConPort FeatureScope:Alpha_Scope_Key]), identify major system components (e.g., Web Frontend, API Gateway, User Service, Product Service, Database)."
-            - "Create a textual or PlantUML/MermaidJS representation of component interactions."
-            - "Log this as a new `CustomData SystemArchitecture:[ProjectAlpha_HighLevelArch_v1]` (key) entry. Include description and diagram source."
-            - "Identify 2-3 key architectural decisions that need to be made (e.g., Monolith vs Microservices, DB choice, primary communication protocol) and list them as questions or preliminary thoughts in the `SystemArchitecture` entry's notes, for LeadArchitect to finalize."
-          Required_Input_Context_For_Specialist:
-            - Feature_Scope_Ref: { type: "custom_data", category: "FeatureScope", key: "Alpha_Scope_Key" }
-            - ProjectConfig_Ref: { type: "custom_data", category: "ProjectConfig", key: "ActiveConfig" } # For tech stack hints
-          Expected_Deliverables_In_Attempt_Completion_From_Specialist:
-            - "ConPort key of the created `SystemArchitecture` entry."
-            - "List of 2-3 identified key architectural decision points."
-        ```
-    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review logged `SystemArchitecture` (key). Update `LeadPhaseExecutionPlan` (key) and specialist `Progress` (integer `id`). Make and log initial high-level `Decisions` (integer `id`) based on specialist's input and own expertise.
+    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review logged `SystemArchitecture` (key). Make and log initial high-level `Decisions` (integer `id`) regarding technology choices and architectural style using `use_mcp_tool` (`tool_name: 'log_decision'`). Update `[DesignPhaseProgressID]_ArchitectPlan` and specialist `Progress` in ConPort.
 
-3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Detail API Endpoints**
-    *   **Task:** "Define detailed API endpoint specifications for [Specific Service/Module] based on approved high-level design and decisions."
-    *   **`new_task` message for Nova-SpecializedSystemDesigner:**
+3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Detail Specific Component & Its APIs**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Task:** "Define detailed design for [Specific Component, e.g., UserService] and its API endpoints based on approved high-level architecture and decisions."
+    *   **`new_task` message for Nova-SpecializedSystemDesigner (schematic):**
+        ```json
+        {
+          "Context_Path": "[ProjectName] (DesignPhase) -> Detail [UserService] (SystemDesigner)",
+          "Overall_Architect_Phase_Goal": "Define system architecture for Project [ProjectName].",
+          "Specialist_Subtask_Goal": "Define detailed design for [UserService] and its API endpoints.",
+          "Specialist_Specific_Instructions": [
+            "Refer to `SystemArchitecture:[ProjectName_HighLevelArch_v1]` (key) and relevant `Decisions` (integer `id`s like `[DecisionID_for_API_Style]`).",
+            "Detail internal structure of [UserService], its responsibilities, and interactions with other components. Log as `CustomData SystemArchitecture:[ProjectName_UserService_Detail_v1]` (key).",
+            "Define all necessary API endpoints for [UserService] (e.g., CRUD for users, authentication). For each, specify: HTTP method, path, request/response schemas, error responses. Log each as `CustomData APIEndpoints:[UserService_EndpointName_v1]` (key)."
+          ],
+          "Required_Input_Context_For_Specialist": {
+            "HighLevelArch_Ref": { "type": "custom_data", "category": "SystemArchitecture", "key": "[ProjectName_HighLevelArch_v1]" },
+            "Relevant_Decisions_Refs": [{ "type": "decision", "id": "[integer_id_as_string]" }, ...]
+          },
+          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
+            "ConPort key of the detailed `SystemArchitecture` entry for [UserService].",
+            "List of ConPort keys for all created `APIEndpoints` entries for [UserService]."
+          ]
+        }
         ```
-        Subtask_Briefing:
-          Overall_Architect_Phase_Goal: "Define system architecture for Project Alpha."
-          Specialist_Subtask_Goal: "Define and document API endpoints for User Service of Project Alpha."
-          Specialist_Specific_Instructions:
-            - "Refer to `SystemArchitecture:[ProjectAlpha_UserServiceDesign_Key]` and `Decision:[Decision_ID_for_API_Style]`."
-            - "Define endpoints for: User Registration, Login, GetProfile, UpdateProfile."
-            - "For each endpoint, specify: HTTP method, path, request parameters/body schema, success response schema, common error response schemas (ref `SystemPatterns:[StdErrorPattern_ID]`)."
-            - "Log each endpoint as a separate `CustomData APIEndpoints:[UserService_EndpointName_v1]` (key) entry."
-          Required_Input_Context_For_Specialist:
-            - UserService_Design_Ref: { type: "custom_data", category: "SystemArchitecture", key: "ProjectAlpha_UserServiceDesign_Key" }
-            - API_Style_Decision_Ref: { type: "decision", id: [integer_id_of_decision] }
-            - Standard_Error_Pattern_Ref: { type: "system_pattern", id: [integer_id_of_pattern] }
-          Expected_Deliverables_In_Attempt_Completion_From_Specialist:
-            - "List of ConPort keys for all created `APIEndpoints` entries."
-        ```
-    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review logged `APIEndpoints` (key). Update plan and progress.
+    *   **Nova-LeadArchitect Action:** Review. Update plan/progress. (Repeat for other components/services).
 
-4.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Log Project Configuration**
-    *   **(If Nova-Orchestrator indicated `ProjectConfig` or `NovaSystemConfig` are missing or need user consultation for this new project design phase).**
-    *   **Task:** "Consult user (simulated via LeadArchitect providing pre-discussed values) and log/update `ProjectConfig:ActiveConfig` and `NovaSystemConfig:ActiveSettings` in ConPort."
-    *   **`new_task` message for Nova-SpecializedConPortSteward:**
-        ```
-        Subtask_Briefing:
-          Overall_Architect_Phase_Goal: "Finalize initial project setup artifacts."
-          Specialist_Subtask_Goal: "Log/Update ProjectConfig:ActiveConfig and NovaSystemConfig:ActiveSettings in ConPort."
-          Specialist_Specific_Instructions:
-            - "ProjectConfig values to log/update: [JSON object provided by LeadArchitect based on Orchestrator briefing/user discussion]."
-            - "NovaSystemConfig values to log/update: [JSON object provided by LeadArchitect]."
-            - "Use `log_custom_data` or `update_custom_data` for category `ProjectConfig`, key `ActiveConfig`."
-            - "Use `log_custom_data` or `update_custom_data` for category `NovaSystemConfig`, key `ActiveSettings`."
-            - "Ensure entries meet Definition of Done (all expected fields present, clearly structured)."
-          Required_Input_Context_For_Specialist:
-            - ProjectConfig_JSON_Values: "{...}"
-            - NovaSystemConfig_JSON_Values: "{...}"
-          Expected_Deliverables_In_Attempt_Completion_From_Specialist:
-            - "Confirmation that `ProjectConfig:ActiveConfig` (key) was logged/updated."
-            - "Confirmation that `NovaSystemConfig:ActiveSettings` (key) was logged/updated."
-        ```
-    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Verify logs. Update plan and progress.
+4.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Define Database Schema(s)**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Task:** "Define and document the database schema(s) required for [ProjectName / Specific Service]."
+    *   **Briefing for SystemDesigner:** Refer to component designs, API data models, and `Decision` (integer `id`) on DB technology. Instruct to define tables, columns, types, relationships, and indexes. Log as `CustomData DBMigrations:[ProjectName_SchemaName_v1]` (key), with `value` containing DDL or structured schema description.
+    *   **Nova-LeadArchitect Action:** Review. Update plan/progress.
 
-*(... Other specialist subtasks for DB design, component details, etc., would follow a similar pattern ...)*
+5.  **Nova-LeadArchitect (or delegate to Nova-SpecializedConPortSteward): Log Consolidated Key Architectural Decisions**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action:** Throughout the design phase, ensure all major architectural choices (tech stack, patterns, protocols, COTS product selections) are logged as formal `Decisions` (integer `id`) in ConPort with full rationale and implications (DoD met), using `use_mcp_tool` (`tool_name: 'log_decision'`). Link these decisions to relevant `SystemArchitecture` (key) entries using `use_mcp_tool` (`tool_name: 'link_conport_items'`).
+    *   **Output:** Key `Decisions` (integer `id`s) logged and linked.
 
-**Phase 1.3: Final Review & Reporting by Nova-LeadArchitect**
+**Phase SD.3: Final Review & Reporting by Nova-LeadArchitect**
 
-5.  **Nova-LeadArchitect: Consolidate & Finalize**
+6.  **Nova-LeadArchitect: Consolidate & Finalize Design Documentation**
+    *   **Actor:** Nova-LeadArchitect
     *   **Action:** Once all specialist subtasks in `LeadPhaseExecutionPlan` (key) are DONE:
-        *   Review all created ConPort items (`SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key), `Decisions` (integer `id`), `ProjectConfig` (key), `NovaSystemConfig` (key)) for consistency, completeness (DoD), and correctness.
-        *   Make any final `Decisions` (integer `id`) or update the main `SystemArchitecture:[OverallArchKey]` (key) entry.
-        *   Update main phase `Progress` (integer `id`) to DONE.
-        *   Update `active_context.state_of_the_union` (via `use_mcp_tool`) to reflect completion of design phase (e.g., "System architecture for Project Alpha defined, core APIs specified. Ready for development planning.").
-    *   **Output:** Design phase completed. All relevant artifacts logged in ConPort. `active_context.state_of_the_union` updated.
+        *   Review all created ConPort items (`SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key), `Decisions` (integer `id`)) for consistency, completeness (DoD), and correctness.
+        *   Create or update a main `CustomData SystemArchitecture:[ProjectName]_OverallArch_v1` (key) document that provides an overview and links to all detailed design artifacts.
+        *   Update main phase `Progress` (`[DesignPhaseProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "System design for [ProjectName] complete. Key artifacts: SystemArchitecture:[ProjectName]_OverallArch_v1, APIEndpoints tagged #[ProjectName]_APIs_v1."
+        *   Update `active_context.state_of_the_union` (using `use_mcp_tool`, `tool_name: 'update_active_context'`) to reflect completion of design phase (e.g., "System architecture for Project [ProjectName] defined, core APIs specified. Ready for development planning.").
+    *   **Output:** Design phase completed. All relevant artifacts logged and interlinked in ConPort. `active_context.state_of_the_union` updated.
 
-6.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
-    *   **Action:** Prepare and send `attempt_completion` message including all `Expected_Deliverables_In_Attempt_Completion_From_Lead` specified by Nova-Orchestrator (summary, list of CRITICAL ConPort items created/updated with their correct ID/key types, new issues, critical outputs).
+7.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action:** Prepare and send `attempt_completion` message including all `Expected_Deliverables_In_Attempt_Completion_From_Lead` specified by Nova-Orchestrator (summary, list of CRITICAL ConPort items created/updated with their correct ID/key types, new issues, critical outputs like key to overall architecture doc).
 
 **Key ConPort Items Created/Updated by Nova-LeadArchitect's Team in this Workflow:**
--   `Progress` (integer `id`): For the overall phase and each specialist subtask.
--   `CustomData LeadPhaseExecutionPlan:[PhaseProgressID]_ArchitectPlan` (key): The LeadArchitect's internal plan.
--   `CustomData SystemArchitecture:[Key]` (key): High-level and detailed architectural designs.
--   `CustomData APIEndpoints:[Key]` (key): API specifications.
--   `CustomData DBMigrations:[Key]` (key): Database schema designs.
--   `Decisions` (integer `id`): Key architectural choices, technology selections.
--   `CustomData ProjectConfig:ActiveConfig` (key): If setting up for a new project.
--   `CustomData NovaSystemConfig:ActiveSettings` (key): If setting up for a new project.
--   `ActiveContext` (specifically `state_of_the_union` key update).
--   (Potentially) `ErrorLogs` (key): If specialists encounter issues they need to log.
+- Progress (integer `id`): For the overall phase and each specialist subtask.
+- CustomData LeadPhaseExecutionPlan:[DesignPhaseProgressID]_ArchitectPlan (key): The LeadArchitect's internal plan.
+- CustomData SystemArchitecture:[Key] (key): High-level and detailed architectural designs.
+- CustomData APIEndpoints:[Key] (key): API specifications.
+- CustomData DBMigrations:[Key] (key): Database schema designs.
+- Decisions (integer `id`): Key architectural choices, technology selections.
+- ActiveContext (`state_of_the_union` key update).
+- (Potentially) `ErrorLogs` (key): If specialists encounter issues they need to log.
+- (Potentially) Links between these items using `link_conport_items`.
