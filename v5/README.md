@@ -1,5 +1,15 @@
 # Nova System: Overview and Operation
 
+<br>
+
+> **WARNING: EXPERIMENTAL CUSTOM SYSTEM PROMPTS ACTIVE**
+>
+> This Nova System configuration utilizes custom system prompts for its AI modes. As highlighted in the [Roo Code documentation on "Footgun Prompting"](https://docs.roocode.com/features/footgun-prompting), operating with custom system prompts is an experimental feature.
+>
+> **This can severely disrupt functionality and lead to unpredictable or unstable behavior.** Proceed with caution and awareness of potential instability. It is recommended to have a strong understanding of the Roo Code execution model and the implications of custom prompting before extensive use.
+
+<br>
+
 ## Table of Contents
 1.  [Introduction](#introduction)
 2.  [Core Concepts](#core-concepts)
@@ -30,22 +40,24 @@
     *   [Core Data Entities](#core-data-entities)
     *   [Key Configuration Items](#key-configuration-items)
     *   [MCP Tool Interaction](#mcp-tool-interaction)
-6.  [Key Operational Principles](#key-operational-principles)
-7.  [Session Management](#session-management)
+6.  [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)
+7.  [Key Operational Principles](#key-operational-principles)
+8.  [Session Management](#session-management)
+9.  [Foundations and Acknowledgements](#foundations-and-acknowledgements)
 
 ## Introduction
 
 The Nova System is an advanced AI-driven framework designed for managing and executing complex software development projects. The system comprises various specialized AI agents (referred to as "modes") that collaborate under the direction of a central orchestrator. Nova aims for structured project execution, explicit knowledge retention, and efficient task delegation.
 
-The core of Nova's knowledge management is the **Context Portal (ConPort)**, a project-specific database acting as the central memory and "single source of truth." Standardized **Workflows**, stored as Markdown files, define the processes that modes follow for specific tasks or project phases.
+The core of Nova's knowledge management is the **Context Portal (ConPort)**, a project-specific database acting as the central memory and "single source of truth." This component is based on the open-source [Context Portal MCP server](https://github.com/GreatScottyMac/context-portal). Standardized **Workflows**, stored as Markdown files, define the processes that modes follow for specific tasks or project phases. The overall architecture and mode-based interaction patterns draw inspiration from concepts explored in [RooFlow](https://github.com/GreatScottyMac/RooFlow). The Nova modes themselves are designed to operate within an environment compatible with execution frameworks like [Roo Code](https://docs.roocode.com/), leveraging custom system prompts which are an experimental feature (see [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)).
 
 ## Core Concepts
 
 ### Context Portal (ConPort)
-ConPort is the backbone of the Nova system. It is a workspace-specific SQLite database (typically `context_portal/context.db`) that stores all project-related information, from high-level goals and architectural decisions to code snippets, bug reports, and configuration settings. All Nova modes interact with ConPort via a standardized Model Context Protocol (MCP) server and its tools (primarily `use_mcp_tool`), ensuring consistency, traceability, and a shared understanding of the project state.
+ConPort is the backbone of the Nova system. It is a workspace-specific SQLite database (typically `context_portal/context.db`) that stores all project-related information, from high-level goals and architectural decisions to code snippets, bug reports, and configuration settings. All Nova modes interact with ConPort via a standardized Model Context Protocol (MCP) server (based on [github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal)) and its tools (primarily `use_mcp_tool`), ensuring consistency, traceability, and a shared understanding of the project state.
 
 ### Nova Modes
-Nova modes are specialized AI agents, each with its own `system-prompt-mode-*.md` file defining its identity, responsibilities, tools, and behavioral rules. There is a hierarchical structure:
+Nova modes are specialized AI agents, each with its own `system-prompt-mode-*.md` file defining its identity, responsibilities, tools, and behavioral rules. This configuration uses **custom system prompts**, an experimental feature of the [Roo Code](https://docs.roocode.com/) execution environment. There is a hierarchical structure:
 *   **Nova-Orchestrator:** The main project coordinator.
 *   **Lead Modes:** (Nova-LeadArchitect, Nova-LeadDeveloper, Nova-LeadQA) Receive phase-tasks from the Orchestrator and manage their own teams of Specialized Modes.
 *   **Specialized Modes:** Execute specific, focused sub-tasks under the direction of a Lead Mode.
@@ -190,7 +202,7 @@ These describe processes specific to a Lead Mode's domain, used to guide their t
 ## Context Portal (ConPort) - The Memory
 
 ### Purpose and Architecture
-ConPort is the central nervous system of Nova, a workspace-specific knowledge graph designed to enhance AI contextual understanding and enable powerful Retrieval Augmented Generation (RAG).
+ConPort is the central nervous system of Nova, a workspace-specific knowledge graph designed to enhance AI contextual understanding and enable powerful Retrieval Augmented Generation (RAG). It is based on the [Context Portal MCP server](https://github.com/GreatScottyMac/context-portal).
 *   **Core Technologies:** Python, FastAPI, Pydantic, SQLite, ChromaDB (for vector embeddings).
 *   **Workspace-Specific:** Each project workspace has its own isolated ConPort database (`context_portal/context.db`) and vector store.
 *   **Communication:** Interacted with via an MCP server, accessible locally via STDIO or remotely via HTTP.
@@ -215,7 +227,20 @@ Pydantic models in ConPort's source (`src/context_portal_mcp/db/models.py`) mirr
 *   **`NovaSystemConfig:ActiveSettings`:** Configures the behavior of Nova modes themselves (e.g., frequency of ConPort health checks, default DoR strictness, specific workflow triggers). Managed by Nova-LeadArchitect's team (ConPortSteward).
 
 ### MCP Tool Interaction
-AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_product_context`, `log_decision`, `get_custom_data`, `link_conport_items`, `semantic_search_conport`). All tools require a `workspace_id` to target the correct project database. The ConPort MCP server documentation details all available tools and their parameters.
+AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_product_context`, `log_decision`, `get_custom_data`, `link_conport_items`, `semantic_search_conport`). All tools require a `workspace_id` to target the correct project database. The ConPort MCP server documentation (see [Foundations and Acknowledgements](#foundations-and-acknowledgements)) details all available tools and their parameters.
+
+## Important Considerations & Experimental Nature
+
+> **WARNING: EXPERIMENTAL CUSTOM SYSTEM PROMPTS ACTIVE**
+>
+> The Nova System, in this configuration, relies heavily on **custom system prompts** for each of its AI modes. This is an **experimental feature** within the [Roo Code](https://docs.roocode.com/) execution environment.
+>
+> As detailed in the [Roo Code documentation on "Footgun Prompting"](https://docs.roocode.com/features/footgun-prompting), the use of extensive custom system prompts can:
+> *   **Severely disrupt functionality.**
+> *   Lead to **unpredictable or unstable behavior** of the AI modes.
+> *   Make the system difficult to debug and maintain.
+>
+> Users should proceed with a high degree of caution and be fully aware of the potential for instability and unexpected outcomes. A strong understanding of the Roo Code execution model and the nuanced implications of custom prompting is highly recommended before extensive use or modification of this system. This configuration is provided as an advanced example and may require significant tuning and adaptation for reliable operation in different scenarios.
 
 ## Key Operational Principles
 *   **Structured Delegation:** Tasks are delegated top-down with clear `Subtask Briefing Objects`.
@@ -223,7 +248,8 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 *   **ConPort as Central Hub:** All significant information is logged to ConPort, serving as the collective memory.
 *   **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented.
 *   **Specialization:** Modes have clearly defined roles and responsibilities.
-*   **Definition of Done (DoD) / Definition of Ready (DoR):** Implicitly or explicitly used to ensure the quality of deliverables and readiness for subsequent phases.
+*   **Definition of Done (DoD) / Definition of Ready (DoR):** Implied or explicit principles used to ensure the quality of deliverables and readiness for subsequent phases.
+*   **Experimental Awareness:** Given the use of custom system prompts, users should be prepared for a higher degree of variability in mode behavior and may need to iterate on prompts or workflows more frequently.
 
 ## Session Management
 *   **Session Start:** Nova-Orchestrator executes `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md`. This involves:
@@ -237,5 +263,11 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
     2.  Delegating to Nova-LeadArchitect to finalize `active_context.state_of_the_union` in ConPort.
     3.  Delegating to Nova-FlowAsk to generate a Markdown summary of the session and save it to `.nova/summary/session_summary_[timestamp].md`.
     4.  Informing the user about the session closure and the location of the summary.
+
+## Foundations and Acknowledgements
+The Nova System builds upon several key technologies and concepts:
+*   **Context Portal (ConPort):** The MCP server providing the structured knowledge base is based on the open-source project: [https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal). Refer to its documentation for detailed MCP tool specifications.
+*   **Nova Modes & Execution:** The concept of specialized AI modes and their interaction is designed for execution environments compatible with frameworks like [Roo Code](https://docs.roocode.com/). This configuration specifically uses **experimental custom system prompt features** of Roo Code, as detailed in its documentation ([Footgun Prompting](https://docs.roocode.com/features/footgun-prompting)).
+*   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in [RooFlow](https://github.com/GreatScottyMac/RooFlow).
 
 This README provides a high-level overview of the Nova system. For detailed processes and responsibilities of specific modes, refer to their respective workflow (`.md`) and system prompt (`.md`) files.
