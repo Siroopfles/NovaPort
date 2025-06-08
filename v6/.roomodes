@@ -1,6 +1,3 @@
-================================================
-FILE: v6/.roomodes
-================================================
 customModes:
   - slug: nova-orchestrator
     name: Nova-Orchestrator
