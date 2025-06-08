@@ -6,23 +6,6 @@ This document outlines the next generation of strategic improvements for the Nov
 
 These items directly address observed inconsistencies and potential sources of error for the LLM agents, ensuring maximum precision and reliability.
 
--   [x] **1.1. Audit & Align `use_mcp_tool` Parameters Across All Prompts**
-    *   **Rationale:** There are minor but critical discrepancies between the formal `conport_mcp_deep_dive.md` documentation and the tool examples within the system prompts. This is a primary source of potential LLM error and must be eradicated for system stability.
-    *   **Action Item:** Perform a systematic audit of **every `system-prompt-nova-*.md` file**. For each prompt, meticulously compare every example and instruction related to `use_mcp_tool` against the Pydantic models and tool definitions in `conport_mcp_deep_dive.md`. Correct **all** parameter names, JSON structures, and argument types to ensure 100% consistency with the formal specification.
-
--   [x] **1.2. Eliminate All Placeholder Syntax (`...}`) in Examples**
-    *   **Rationale:** A placeholder like `value: { ... }` is too ambiguous for an LLM. It can lead to incomplete, syntactically incorrect, or logically flawed output. The AI must always be shown a complete, syntactically correct example to guide its generation.
-    *   **Action Item:** Systematically search all `system-prompt-*.md` files for incomplete examples. Replace every instance of placeholder syntax (e.g., `...`, `/* ... */`, `{ ... }`) within tool examples or `Subtask Briefing Object` illustrations with **fully-formed, albeit illustrative, JSON objects or code blocks**. For example, a briefing for logging an `APIEndpoint` must show a complete, small, but valid schema object, not a truncated version.
-
--   [x] **1.3. Harden ConPort Item ID Usage Instructions in Prompts**
-    *   **Rationale:** The `conport_mcp_deep_dive.md` documentation specifies that the `item_id` parameter is a string, but its required *content* format depends on the `item_type`. This is a subtle but critical point of potential failure for the LLM. The instructions must be made explicit and unambiguous to prevent these failures.
-    *   **Action Item:** Add a new, prominent `CRITICAL USAGE NOTE` to the `use_mcp_tool` definition in **all** `system-prompt-*.md` files, placed directly under the parameter descriptions. This note must read:
-        > **CRITICAL USAGE NOTE for `item_id`:** The format of the `item_id` string **depends entirely** on the `item_type`:
-        > - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', the `item_id` MUST be its **integer ID, passed as a string**. (e.g., `"123"`)
-        > - If `item_type` is 'custom_data', the `item_id` MUST be its **string key**. (e.g., `"ProjectConfig:ActiveConfig"`)
-        > - If `item_type` is 'product_context' or 'active_context', the `item_id` MUST be its name. (e.g., `"product_context"`)
-        > Incorrectly formatted `item_id`s for the given `item_type` will cause tool failure.
-
 -   [ ] **1.4. Standardize `log_progress` and `update_progress` Examples**
     *   **Rationale:** Many prompts use vague placeholders like `arguments: {'workspace_id': '{{workspace}}', ...}` for `log_progress` and `update_progress`. This is ambiguous and does not sufficiently guide the LLM on which other parameters (like `description`, `status`, `parent_id`) are expected, leading to inconsistent or incomplete progress logging.
     *   **Action Item:** Systematically review all `system-prompt-nova-*.md` files. For every instance where `log_progress` or `update_progress` is mentioned in an example or instruction, replace vague argument placeholders like `...` with a complete, illustrative JSON object. The example should include typical parameters like `description` and `status`, and optionally `parent_id` for specialist prompts, to provide a clear, syntactically correct template for the LLM. For example: `{\"workspace_id\": \"{{workspace}}\", \"description\": \"Subtask: [Goal] (Assigned: [mode])\", \"status\": \"IN_PROGRESS\", \"parent_id\": \"[Parent_Progress_ID_as_string]\"}`.
@@ -38,11 +21,9 @@ These improvements focus on increasing the robustness and intelligence of the co
         *   Checking that prerequisite items have the correct status (e.g., the `SystemArchitecture` design is 'APPROVED', not 'DRAFT').
         *   If a check fails, the workflow must instruct the Lead to report a specific, actionable blocker to the Orchestrator.
 
--   [ ] **2.2. Implement Parallel Task Management Simulation**
-    *   **Rationale:** Real-world projects involve parallel workstreams (e.g., backend and frontend development). While the Nova system's execution remains sequential (one mode active at a time), its *planning and strategic overview* can be enhanced by acknowledging parallelism. This gives the Orchestrator a more accurate view of the project's complexity and potential bottlenecks.
-    *   **Action Item:**
-        1.  **Update Lead Mode Prompts:** Instruct Lead modes (especially `Nova-LeadDeveloper`) that their `LeadPhaseExecutionPlan` should be structured to represent conceptually parallel workstreams. The briefing MUST explicitly state: "While you will still delegate these tasks sequentially, marking them as parallel in the plan provides crucial strategic insight for the Orchestrator and helps in better progress visualization."
-        2.  **Define New `LeadPhaseExecutionPlan` Schema:** Create a new `CustomData` schema for `LeadPhaseExecutionPlan` that supports this. The schema should be an object with a `tracks` array, where each element represents a parallel track. E.g., `{'tracks': [{'name': 'backend', 'tasks': [...]}, {'name': 'frontend', 'tasks': [...]}]}`. Update all relevant prompts and workflows with examples that use this new, richer structure.
+-   [ ] **2.2. Implement Retry Logic in Lead Mode Prompts**
+    *   **Rationale:** Delegation failures due to transient issues (e.g., temporary network errors) are inefficient. Building simple retry logic into the Lead modes' behavior increases system resilience without requiring system-level changes.
+    *   **Action Item:** Update the `task_execution_protocol` in the prompts for all Lead Modes (`Nova-LeadArchitect`, `Nova-LeadDeveloper`, `Nova-LeadQA`). Add a rule stating: "If a delegated specialist sub-task fails with an error you assess as potentially transient (e.g., a network timeout, temporary API unavailability), you are authorized to retry the delegation ONE time after a short delay. If the task fails a second time, treat it as a permanent failure, ensure an `ErrorLog` is created, and escalate the issue as per standard failure recovery procedures."
 
 -   [ ] **2.3. Formalize "Definition of Ready" (DoR) Checks**
     *   **Rationale:** "Definition of Ready" is a key agile principle that is currently only implicitly assumed. Formalizing it will prevent phases from starting with incomplete prerequisites, improving quality and reducing rework.
@@ -87,3 +68,15 @@ Improving the human-computer interface and providing better insight into the sys
         4.  A list of all current `IN_PROGRESS` tasks.
         5.  A list of the 3 most critical open `ErrorLogs`.
         The output is a single, consolidated Markdown file saved to `.nova/reports/onboarding/` that gives a new developer a complete snapshot of the project's technical state and current priorities.
+
+-   [ ] **4.4. Structured "Decision Support Briefings"**
+    *   **Rationale:** Key strategic decisions are often presented to the user with a simple question. This can lack the necessary context for the user to make a well-informed choice quickly, slowing down the project.
+    *   **Action Item:** Update the `ask_followup_question` usage instructions in all **Lead Mode** prompts. Add the following rule: "When a strategic choice must be made by the user, you MUST format your question as a 'Decision Support Briefing'. This includes a clear context, 2-3 distinct options, a summary of pros and cons for each, and your team's recommendation. This structured format helps the user make faster, better-informed decisions."
+
+-   [ ] **4.5. Implement ConPort Data Hygiene Workflow**
+    *   **Rationale:** Over time, ConPort can accumulate outdated or irrelevant information (e.g., `Decisions` for a feature that was deprecated). This "noise" can reduce the effectiveness of semantic searches and make it harder for agents and users to find current, relevant information. This can be addressed with a process-based solution without requiring server-side changes.
+    *   **Action Item:** Create a new workflow: `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md`. This workflow will guide `Nova-LeadArchitect` to have its `ConPortSteward`:
+        1.  Periodically scan for items that meet "staleness" criteria (e.g., `Decisions` or `SystemArchitecture` components not updated or linked to in over X months).
+        2.  Log these items as `ArchivalCandidates` in a new `CustomData` category. The `key` of the new item will reference the original (e.g., 'Decision_123') and the `value` will contain the rationale.
+        3.  Present this list of `ArchivalCandidates` to the user for a decision.
+        4.  If the user approves, the `ConPortSteward` will then update the original item's summary/description with an `[ARCHIVED ON YYYY-MM-DD]` prefix, effectively removing it from most operational views without deleting the historical data.
