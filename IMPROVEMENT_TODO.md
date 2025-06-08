@@ -6,15 +6,15 @@ This document outlines the next generation of strategic improvements for the Nov
 
 These items directly address observed inconsistencies and potential sources of error for the LLM agents, ensuring maximum precision and reliability.
 
--   [ ] **1.1. Audit & Align `use_mcp_tool` Parameters Across All Prompts**
+-   [x] **1.1. Audit & Align `use_mcp_tool` Parameters Across All Prompts**
     *   **Rationale:** There are minor but critical discrepancies between the formal `conport_mcp_deep_dive.md` documentation and the tool examples within the system prompts. This is a primary source of potential LLM error and must be eradicated for system stability.
     *   **Action Item:** Perform a systematic audit of **every `system-prompt-nova-*.md` file**. For each prompt, meticulously compare every example and instruction related to `use_mcp_tool` against the Pydantic models and tool definitions in `conport_mcp_deep_dive.md`. Correct **all** parameter names, JSON structures, and argument types to ensure 100% consistency with the formal specification.
 
--   [ ] **1.2. Eliminate All Placeholder Syntax (`...}`) in Examples**
+-   [x] **1.2. Eliminate All Placeholder Syntax (`...}`) in Examples**
     *   **Rationale:** A placeholder like `value: { ... }` is too ambiguous for an LLM. It can lead to incomplete, syntactically incorrect, or logically flawed output. The AI must always be shown a complete, syntactically correct example to guide its generation.
     *   **Action Item:** Systematically search all `system-prompt-*.md` files for incomplete examples. Replace every instance of placeholder syntax (e.g., `...`, `/* ... */`, `{ ... }`) within tool examples or `Subtask Briefing Object` illustrations with **fully-formed, albeit illustrative, JSON objects or code blocks**. For example, a briefing for logging an `APIEndpoint` must show a complete, small, but valid schema object, not a truncated version.
 
--   [ ] **1.3. Harden ConPort Item ID Usage Instructions in Prompts**
+-   [x] **1.3. Harden ConPort Item ID Usage Instructions in Prompts**
     *   **Rationale:** The `conport_mcp_deep_dive.md` documentation specifies that the `item_id` parameter is a string, but its required *content* format depends on the `item_type`. This is a subtle but critical point of potential failure for the LLM. The instructions must be made explicit and unambiguous to prevent these failures.
     *   **Action Item:** Add a new, prominent `CRITICAL USAGE NOTE` to the `use_mcp_tool` definition in **all** `system-prompt-*.md` files, placed directly under the parameter descriptions. This note must read:
         > **CRITICAL USAGE NOTE for `item_id`:** The format of the `item_id` string **depends entirely** on the `item_type`:
@@ -22,6 +22,10 @@ These items directly address observed inconsistencies and potential sources of e
         > - If `item_type` is 'custom_data', the `item_id` MUST be its **string key**. (e.g., `"ProjectConfig:ActiveConfig"`)
         > - If `item_type` is 'product_context' or 'active_context', the `item_id` MUST be its name. (e.g., `"product_context"`)
         > Incorrectly formatted `item_id`s for the given `item_type` will cause tool failure.
+
+-   [ ] **1.4. Standardize `log_progress` and `update_progress` Examples**
+    *   **Rationale:** Many prompts use vague placeholders like `arguments: {'workspace_id': '{{workspace}}', ...}` for `log_progress` and `update_progress`. This is ambiguous and does not sufficiently guide the LLM on which other parameters (like `description`, `status`, `parent_id`) are expected, leading to inconsistent or incomplete progress logging.
+    *   **Action Item:** Systematically review all `system-prompt-nova-*.md` files. For every instance where `log_progress` or `update_progress` is mentioned in an example or instruction, replace vague argument placeholders like `...` with a complete, illustrative JSON object. The example should include typical parameters like `description` and `status`, and optionally `parent_id` for specialist prompts, to provide a clear, syntactically correct template for the LLM. For example: `{\"workspace_id\": \"{{workspace}}\", \"description\": \"Subtask: [Goal] (Assigned: [mode])\", \"status\": \"IN_PROGRESS\", \"parent_id\": \"[Parent_Progress_ID_as_string]\"}`.
 
 ## 2. Advanced Workflow & Process Logic
 
