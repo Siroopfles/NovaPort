@@ -100,6 +100,21 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Report completion, providing the ConPort key of the `ConPortSchema` proposal. State that the proposal is logged and its current status (e.g., "Proposed, awaiting wider review if necessary").
 
+---
+## Failure Scenarios / Error Handling
+
+*   **Scenario:** ConPortSteward fails to log the `ConPortSchema` item due to a data validation error (e.g., malformed JSON in the value).
+    *   **Lead Mode Action (Nova-LeadArchitect):**
+        1.  Analyze the specialist's `attempt_completion` which must contain the failure reason.
+        2.  Review the `Proposal_Details_Structured_From_LeadArchitect` that was sent to the specialist. Correct any structural errors in the proposed JSON value.
+        3.  Re-delegate the sub-task to the specialist with the corrected, valid JSON object.
+
+*   **Scenario:** User/Orchestrator rejects the schema proposal after review.
+    *   **Lead Mode Action (Nova-LeadArchitect):**
+        1.  Delegate to ConPortSteward to update the `ConPortSchema:[ProposalKey]` status to 'Rejected', adding a note with the reason for rejection.
+        2.  Log a new `Decision` documenting the rejection.
+        3.  Close the main `Progress` item for this workflow, noting the outcome.
+---
 **Key ConPort Items Created/Updated:**
 - Progress (integer `id`): For the overall task and specialist subtask.
 - CustomData LeadPhaseExecutionPlan:[SPProgressID]_ArchitectPlan (key).

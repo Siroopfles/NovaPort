@@ -4,7 +4,7 @@
 
 > **WARNING: EXPERIMENTAL CUSTOM SYSTEM PROMPTS ACTIVE**
 >
-> This Nova System configuration utilizes custom system prompts for its AI modes. As highlighted in the [Roo Code documentation on "Footgun Prompting"](https://docs.roocode.com/features/footgun-prompting), operating with custom system prompts is an experimental feature.
+> This Nova System configuration utilizes custom system prompts for its AI modes. As highlighted in the Roo Code documentation on "Footgun Prompting", operating with custom system prompts is an experimental feature.
 >
 > **This can severely disrupt functionality and lead to unpredictable or unstable behavior.** Proceed with caution and awareness of potential instability. It is recommended to have a strong understanding of the Roo Code execution model and the implications of custom prompting before extensive use.
 
@@ -154,9 +154,9 @@ These configurations are managed by the `Nova-LeadArchitect` team via the `WF_AR
 
 ## Introduction
 
-The Nova System is an advanced AI-driven framework designed for managing and executing complex software development projects. The system comprises various specialized AI agents (referred to as "modes") that collaborate under the direction of a central orchestrator. Nova aims for structured project execution, explicit knowledge retention, and efficient task delegation.
+The **Nova System** is an advanced AI-driven framework designed for managing and executing complex software development projects. The system comprises various specialized AI agents (referred to as "modes") that collaborate under the direction of a central orchestrator. Nova aims for structured project execution, explicit knowledge retention, and efficient task delegation.
 
-The core of Nova's knowledge management is the **Context Portal (ConPort)**, a project-specific database acting as the central memory and "single source of truth." This component is based on the open-source [Context Portal MCP server](https://github.com/GreatScottyMac/context-portal). Standardized **Workflows**, stored as Markdown files, define the processes that modes follow for specific tasks or project phases. The overall architecture and mode-based interaction patterns draw inspiration from concepts explored in [RooFlow](https://github.com/GreatScottyMac/RooFlow). The Nova modes themselves are designed to operate within an environment compatible with execution frameworks like [Roo Code](https://docs.roocode.com/), leveraging custom system prompts which are an experimental feature (see [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)).
+The core of Nova's knowledge management is the **Context Portal (ConPort)**, a project-specific database acting as the central memory and "single source of truth." This component is based on the open-source [Context Portal MCP server](https://github.com/GreatScottyMac/context-portal). Standardized **Workflows**, stored as Markdown files, define the processes that modes follow for specific tasks or project phases. The overall architecture and mode-based interaction patterns are designed for an execution environment like [Roo Code](https://docs.roocode.com/), leveraging custom system prompts which are an experimental feature (see [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)).
 
 ## Core Concepts
 
@@ -335,7 +335,7 @@ Each Specialized Mode has a highly focused role and operates under the direct in
 #### Architect Team
 *   **Nova-SpecializedSystemDesigner:** Focuses on detailed system and component design, API specifications, and data modeling. Logs `SystemArchitecture`, `APIEndpoints`, `DBMigrations` in ConPort.
 *   **Nova-SpecializedConPortSteward:** Focuses on ConPort data integrity, quality, glossary management, and logging configurations (`ProjectConfig`, `NovaSystemConfig`), `ImpactAnalyses`, `RiskAssessment`, `ConPortSchema` proposals. Executes ConPort Health Checks.
-*   **Nova-SpecializedWorkflowManager:** Focuses on creating, updating, and managing workflow `.md` files in `.nova/workflows/` and their corresponding `DefinedWorkflows` entries in ConPort.
+*   **Nova-SpecializedWorkflowManager:** Focuses on creating, updating, and managing workflow `.md` files in `.nova/workflows/` and `.roo/` system prompts, and their corresponding `DefinedWorkflows` entries in ConPort.
 
 #### Developer Team
 *   **Nova-SpecializedFeatureImplementer:** Writes new code for specific features/components, including unit tests (if instructed). Logs `CodeSnippets`, technical `Decisions`.
@@ -352,12 +352,12 @@ Each Specialized Mode has a highly focused role and operates under the direct in
 
 #### Nova-FlowAsk
 *   **Role:** A specialized information retrieval and analysis agent.
-*   **Responsibilities:** Answers specific questions, analyzes code (read-only), explains concepts, or summarizes provided text/ConPort data when a Lead Mode or Orchestrator delegates this. Does not modify ConPort or project files (except for writing session summaries to `.nova/summary/` when tasked by Nova-Orchestrator).
+*   **Responsibilities:** Answers specific questions, analyzes code (read-only), explains concepts, or summarizes provided text/ConPort data when a Lead Mode or Orchestrator delegates this. Does not modify ConPort or project files (except for writing session summaries to `.nova/summary/` or digests to `.nova/reports/digests/` when tasked by Nova-Orchestrator).
 
 ## Workflows (`.nova/workflows/`)
 Workflows are the backbone of standardized processes within Nova.
 *   **Location:** Stored in `.nova/workflows/`, further subdivided by the mode that primarily executes or owns the workflow (e.g., `.nova/workflows/nova-orchestrator/`, `.nova/workflows/nova-leadarchitect/`).
-*   **Format:** Markdown files detailing steps, actors, triggers, ConPort interactions, and expected deliverables.
+*   **Format:** Markdown files detailing steps, actors, triggers, ConPort interactions, expected deliverables, and failure scenarios.
 *   **Management:** Nova-LeadArchitect is responsible for the overall management of all workflow definitions, delegating file operations and ConPort `DefinedWorkflows` registration to Nova-SpecializedWorkflowManager.
 *   **Usage:** Modes (especially Orchestrator and Leads) consult these workflows to structure their phases and ensure correct steps and delegations are performed.
 
@@ -381,6 +381,8 @@ These describe processes specific to a Lead Mode's domain, used to guide their t
     *   `WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md`: For periodic ConPort quality reviews.
     *   `WF_ARCH_IMPACT_ANALYSIS_001_v1.md`: For analyzing the impact of proposed changes.
     *   `WF_ARCH_NEW_WORKFLOW_DEFINITION_001_v1.md`: For defining any new Nova workflow.
+    *   `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL_001_v1.md`: For managing changes to system prompts.
+    *   `WF_ARCH_CREATE_MODULE_TEMPLATE_001_v1.md`: For creating reusable module templates.
     *   `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`: For setting up/updating `ProjectConfig` and `NovaSystemConfig`.
     *   `WF_ARCH_RISK_ASSESSMENT_AND_MITIGATION_PLANNING_001_v1.md`: For conducting risk assessments.
     *   `WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md`: For managing a complete system design phase.
@@ -390,6 +392,7 @@ These describe processes specific to a Lead Mode's domain, used to guide their t
     *   `WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md`: For managing feature implementation.
     *   `WF_DEV_NEW_MODULE_SCAFFOLDING_AND_SETUP_001_v1.md`: For setting up new code modules.
     *   `WF_DEV_TECHDEBT_REFACTOR_COMPONENT_001_v1.md`: For refactoring components to address tech debt.
+    *   `WF_DEV_DEPENDENCY_UPDATE_AND_AUDIT_001_v1.md`: For managing project dependencies.
 *   **Nova-LeadQA:**
     *   `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md`: For managing a bug from investigation to resolution.
     *   `WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md`: For executing full regression tests.
@@ -468,6 +471,6 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 The Nova System builds upon several key technologies and concepts:
 *   **Context Portal (ConPort):** The MCP server providing the structured knowledge base is based on the open-source project: [https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal). Refer to its documentation for detailed MCP tool specifications.
 *   **Nova Modes & Execution:** The concept of specialized AI modes and their interaction is designed for execution environments compatible with frameworks like [Roo Code](https://docs.roocode.com/). This configuration specifically uses **experimental custom system prompt features** of Roo Code, as detailed in its documentation ([Footgun Prompting](https://docs.roocode.com/features/footgun-prompting)).
-*   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in [RooFlow](https://github.com/GreatScottyMac/RooFlow).
+*   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in other open-source multi-agent systems.
 
 This README provides a high-level overview of the Nova system. For detailed processes and responsibilities of specific modes, refer to their respective workflow (`.md`) and system prompt (`.md`) files.

@@ -116,6 +116,22 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Report completion, summary of findings, actions taken, and path to the detailed report.
 
+---
+## Failure Scenarios / Error Handling
+
+*   **Scenario:** Specialist `use_mcp_tool` call fails (e.g., invalid ID, database lock).
+    *   **Lead Mode Action (Nova-LeadArchitect):**
+        1.  Analyze the specialist's `attempt_completion` which must contain the tool name, arguments, and error message.
+        2.  Log the specialist sub-task failure as a new `ErrorLogs` item (category `ProcessError`) via ConPortSteward.
+        3.  If it's a correctable input error (e.g., wrong ID), re-delegate the sub-task with corrected arguments.
+        4.  If it's a persistent system error, update main `Progress` to BLOCKED, and report the issue to Nova-Orchestrator, including the `ErrorLogs` key.
+
+*   **Scenario:** User/Orchestrator rejects the proposed corrective actions.
+    *   **Lead Mode Action (Nova-LeadArchitect):**
+        1.  Log a `Decision` item documenting the rejection and reason.
+        2.  Update the `Progress` item for the Health Check to 'DONE' but with a note indicating that findings were reported but no corrective action was approved.
+        3.  Report this outcome to Nova-Orchestrator in the final `attempt_completion`.
+---
 **Key ConPort Items Involved:**
 - Progress (integer `id`): For overall cycle, scan subtask, action subtask.
 - CustomData LeadPhaseExecutionPlan:[HCProgressID]_ArchitectPlan (key).
