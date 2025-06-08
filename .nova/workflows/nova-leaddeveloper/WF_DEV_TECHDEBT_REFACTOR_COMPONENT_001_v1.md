@@ -34,7 +34,7 @@
             7.  Update Documentation (Delegate to CodeDocumenter).
             8.  Propose Update for `TechDebtCandidates` status (LeadDeveloper, in `attempt_completion`).
     *   **ConPort Action:**
-        *   Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve details of `CustomData TechDebtCandidates:[TechDebtKey_From_Briefing]` (key).
+        *   Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `category: 'TechDebtCandidates'`, `key: '[TechDebtKey_From_Briefing]'`) to retrieve the full details of the tech debt item.
         *   Use `read_file` to analyze current code of `[ComponentName]`.
         *   Define a specific refactoring strategy (e.g., "Extract class X", "Simplify method Y by applying Strategy Pattern", "Replace algorithm Z with library L").
         *   Log this strategy as a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `summary: "Refactoring strategy for [ComponentName]: [Strategy]"`, `rationale: "Addresses [TechDebtKey] by..."`).
