@@ -17,6 +17,7 @@
 4.  [Configuration](#configuration)
 5.  [Introduction](#introduction)
 6.  [Core Concepts](#core-concepts)
+    *   [System Architecture & Data Flow](#system-architecture--data-flow)
     *   [Context Portal (ConPort)](#context-portal-conport)
     *   [Nova Modes](#nova-modes)
     *   [Workflows](#workflows)
@@ -27,10 +28,23 @@
 7.  [Nova Modes in Detail](#nova-modes-in-detail)
     *   [Nova-Orchestrator (Roo)](#nova-orchestrator-roo)
     *   [Lead Modes](#lead-modes)
+        *   [Nova-LeadArchitect](#nova-leadarchitect)
+        *   [Nova-LeadDeveloper](#nova-leaddeveloper)
+        *   [Nova-LeadQA](#nova-leadqa)
     *   [Specialized Modes](#specialized-modes)
+        *   [Architect Team](#architect-team)
+        *   [Developer Team](#developer-team)
+        *   [QA Team](#qa-team)
     *   [Utility Mode](#utility-mode)
+        *   [Nova-FlowAsk](#nova-flowask)
 8.  [Workflows (`.nova/workflows/`)](#workflows-novaworkflows)
+    *   [Orchestrator Workflows](#orchestrator-workflows)
+    *   [Lead Mode Workflows](#lead-mode-workflows)
 9.  [Context Portal (ConPort) - The Memory](#context-portal-conport---the-memory)
+    *   [Purpose and Architecture](#purpose-and-architecture)
+    *   [Core Data Entities](#core-data-entities)
+    *   [Key Configuration Items](#key-configuration-items)
+    *   [MCP Tool Interaction](#mcp-tool-interaction)
 10. [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)
 11. [Key Operational Principles](#key-operational-principles)
 12. [Session Management](#session-management)
@@ -38,9 +52,7 @@
 
 ## Installation
 
-To quickly set up a new or existing Roo Code project with the Nova System, you can run the installer script directly from your terminal. This will download the latest required files from this repository and place them in your specified project folder.
-
-(For details on required dependencies, see the [Dependencies](#dependencies) section below).
+You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.1.0-beta`). For most users, **installing a specific version is recommended for stability.**
 
 The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
 
@@ -48,25 +60,49 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
 
 ### **macOS / Linux (Bash)**
 
-Open your terminal and run the following command to download and execute the script.
+#### To Install a Specific Version (Recommended, e.g., `v0.1.0-beta`):
+1.  Download the installation script:
+    ```bash
+    curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
+    ```
+2.  Make the script executable:
+    ```bash
+    chmod +x install_nova_modes.sh
+    ```
+3.  Run the script, passing the desired version number as an argument:
+    ```bash
+    ./install_nova_modes.sh v0.1.0-beta
+    ```
 
+#### To Install the Latest Development Version (from `main` branch):
+If you want the absolute latest (but potentially unstable) changes, run this one-liner:
 ```bash
-curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/install_nova_modes.sh | bash```
+curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh | bash
+```
 
-The script will prompt for a target directory. You can provide a full path, or simply press **Enter** to use the current working directory.
+> **Note:** The script requires `curl` and `jq` to be installed.
 
 ---
 
 ### **Windows (PowerShell)**
 
-Open a PowerShell terminal and run the following command to download and execute the script.
+#### To Install a Specific Version (Recommended, e.g., `v0.1.0-beta`):
+1.  Download the installation script:
+    ```powershell
+    Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
+    ```
+2.  Run the script, passing the desired version using the `-Version` parameter:
+    ```powershell
+    .\install_nova_modes.ps1 -Version v0.1.0-beta
+    ```
 
+#### To Install the Latest Development Version (from `main` branch):
+If you want the absolute latest (but potentially unstable) changes, run this one-liner:
 ```powershell
-irm https://raw.githubusercontent.com/Siroopfles/NovaPort/main/install_nova_modes.ps1 | iex
+irm https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 | iex
 ```
-The script will prompt for a target directory. You can provide a full path, or simply press **Enter** to use the current working directory.
 
-> **Note:** If you receive an error about execution policies, you may need to run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
+> **Note:** If you get an error about execution policies, run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
 
 ## Dependencies
 
@@ -403,3 +439,5 @@ The Nova System builds upon several key technologies and concepts:
 *   **Context Portal (ConPort):** The MCP server providing the structured knowledge base is based on the open-source project: [https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal). Refer to its documentation for detailed MCP tool specifications.
 *   **Nova Modes & Execution:** The concept of specialized AI modes and their interaction is designed for execution environments compatible with frameworks like [Roo Code](https://docs.roocode.com/). This configuration specifically uses **experimental custom system prompt features** of Roo Code, as detailed in its documentation ([Footgun Prompting](https://docs.roocode.com/features/footgun-prompting)).
 *   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in [RooFlow](https://github.com/GreatScottyMac/RooFlow).
+
+This README provides a high-level overview of the Nova system. For detailed processes and responsibilities of specific modes, refer to their respective workflow (`.md`) and system prompt (`.md`) files.
