@@ -11,8 +11,12 @@
 <br>
 
 ## Table of Contents
-1.  [Introduction](#introduction)
-2.  [Core Concepts](#core-concepts)
+1.  [Installation](#installation)
+2.  [Dependencies](#dependencies)
+3.  [Quick Start: Your First Interaction](#quick-start-your-first-interaction)
+4.  [Configuration](#configuration)
+5.  [Introduction](#introduction)
+6.  [Core Concepts](#core-concepts)
     *   [Context Portal (ConPort)](#context-portal-conport)
     *   [Nova Modes](#nova-modes)
     *   [Workflows](#workflows)
@@ -20,30 +24,99 @@
     *   [Workspace](#workspace)
     *   [Knowledge Graph & RAG](#knowledge-graph--rag)
     *   [Prompt Caching](#prompt-caching)
-3.  [Nova Modes in Detail](#nova-modes-in-detail)
+7.  [Nova Modes in Detail](#nova-modes-in-detail)
     *   [Nova-Orchestrator (Roo)](#nova-orchestrator-roo)
     *   [Lead Modes](#lead-modes)
-        *   [Nova-LeadArchitect](#nova-leadarchitect)
-        *   [Nova-LeadDeveloper](#nova-leaddeveloper)
-        *   [Nova-LeadQA](#nova-leadqa)
     *   [Specialized Modes](#specialized-modes)
-        *   [Architect Team](#architect-team)
-        *   [Developer Team](#developer-team)
-        *   [QA Team](#qa-team)
     *   [Utility Mode](#utility-mode)
-        *   [Nova-FlowAsk](#nova-flowask)
-4.  [Workflows (`.nova/workflows/`)](#workflows-novaworkflows)
-    *   [Orchestrator Workflows](#orchestrator-workflows)
-    *   [Lead Mode Workflows](#lead-mode-workflows)
-5.  [Context Portal (ConPort) - The Memory](#context-portal-conport---the-memory)
-    *   [Purpose and Architecture](#purpose-and-architecture)
-    *   [Core Data Entities](#core-data-entities)
-    *   [Key Configuration Items](#key-configuration-items)
-    *   [MCP Tool Interaction](#mcp-tool-interaction)
-6.  [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)
-7.  [Key Operational Principles](#key-operational-principles)
-8.  [Session Management](#session-management)
-9.  [Foundations and Acknowledgements](#foundations-and-acknowledgements)
+8.  [Workflows (`.nova/workflows/`)](#workflows-novaworkflows)
+9.  [Context Portal (ConPort) - The Memory](#context-portal-conport---the-memory)
+10. [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)
+11. [Key Operational Principles](#key-operational-principles)
+12. [Session Management](#session-management)
+13. [Foundations and Acknowledgements](#foundations-and-acknowledgements)
+
+## Installation
+
+To quickly set up a new or existing Roo Code project with the Nova System, you can run the installer script directly from your terminal. This will download the latest required files from this repository and place them in your specified project folder.
+
+(For details on required dependencies, see the [Dependencies](#dependencies) section below).
+
+The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
+
+---
+
+### **macOS / Linux (Bash)**
+
+Open your terminal and run the following command to download and execute the script.
+
+```bash
+curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/install_nova_modes.sh | bash```
+
+The script will prompt for a target directory. You can provide a full path, or simply press **Enter** to use the current working directory.
+
+---
+
+### **Windows (PowerShell)**
+
+Open a PowerShell terminal and run the following command to download and execute the script.
+
+```powershell
+irm https://raw.githubusercontent.com/Siroopfles/NovaPort/main/install_nova_modes.ps1 | iex
+```
+The script will prompt for a target directory. You can provide a full path, or simply press **Enter** to use the current working directory.
+
+> **Note:** If you receive an error about execution policies, you may need to run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
+
+## Dependencies
+
+To run the Nova System, you need the following:
+
+1.  **A Roo Code compatible execution environment:** The system is designed to be run by an AI agent framework like Roo Code, which can interpret the `.roomodes` file and execute tasks with the specified AI modes.
+2.  **The Context Portal MCP Server:** This is the memory backbone of the system. It must be installed and running, pointed to your project's workspace. You can find installation instructions at the official repository: [github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal).
+
+## Quick Start: Your First Interaction
+
+After installing the Nova System files and ensuring the [Dependencies](#dependencies) are met, here's how to start your first session.
+
+#### Step 1: Start the Context Portal Server
+
+The Nova System cannot function without its memory. Open a separate terminal, navigate to your project's root folder, and start the ConPort server for your workspace.
+
+```bash
+# Make sure you are in your project directory
+# For example: cd /path/to/your/project
+
+# Start the server, which will create and manage the context.db in this workspace
+context-portal-mcp-server --workspace .
+```
+Keep this terminal open. You will see server activity here.
+
+#### Step 2: Start a Chat with Nova-Orchestrator
+
+`Nova-Orchestrator` is the main entry point for all user requests. Open a new terminal and start your Roo Code environment, targeting the orchestrator.
+
+```bash
+# In a new terminal, in the same project directory
+# Use the -m flag to select the nova-orchestrator mode
+roo -m nova-orchestrator "Start a new session and tell me the current project status."
+```
+
+#### Step 3: Follow the Initialization Process
+
+*   **For a Brand New Project:** `Nova-Orchestrator` will detect that ConPort is empty. It will follow the `WF_PROJ_INIT_001_NewProjectBootstrap.md` workflow and delegate the setup to `Nova-LeadArchitect`. The system will then ask you questions to fill in the `ProjectConfig:ActiveConfig` (e.g., "What is the primary programming language?").
+*   **For an Existing Project:** The orchestrator will load the existing context from ConPort and give you a summary of the last session, ready for your next command.
+
+See the `examples/example-user-prompts.md` file for more ideas on how to interact with the system.
+
+## Configuration
+
+The Nova System's behavior is controlled by two key configuration items stored as `CustomData` objects within the project's Context Portal (ConPort). These are typically set up during the initial project bootstrap.
+
+*   **`ProjectConfig:ActiveConfig`**: Defines project-specific settings, such as the primary programming language, testing frameworks, linter commands, and documentation standards. This ensures that all AI modes operate consistently within the project's technical environment.
+*   **`NovaSystemConfig:ActiveSettings`**: Configures the behavior of the Nova modes themselves. This can include settings like the frequency of ConPort health checks, triggers for specific workflows, or the default level of strictness for quality gates.
+
+These configurations are managed by the `Nova-LeadArchitect` team via the `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` workflow. For a detailed example of what these configurations can contain, see the `examples/example-project-config.json` file in this repository.
 
 ## Introduction
 
@@ -52,6 +125,67 @@ The Nova System is an advanced AI-driven framework designed for managing and exe
 The core of Nova's knowledge management is the **Context Portal (ConPort)**, a project-specific database acting as the central memory and "single source of truth." This component is based on the open-source [Context Portal MCP server](https://github.com/GreatScottyMac/context-portal). Standardized **Workflows**, stored as Markdown files, define the processes that modes follow for specific tasks or project phases. The overall architecture and mode-based interaction patterns draw inspiration from concepts explored in [RooFlow](https://github.com/GreatScottyMac/RooFlow). The Nova modes themselves are designed to operate within an environment compatible with execution frameworks like [Roo Code](https://docs.roocode.com/), leveraging custom system prompts which are an experimental feature (see [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)).
 
 ## Core Concepts
+
+### System Architecture & Data Flow
+
+The following diagram illustrates the hierarchical structure and the primary flow of tasks and information within the Nova System. The `Nova-Orchestrator` receives user requests and delegates high-level phases to the `Lead` modes, who in turn break them down into specific sub-tasks for their `Specialized` teams.
+
+```mermaid
+graph TD
+    subgraph "User Interaction"
+        User(👤 User)
+    end
+
+    subgraph "Orchestration Layer"
+        Orchestrator(Nova-Orchestrator)
+    end
+
+    subgraph "Lead / Management Layer"
+        LeadArch(Nova-LeadArchitect)
+        LeadDev(Nova-LeadDeveloper)
+        LeadQA(Nova-LeadQA)
+    end
+    
+    subgraph "Execution Layer: Specialist Teams"
+        direction LR
+        subgraph "Architect Team"
+            S_Designer(SpecializedSystemDesigner)
+            S_ConPort(SpecializedConPortSteward)
+            S_Workflow(SpecializedWorkflowManager)
+        end
+        subgraph "Developer Team"
+            S_Implementer(SpecializedFeatureImplementer)
+            S_Refactorer(SpecializedCodeRefactorer)
+            S_Tester(SpecializedTestAutomator)
+        end
+        subgraph "QA Team"
+            S_Investigator(SpecializedBugInvestigator)
+            S_Executor(SpecializedTestExecutor)
+            S_Verifier(SpecializedFixVerifier)
+        end
+    end
+    
+    subgraph "Utility"
+        FlowAsk(Nova-FlowAsk)
+    end
+
+    User -- "Requests a new feature" --> Orchestrator;
+    Orchestrator -- "Delegates Design Phase via `new_task`" --> LeadArch;
+    Orchestrator -- "Delegates Development Phase via `new_task`" --> LeadDev;
+    Orchestrator -- "Delegates QA Phase via `new_task`" --> LeadQA;
+
+    LeadArch -- "Sub-task: Design Component" --> S_Designer;
+    LeadArch -- "Sub-task: Update ConPort Config" --> S_ConPort;
+    LeadDev -- "Sub-task: Implement Feature" --> S_Implementer;
+    LeadQA -- "Sub-task: Verify Fix" --> S_Verifier;
+    
+    S_Implementer -- "Reports `attempt_completion`" --> LeadDev;
+    LeadDev -- "Reports Phase `attempt_completion`" --> Orchestrator;
+    Orchestrator -- "Provides final result to User" --> User;
+    
+    Orchestrator -- "Asks for analysis via `new_task`" --> FlowAsk;
+
+```
 
 ### Context Portal (ConPort)
 ConPort is the backbone of the Nova system. It is a workspace-specific SQLite database (typically `context_portal/context.db`) that stores all project-related information, from high-level goals and architectural decisions to code snippets, bug reports, and configuration settings. All Nova modes interact with ConPort via a standardized Model Context Protocol (MCP) server (based on [github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal)) and its tools (primarily `use_mcp_tool`), ensuring consistency, traceability, and a shared understanding of the project state.
@@ -269,5 +403,3 @@ The Nova System builds upon several key technologies and concepts:
 *   **Context Portal (ConPort):** The MCP server providing the structured knowledge base is based on the open-source project: [https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal). Refer to its documentation for detailed MCP tool specifications.
 *   **Nova Modes & Execution:** The concept of specialized AI modes and their interaction is designed for execution environments compatible with frameworks like [Roo Code](https://docs.roocode.com/). This configuration specifically uses **experimental custom system prompt features** of Roo Code, as detailed in its documentation ([Footgun Prompting](https://docs.roocode.com/features/footgun-prompting)).
 *   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in [RooFlow](https://github.com/GreatScottyMac/RooFlow).
-
-This README provides a high-level overview of the Nova system. For detailed processes and responsibilities of specific modes, refer to their respective workflow (`.md`) and system prompt (`.md`) files.
