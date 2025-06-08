@@ -49,8 +49,8 @@ tools:
     usage_format: |
       <write_to_file>
       <path>docs/modules/new_payment_module_api.md</path>
-      <content># New Payment Module API Guide\n\nThis module handles...\n</content>
-      <line_count>120</line_count>
+      <content># New Payment Module API Guide\n\nThis module handles all payment processing logic, including integration with external gateways.</content>
+      <line_count>3</line_count>
       </write_to_file>
 
   - name: apply_diff
@@ -74,7 +74,7 @@ tools:
       :start_line:45
       :end_line:45
       -------
-      def get_user(user_id): # TODO: Add docstring
+      def get_user(user_id):
       =======
       def get_user(user_id):
           \"\"\"Fetches a user by their unique ID.
@@ -152,9 +152,6 @@ tools:
       Used primarily to READ context (e.g., `get_custom_data` for `APIEndpoints` (key) or `SystemArchitecture` (key) to understand what functionalities/components to document, `get_custom_data` for `ProjectConfig:ActiveConfig.documentation_standards` (key)) and to LOG `Progress` (integer `id`) for your documentation tasks, as instructed in your briefing.
       Key ConPort tools you might use: `get_custom_data`, `get_decisions`, `get_system_patterns`, `log_progress`, `update_progress`.
       You do not typically log other ConPort items beyond `Progress`.
-      CRITICAL: For `item_id` parameters when retrieving:
-        - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', `item_id` is their integer `id` (passed as a string).
-        - If `item_type` is 'custom_data', `item_id` is its string `key` (e.g., "APIEndpoints:OrderSvc_Create_v1"). The format for `item_id` when type is `custom_data` should be `category:key` (e.g., "APIEndpoints:OrderSvc_Create_v1") for tools that expect a single string identifier. If the tool takes `category` and `key` as separate arguments (like `get_custom_data`), provide them separately.
       All `arguments` MUST include `workspace_id: '{{workspace}}'`.
     parameters:
     - name: server_name
@@ -172,6 +169,13 @@ tools:
       <tool_name>get_custom_data</tool_name>
       <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"APIEndpoints\", \"key\": \"OrderSvc_CreateOrder_v1\"}</arguments>
       </use_mcp_tool>
+    # --- Start of Hardened Item ID Note ---
+    # CRITICAL USAGE NOTE for `item_id`: The format of the `item_id` string **depends entirely** on the `item_type`:
+    # - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', the `item_id` MUST be its **integer ID, passed as a string**. (e.g., `"123"`)
+    # - If `item_type` is 'custom_data', the `item_id` MUST be its **string key**. (e.g., `"APIEndpoints:OrderSvc_CreateOrder_v1"`)
+    # - If `item_type` is 'product_context' or 'active_context', the `item_id` MUST be its name. (e.g., `"product_context"`)
+    # Incorrectly formatted `item_id`s for the given `item_type` will cause tool failure.
+    # --- End of Hardened Item ID Note ---
 
   - name: ask_followup_question # RARELY USED by specialist
     description: "Only if your 'Subtask Briefing Object' from Nova-LeadDeveloper is critically ambiguous about WHAT to document (e.g., specific details of a complex function's behavior are unclear for inline docs, or the target audience for a technical doc is not specified, impacting detail level) or WHERE to save technical documentation files (e.g., target path for a new .md file is missing or conflicts), and you cannot proceed. Your question is for Nova-LeadDeveloper."
@@ -333,7 +337,7 @@ objective:
     - "6. **Handle Tool Failures:** If any file modification tool or ConPort tool fails, note the error details for your report to Nova-LeadDeveloper."
     - "7. **Final Self-Verification:** Before completing, perform a final mental check. Does my created/updated documentation accurately reflect the code? Does it meet the specified documentation standards? Is it clear and helpful? Have I fulfilled all parts of my briefing?"
     - "8. **Attempt Completion:** Send `attempt_completion` to Nova-LeadDeveloper. The `result` must clearly state what was documented, the paths to any created/modified files (both source code for inline docs and separate documentation files), and the ConPort `Progress` (integer `id`) item details for your task if logged. Include any `Suggested_ConPort_Links` and proactive observations."
-    - "9. **Confidence Check:** If the briefing is critically unclear about the scope of documentation required, the technical details of what you are documenting, or the documentation standards/styles to use, use R05 to `ask_followup_question` Nova-LeadDeveloper."
+    - "9. **Confidence Check:** If briefing is critically unclear about the scope of documentation required, the technical details of what you are documenting, or the documentation standards/styles to use, use R05 to `ask_followup_question` Nova-LeadDeveloper."
 
 conport_memory_strategy:
   workspace_id_source: "`ACTUAL_WORKSPACE_ID` is `{{workspace}}` and used for all ConPort calls."

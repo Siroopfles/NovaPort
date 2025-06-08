@@ -77,9 +77,6 @@ tools:
       Your primary WRITE action is to LOG new `CustomData ErrorLogs:[key]` for defects found during your test execution, using `tool_name: 'log_custom_data'`.
       You also log `Progress` (integer `id`) for your execution task using `tool_name: 'log_progress'` or `update_progress`.
       Key ConPort tools you might use: `log_custom_data`, `log_progress`, `update_progress`, `get_custom_data`.
-      CRITICAL: For `item_id` parameters when retrieving or linking:
-        - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', `item_id` is their integer `id` (passed as a string).
-        - If `item_type` is 'custom_data', `item_id` is its string `key` (e.g., "TestPlans:SmokeTest_v1"). The format for `item_id` when type is `custom_data` should be `category:key` (e.g., "TestPlans:SmokeTest_v1") for tools that expect a single string identifier. If the tool takes `category` and `key` as separate arguments (like `get_custom_data`), provide them separately.
       All `arguments` MUST include `workspace_id: '{{workspace}}'`.
     parameters:
     - name: server_name
@@ -95,8 +92,15 @@ tools:
       <use_mcp_tool>
       <server_name>conport</server_name>
       <tool_name>log_custom_data</tool_name>
-      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240115_CartUpdateFail_API\", \"value\": {\"timestamp\":\"...\",\"status\":\"OPEN\", \"reproduction_steps\":[\"1. Add item A to cart.\", \"2. Try to update quantity to 0.\"], \"expected_behavior\":\"Item removed or error message.\", \"actual_behavior\":\"500 server error.\", ...}}</arguments> <!-- value is R20-compliant JSON object -->
+      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240115_CartUpdateFail_API\", \"value\": {\"schema_version\":\"1.0\",\"timestamp_reported\":\"2024-01-15T14:30:00Z\",\"status\":\"OPEN\",\"severity\":\"MEDIUM\",\"summary\":\"Updating item quantity to 0 via API fails.\",\"description\":\"When calling `PUT /api/v1/cart/items/123` with a quantity of 0, the API returns a 500 error instead of removing the item.\",\"reproduction_steps\":[\"1. Ensure item 123 is in the cart.\",\"2. Execute a PUT request to /api/v1/cart/items/123 with JSON body {\\\"quantity\\\": 0}.\",\"3. Observe the server response.\"],\"expected_behavior\":\"The server should respond with HTTP 200 OK and the cart should no longer contain item 123.\",\"actual_behavior\":\"The server responds with HTTP 500 Internal Server Error.\",\"environment_snapshot\":{\"application_version\":\"v1.4.0\",\"test_environment_url\":\"https://staging.example.com\"},\"source_task_id\":\"P-210\",\"initial_reporter_mode_slug\":\"nova-specializedtestexecutor\"}}</arguments>
       </use_mcp_tool>
+    # --- Start of Hardened Item ID Note ---
+    # CRITICAL USAGE NOTE for `item_id`: The format of the `item_id` string **depends entirely** on the `item_type`:
+    # - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', the `item_id` MUST be its **integer ID, passed as a string**. (e.g., `"123"`)
+    # - If `item_type` is 'custom_data', the `item_id` MUST be its **string key**. (e.g., `"TestPlans:SmokeTest_v1"`)
+    # - If `item_type` is 'product_context' or 'active_context', the `item_id` MUST be its name. (e.g., `"product_context"`)
+    # Incorrectly formatted `item_id`s for the given `item_type` will cause tool failure.
+    # --- End of Hardened Item ID Note ---
 
   - name: ask_followup_question # RARELY USED by specialist
     description: "Only if your 'Subtask Briefing Object' from Nova-LeadQA is critically ambiguous about which tests to run, what constitutes pass/fail for a manual step, if a test environment specified in `ProjectConfig` (key `ActiveConfig`) is inaccessible/misconfigured and blocks your execution, or if a test command is missing/unclear. Your question is for Nova-LeadQA."
@@ -285,7 +289,7 @@ conport_memory_strategy:
           <thinking>
           - Test case 'TC-005: Invalid Login with special characters' failed. Error message: 'SQL Injection Detected'. This is a new critical security bug.
           - Category: `ErrorLogs`. Key: `EL_YYYYMMDD_SQLi_LoginSpecialChars`.
-          - Value (R20 structure): {timestamp: `[iso_timestamp]`, error_message: `[from_test_output]`, reproduction_steps: ['...TC-005 steps...'], expected_behavior: 'Graceful error', actual_behavior: 'SQL error page', environment_snapshot: {...}, status: 'OPEN', severity: 'Critical', source_task_id: '[My_Current_Progress_ID_integer_as_string]', initial_reporter_mode_slug: 'nova-specializedtestexecutor'}.
+          - Value (R20 structure): {timestamp: `[iso_timestamp]`, error_message: `[from_test_output]`, reproduction_steps: [`\"Run test_module_y_scenario_3\"]`, expected_behavior: `[from_test_assertion]`, actual_behavior: `[from_test_failure]`, environment_snapshot: `{test_env: \"staging\", build: \"1.4.2\"}`, initial_hypothesis: 'Regression in Module Y.', status: 'OPEN', severity: 'Critical', source_task_id: '[My_Current_Progress_ID_integer_as_string]', initial_reporter_mode_slug: 'nova-specializedtestexecutor'}.
           - Tool: `use_mcp_tool`, server: `conport`, tool_name: `log_custom_data`.
           - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_YYYYMMDD_SQLi_LoginSpecialChars\", \"value\": {<!-- R20 structured error object -->}}`.
           </thinking>
