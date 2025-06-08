@@ -15,7 +15,7 @@
 
 **Phases & Steps (managed by Nova-LeadArchitect within its single active task from Nova-Orchestrator):**
 
-**Phase BS.1: Initial ConPort Entry Creation**
+**Phase BS.1: Initial ConPort Entry Creation & Standardization**
 
 1.  **Nova-LeadArchitect: Plan Bootstrap & Log Initial Progress**
     *   **Action:**
@@ -25,9 +25,11 @@
             1.  Create Initial ProductContext (ConPortSteward).
             2.  Create Initial ActiveContext (ConPortSteward).
             3.  Log Initial High-Level Decisions (LeadArchitect or ConPortSteward).
-            4.  Draft Initial ProjectRoadmap (LeadArchitect or SystemDesigner).
-            5.  Suggest Basic Directory Structure (SystemDesigner).
-            6.  (Optional) Log placeholder ProjectConfig/NovaSystemConfig if not handled by separate WF (ConPortSteward).
+            4.  Log Initial Project Standards (DoD/DoR) (ConPortSteward).
+            5.  Log Item Templates (ErrorLog, LessonsLearned, Decision) (ConPortSteward).
+            6.  Draft Initial ProjectRoadmap (SystemDesigner).
+            7.  Suggest Basic Directory Structure (SystemDesigner).
+            8.  (Optional) Log placeholder ProjectConfig/NovaSystemConfig if not handled by separate WF (ConPortSteward).
     *   **Output:** Plan ready. `[BootstrapProgressID]` known.
 
 2.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Create Initial `ProductContext`**
@@ -68,7 +70,64 @@
         *   Example Decision 2: "Prioritize Core Feature X for MVP." Rationale: "Based on user's stated main goal."
     *   **Output:** Initial `Decision` (integer `id`s) logged.
 
-5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Draft Initial `ProjectRoadmap` & Suggest Directory Structure**
+5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Log Initial Project Standards**
+    *   **Task:** "Create the initial `ProjectStandards` entries in ConPort for Definition of Done (DoD) and Definition of Ready (DoR)."
+    *   **`new_task` message for Nova-SpecializedConPortSteward:**
+        ```json
+        {
+          "Context_Path": "[ProjectName] (Bootstrap) -> Create ProjectStandards (ConPortSteward)",
+          "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
+          "Specialist_Subtask_Goal": "Create and log initial ProjectStandards for DoD and DoR.",
+          "Specialist_Specific_Instructions": [
+            "You are to create two CustomData entries in ConPort using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Refer to `.nova/docs/conport_standards.md` for the formal definitions.",
+            "1. **Log Default DoD:**",
+            "   - Category: `ProjectStandards`",
+            "   - Key: `DefaultDoD`",
+            "   - Value: { \"description\": \"Default Definition of Done for all tasks.\", \"criteria\": [\"Code: Implemented, reviewed (if applicable), unit tested, integration tested, passes all quality gates (linters, etc.), and is documented.\", \"ConPort Entry: All required fields are filled, rationale is clear, links to related items are present.\", \"Workflow: All steps completed, final status updated, deliverables reported to the delegating mode.\"] }",
+            "2. **Log Default DoR:**",
+            "   - Category: `ProjectStandards`",
+            "   - Key: `DefaultDoR`",
+            "   - Value: { \"description\": \"Default Definition of Ready for all tasks.\", \"criteria\": [\"Input: All required context and prerequisites are available and clear.\", \"Scope: The goal and boundaries of the task are well-defined.\", \"Dependencies: Any prerequisite tasks or decisions are completed.\"] }",
+            "These entries will serve as the baseline standards for the project."
+          ],
+          "Required_Input_Context_For_Specialist": {
+            "Path_To_Standards_Doc": ".nova/docs/conport_standards.md"
+          },
+          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": ["Confirmation that `ProjectStandards:DefaultDoD` and `ProjectStandards:DefaultDoR` were created."]
+        }
+        ```
+    *   **Nova-LeadArchitect Action:** Verify. Update plan/progress.
+
+6.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Log Item Templates**
+    *   **Task:** "Create a set of standard item templates in ConPort to ensure consistent data logging."
+    *   **`new_task` message for Nova-SpecializedConPortSteward:**
+        ```json
+        {
+          "Context_Path": "[ProjectName] (Bootstrap) -> LogItemTemplates (ConPortSteward)",
+          "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
+          "Specialist_Subtask_Goal": "Log standard JSON object templates for common ConPort items.",
+          "Specialist_Specific_Instructions": [
+            "Create a new `CustomData` category named `Templates`. Log the following items into this category using `use_mcp_tool` (`tool_name: 'log_custom_data'`). The structures MUST match those in `.nova/docs/conport_standards.md`.",
+            "1. **Log ErrorLog Template:**",
+            "   - Key: `ErrorLog_v1`",
+            "   - Value: {\"timestamp\":\"YYYY-MM-DDTHH:MM:SSZ\",\"status\":\"OPEN\",\"severity\":\"MEDIUM\",\"error_message\":\"\",\"reproduction_steps\":[],\"expected_behavior\":\"\",\"actual_behavior\":\"\",\"environment_snapshot\":{\"application_version\":\"\",\"test_environment\":\"\",\"browser_os_details\":\"\",\"user_role_context\":\"\"},\"stack_trace_or_log_snippet\":\"\",\"initial_hypothesis\":\"\",\"root_cause_analysis\":\"\",\"verification_notes\":\"\",\"related_conport_items\":[],\"source_task_id\":\"\",\"initial_reporter_mode_slug\":\"\"}",
+            "2. **Log LessonsLearned Template:**",
+            "   - Key: `LessonsLearned_v1`",
+            "   - Value: {\"timestamp\":\"YYYY-MM-DDTHH:MM:SSZ\",\"topic\":\"\",\"event_summary\":\"\",\"root_cause_or_contributing_factors\":\"\",\"impact\":\"\",\"resolution_or_outcome\":\"\",\"key_takeaway\":\"\",\"preventative_actions_or_recommendations\":[],\"related_conport_items\":[]}",
+            "3. **Log Decision Template:**",
+            "   - Key: `Decision_v1`",
+            "   - Value: { \"summary\": \"\", \"rationale\": \"\", \"implications\": \"\", \"status\": \"Proposed\", \"tags\": [], \"related_items\": [] }",
+            "These templates will be fetched and used by other specialists before they log new data."
+          ],
+          "Required_Input_Context_For_Specialist": {
+            "Path_To_Standards_Doc": ".nova/docs/conport_standards.md"
+          },
+          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": ["Confirmation that `Templates:ErrorLog_v1`, `Templates:LessonsLearned_v1`, and `Templates:Decision_v1` were created."]
+        }
+        ```
+    *   **Nova-LeadArchitect Action:** Verify. Update plan/progress.
+
+7.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Draft Initial `ProjectRoadmap` & Suggest Directory Structure**
     *   **Task:** "Draft a very high-level `ProjectRoadmap` (key) and suggest a basic directory structure."
     *   **Briefing:** Instruct SystemDesigner to:
         *   Create a `CustomData ProjectRoadmap:[ProjectName]_InitialRoadmap_v0_1` (key) entry. Value: `{ "phases": [{"name": "Initial Design & Setup", "goal": "Define architecture, setup configs", "timeline_hint": "Sprint 0-1"}, {"name": "MVP Feature Development", "goal": "Implement core features A, B", "timeline_hint": "Sprint 2-4"}], "overall_mvp_target_hint": "End of Sprint 4" }`. Log via `use_mcp_tool`.
@@ -77,19 +136,19 @@
 
 **Phase BS.2: Basic Configuration Setup (Often triggers separate WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md)**
 
-6.  **Nova-LeadArchitect: Trigger Project & Nova System Configuration Setup**
+8.  **Nova-LeadArchitect: Trigger Project & Nova System Configuration Setup**
     *   **Action:** At this point, LeadArchitect would typically initiate the process detailed in `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` (or be instructed to do so by Nova-Orchestrator). This involves consulting the user (via Orchestrator) for `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) values and delegating their logging to Nova-SpecializedConPortSteward.
     *   **Output:** `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) are created in ConPort.
 
 **Phase BS.3: Finalize Bootstrap**
 
-7.  **Nova-LeadArchitect: Consolidate & Finalize Bootstrap**
+9.  **Nova-LeadArchitect: Consolidate & Finalize Bootstrap**
     *   **Action:**
-        *   Update main `Progress` (`[BootstrapProgressID]`) to DONE. Description: "ConPort bootstrapped with initial ProductContext, ActiveContext, Decisions, Roadmap. ProjectConfig & NovaSystemConfig established."
+        *   Update main `Progress` (`[BootstrapProgressID]`) to DONE. Description: "ConPort bootstrapped with initial ProductContext, ActiveContext, Decisions, Roadmap. ProjectConfig, NovaSystemConfig, Standards, and Templates established."
     *   **Output:** Bootstrap phase documented as complete.
 
-8.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
-    *   **Action:** Report completion of bootstrap, listing key ConPort items created (ProductContext, ActiveContext keys/IDs, initial Decision IDs, ProjectRoadmap key, ProjectConfig key, NovaSystemConfig key).
+10. **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
+    *   **Action:** Report completion of bootstrap, listing key ConPort items created (ProductContext, ActiveContext keys/IDs, initial Decision IDs, ProjectRoadmap key, ProjectConfig key, NovaSystemConfig key, ProjectStandards keys, Templates keys).
 
 **Key ConPort Items Created:**
 - ProductContext (key 'product_context')
@@ -100,3 +159,8 @@
 - CustomData LeadPhaseExecutionPlan:[BootstrapProgressID]_ArchitectPlan (key)
 - CustomData ProjectConfig:ActiveConfig (key) (via triggered workflow)
 - CustomData NovaSystemConfig:ActiveSettings (key) (via triggered workflow)
+- CustomData ProjectStandards:DefaultDoD (key)
+- CustomData ProjectStandards:DefaultDoR (key)
+- CustomData Templates:ErrorLog_v1 (key)
+- CustomData Templates:LessonsLearned_v1 (key)
+- CustomData Templates:Decision_v1 (key)
