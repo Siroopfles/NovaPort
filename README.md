@@ -12,7 +12,7 @@
 
 ## Table of Contents
 1.  [Installation](#installation)
-2.  [Dependencies](#dependencies)
+2.  [Dependencies & Setup](#dependencies--setup)
 3.  [Quick Start: Your First Interaction](#quick-start-your-first-interaction)
 4.  [Configuration](#configuration)
 5.  [Introduction](#introduction)
@@ -52,7 +52,7 @@
 
 ## Installation
 
-You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.1.0-beta`). For most users, **installing a specific version is recommended for stability.**
+You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.1.1-beta`). For most users, **installing a specific version is recommended for stability.**
 
 The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
 
@@ -60,7 +60,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.1.0-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.1.1-beta`):
 1.  Download the installation script:
     ```bash
     curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
@@ -71,7 +71,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
     ```
 3.  Run the script, passing the desired version number as an argument:
     ```bash
-    ./install_nova_modes.sh v0.1.0-beta
+    ./install_nova_modes.sh v0.1.1-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -86,14 +86,14 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.1.0-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.1.1-beta`):
 1.  Download the installation script:
     ```powershell
     Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
     ```
 2.  Run the script, passing the desired version using the `-Version` parameter:
     ```powershell
-    .\install_nova_modes.ps1 -Version v0.1.0-beta
+    .\install_nova_modes.ps1 -Version v0.1.1-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -104,44 +104,42 @@ irm https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_n
 
 > **Note:** If you get an error about execution policies, run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
 
-## Dependencies
+## Dependencies & Setup
 
-To run the Nova System, you need the following:
+Before you can run the Nova System, your environment must be set up correctly.
 
-1.  **A Roo Code compatible execution environment:** The system is designed to be run by an AI agent framework like Roo Code, which can interpret the `.roomodes` file and execute tasks with the specified AI modes.
-2.  **The Context Portal MCP Server:** This is the memory backbone of the system. It must be installed and running, pointed to your project's workspace. You can find installation instructions at the official repository: [github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal).
+1.  **A Roo Code Compatible Environment:** The system is designed to be run by an AI agent framework like Roo Code. This documentation assumes you are using the Roo Code extension within Visual Studio Code.
+
+2.  **Context Portal (ConPort):** The Nova System's memory is powered by the Context Portal MCP server.
+    *   **Step A: Install the Package:** You must first install the `context-portal-mcp-server` Python package. You can find the latest installation instructions at the official repository:
+        **[https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal)**
+    *   **Step B: Configure in Roo Code:** After installation, the server must be configured as an available "MCP Server" within your Roo Code environment settings. This allows the Roo Code extension to start and manage the server for your project. **Please refer to the official Roo Code documentation for instructions on how to configure MCP servers.**
 
 ## Quick Start: Your First Interaction
 
-After installing the Nova System files and ensuring the [Dependencies](#dependencies) are met, here's how to start your first session.
+This guide assumes you have successfully installed the Nova System files and completed all steps in the [Dependencies & Setup](#dependencies--setup) section.
 
-#### Step 1: Start the Context Portal Server
+#### Step 1: Open Your Project and Select the Mode
 
-The Nova System cannot function without its memory. Open a separate terminal, navigate to your project's root folder, and start the ConPort server for your workspace.
+Interaction with the Nova System happens within the Roo Code chat interface in VS Code.
 
-```bash
-# Make sure you are in your project directory
-# For example: cd /path/to/your/project
+1.  Open your project folder in Visual Studio Code.
+2.  Open the Roo Code Chat View (typically found in the sidebar).
+3.  In the chat window's dropdown menu for selecting an AI mode, choose **`Nova-Orchestrator`**. This is the primary mode for all user communication.
 
-# Start the server, which will create and manage the context.db in this workspace
-context-portal-mcp-server --workspace .
-```
-Keep this terminal open. You will see server activity here.
+#### Step 2: Send Your First Prompt
 
-#### Step 2: Start a Chat with Nova-Orchestrator
+With `Nova-Orchestrator` selected, type your initial request into the chat input box and send it.
 
-`Nova-Orchestrator` is the main entry point for all user requests. Open a new terminal and start your Roo Code environment, targeting the orchestrator.
+For example, to start a new session, type:
+> `Start a new session and tell me the current project status.`
 
-```bash
-# In a new terminal, in the same project directory
-# Use the -m flag to select the nova-orchestrator mode
-roo -m nova-orchestrator "Start a new session and tell me the current project status."
-```
+#### Step 3: Observe and Interact
 
-#### Step 3: Follow the Initialization Process
+The Roo Code extension will activate `Nova-Orchestrator`, which will begin its startup sequence.
 
-*   **For a Brand New Project:** `Nova-Orchestrator` will detect that ConPort is empty. It will follow the `WF_PROJ_INIT_001_NewProjectBootstrap.md` workflow and delegate the setup to `Nova-LeadArchitect`. The system will then ask you questions to fill in the `ProjectConfig:ActiveConfig` (e.g., "What is the primary programming language?").
-*   **For an Existing Project:** The orchestrator will load the existing context from ConPort and give you a summary of the last session, ready for your next command.
+*   **For a Brand New Project:** `Nova-Orchestrator` will detect that ConPort is empty. It will initiate a setup workflow and ask you follow-up questions in the chat to define the project's core configuration.
+*   **For an Existing Project:** The orchestrator will load the project's context from ConPort and provide a summary of the last session, ready for your next command.
 
 See the `examples/example-user-prompts.md` file for more ideas on how to interact with the system.
 
