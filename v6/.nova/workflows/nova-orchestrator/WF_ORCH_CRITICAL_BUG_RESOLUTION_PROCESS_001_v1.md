@@ -23,7 +23,7 @@
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
         *   Log/Update a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`): "CRITICAL BUG Resolution: [ErrorLogKey/Symptom]", Status: "TRIAGE_INVESTIGATION_PENDING". Let this be `[CritBugProgressID]`.
-        *   Coordinate update of `active_context.state_of_the_union` (via LeadArchitect) to reflect "CRITICAL BUG [ErrorLogKey] under active investigation. Potential impact on current sprint goals."
+        *   Delegate to `Nova-LeadArchitect`: "Please have your ConPortSteward update `active_context.state_of_the_union` to reflect 'CRITICAL BUG [ErrorLogKey] under active investigation. Potential impact on current sprint goals.'." (This requires get/log).
     *   **Task:** "Delegate immediate and thorough investigation of critical `ErrorLogs:[ErrorLogKey]` to Nova-LeadQA."
     *   **`new_task` message for Nova-LeadQA:**
         ```json
@@ -35,10 +35,10 @@
             "CRITICAL BUG: `ErrorLogs:[ErrorLogKey]` - [Symptom from ErrorLog].",
             "1. Assign Nova-SpecializedBugInvestigator to perform immediate, prioritized root cause analysis. They should leverage all available ConPort data (code links, related decisions, past errors) and system logs, using `use_mcp_tool` for ConPort access.",
             "2. Goal for BugInvestigator: Identify root cause or narrow down possibilities significantly within [e.g., 2-4 hours, from NovaSystemConfig if available, otherwise your best estimate].",
-            "3. Ensure BugInvestigator meticulously updates `ErrorLogs:[ErrorLogKey]` (key) value object with all findings (investigation_notes, reproduction_steps, environment_snapshot, evolving_hypothesis) using `use_mcp_tool` (`tool_name: 'update_custom_data'`).",
+            "3. Ensure BugInvestigator meticulously updates `ErrorLogs:[ErrorLogKey]` (key) value object with all findings (investigation_notes, reproduction_steps, environment_snapshot, evolving_hypothesis) using `use_mcp_tool` (first `get_custom_data`, then `log_custom_data` to overwrite).",
             "4. If a temporary workaround/mitigation is identifiable, document it clearly in the `ErrorLogs:[ErrorLogKey]` notes.",
             "5. Update your LeadQA phase `Progress` (integer `id`) frequently using `use_mcp_tool` (`tool_name: 'update_progress'`).",
-            "6. Coordinate with me (Nova-Orchestrator) to ensure `active_context.open_issues` is updated to reflect this critical bug (I will delegate actual update to LeadArchitect)."
+            "6. Coordinate with me (Nova-Orchestrator) to ensure `active_context.open_issues` is updated (I will delegate actual update to LeadArchitect)."
           ],
           "Required_Input_Context": {
             "ConPort_ErrorLog_Key_To_Investigate": "[ErrorLogKey]",
@@ -111,8 +111,8 @@
             "2. Verifier must execute original reproduction steps from `ErrorLogs:[ErrorLogKey]` (retrieved via `use_mcp_tool`).",
             "3. Verifier must execute any specific verification test cases defined for this bug or feature area.",
             "4. Perform targeted regression testing around the fix area.",
-            "5. If fix confirmed: Update `ErrorLogs:[ErrorLogKey]` status to RESOLVED using `use_mcp_tool` (`tool_name: 'update_custom_data'`). Add verification notes. Consider logging a `LessonsLearned` (key) entry with your team for this critical bug (using `use_mcp_tool`, `tool_name: 'log_custom_data'`, `category: 'LessonsLearned'`).",
-            "6. If fix NOT confirmed: Update `ErrorLogs:[ErrorLogKey]` status back to OPEN (or FAILED_VERIFICATION) using `use_mcp_tool` (`tool_name: 'update_custom_data'`), add detailed failure notes, and specify what still fails.",
+            "5. If fix confirmed: Update `ErrorLogs:[ErrorLogKey]` status to RESOLVED using `use_mcp_tool` (`get_custom_data` then `log_custom_data`). Add verification notes. Consider logging a `LessonsLearned` (key) entry with your team for this critical bug.",
+            "6. If fix NOT confirmed: Update `ErrorLogs:[ErrorLogKey]` status back to OPEN (or FAILED_VERIFICATION) using `use_mcp_tool` (`get_custom_data` then `log_custom_data`), add detailed failure notes, and specify what still fails.",
             "7. Coordinate with me (Nova-Orchestrator) to ensure `active_context.open_issues` is updated."
           ],
           "Required_Input_Context": {
@@ -137,7 +137,7 @@
     *   **Action:**
         *   Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) confirming critical bug `ErrorLogs:[ErrorLogKey]` resolution and any deployment/hotfix strategy.
         *   Update main `Progress` (`[CritBugProgressID]`) to "COMPLETED_RESOLVED" using `use_mcp_tool` (`tool_name: 'update_progress'`).
-        *   Coordinate update of `active_context.state_of_the_union` (via LeadArchitect) to "Critical bug [ErrorLogKey] resolved. System stable."
+        *   Delegate to `Nova-LeadArchitect`: "Please have your ConPortSteward update `active_context.state_of_the_union` to 'Critical bug [ErrorLogKey] resolved. System stable.'."
         *   Communicate resolution to user/stakeholders.
     *   **Output:** Critical bug resolved and stakeholders informed.
 

@@ -1,3 +1,6 @@
+================================================
+FILE: v6/.roomodes
+================================================
 customModes:
   - slug: nova-orchestrator
     name: Nova-Orchestrator
@@ -73,8 +76,12 @@ customModes:
     groups:
       - read
       - edit:
-          - fileRegex: \.nova/(workflows/.*\.md|README\.md)$
-            description: "Workflow and .nova README Markdown files"
+          - fileRegex: \.nova/workflows/.*\.md$
+            description: "Workflow definition Markdown files"
+          - fileRegex: \.nova/README\.md$
+            description: ".nova README file"
+          - fileRegex: docs/conport_schema_guide\.md$
+            description: "ConPort Schema Guide"
       - mcp
     source: project
 

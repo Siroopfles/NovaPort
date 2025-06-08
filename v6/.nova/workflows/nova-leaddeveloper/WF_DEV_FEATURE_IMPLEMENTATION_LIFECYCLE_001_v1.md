@@ -60,7 +60,7 @@
             "Write necessary unit tests for your new code using [testing_framework from ProjectConfig]. Ensure they cover critical paths and edge cases.",
             "Run linter ([linter_command from ProjectConfig]) on your changes and fix all issues.",
             "Log any micro-decisions as a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`). Log useful `CodeSnippets` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'CodeSnippets'`).",
-            "If you identify significant out-of-scope tech debt, log it to `CustomData TechDebtCandidates:[key]` (R23 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'TechDebtCandidates'`).",
+            "If you identify significant out-of-scope tech debt, log it to `CustomData TechDebtCandidates:[key]` (R23 compliant, including impact/effort scores) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'TechDebtCandidates'`).",
             "Log your `Progress` (integer `id`) for this subtask, parented to `[DevPhaseProgressID]`."
           ],
           "Required_Input_Context_For_Specialist": {
