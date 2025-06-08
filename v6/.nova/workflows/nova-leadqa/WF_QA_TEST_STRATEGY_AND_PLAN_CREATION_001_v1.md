@@ -33,7 +33,7 @@
             7.  Perform Risk-Based Prioritization of Test Areas.
             8.  Draft Detailed Test Plan Document/ConPort Entry (potentially delegate parts to TestExecutor for scenario drafting).
             9.  Review Test Plan (internal, then with Orchestrator/stakeholders if needed).
-            10. Log Final Test Plan to ConPort (delegate to ConPortSteward via LeadArchitect, or self if capabilities allow direct `log_custom_data` to `TestPlans` category).
+            10. Log Final Test Plan to ConPort (delegate to ConPortSteward via LeadArchitect, or self/TestExecutor if capabilities allow direct `log_custom_data` to `TestPlans` category).
     *   **Logic (Test Strategy - high level):**
         *   Based on `ProductContext` (key 'product_context'), `ProjectConfig:ActiveConfig` (key), `NovaSystemConfig:ActiveSettings` (key), and project risks (`CustomData RiskAssessment:[key]` if available):
             *   What are the main quality goals for [ScopeName]?
@@ -94,7 +94,7 @@
 7.  **Nova-LeadQA -> Delegate to Nova-SpecializedConPortSteward (via Nova-LeadArchitect if strict hierarchy, or self/TestExecutor if capability allows): Log Final Test Plan**
     *   **Actor:** Nova-LeadQA
     *   **Task:** "Log the finalized Test Plan for [ScopeName] into ConPort `CustomData TestPlans` category."
-    *   **`new_task` message (conceptual, assuming LeadQA can instruct ConPortSteward via Orchestrator or directly if a shared specialist concept evolves):**
+    *   **`new_task` message (conceptual):**
         ```json
         {
           "Context_Path": "[ProjectName] (TestStrategyPlan_[ScopeName]) -> LogFinalTestPlan (ConPortSteward)",
@@ -102,18 +102,18 @@
           "Specialist_Subtask_Goal": "Log the finalized Test Plan to ConPort `CustomData TestPlans:[ScopeName]_TestPlan_v[Version]` (key).",
           "Specialist_Specific_Instructions": [
             "Final Test Plan Content/Path: [Finalized content or path to .md file from LeadQA].",
-            "Log as a new `CustomData` entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'TestPlans', ...}`).",
+            "To log or update, use `use_mcp_tool` (`tool_name: 'log_custom_data'`). For an update, the new object overwrites the old one.",
             "  - Key: `[ScopeName]_TestPlan_v[Version]` (e.g., `FeatureZ_TestPlan_v1.0`).",
-            "  - Value (JSON Object or Markdown string - ensure it's a valid JSON value if storing markdown directly): { ",
+            "  - Value (JSON Object or Markdown string): { ",
             "      \"title\": \"Test Plan for [ScopeName] v[Version]\",",
             "      \"scope_summary\": \"[...Scope details...]\",",
             "      \"objectives_summary\": [\"Objective 1...\"],",
             "      \"strategy_decision_ref\": \"Decision:[TestStrategyDecisionID_as_string]\", ",
             "      \"test_levels_covered\": [\"Unit\", \"Integration\", \"E2E\"],",
-            "      \"key_scenarios_link_or_summary\": \"[Summary or link to detailed test cases, e.g., in .nova/reports/qa/detailed_cases.csv or another ConPort item]\",",
+            "      \"key_scenarios_link_or_summary\": \"[Summary or link to detailed test cases]\",",
             "      \"status\": \"Approved\", \"version\": \"[Version]\"",
             "    }",
-            "Link this `TestPlans` (key) entry to the main `Progress` item for this planning task (`[TestPlanProgressID]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type: 'defines_testing_for'`)."
+            "Link this `TestPlans` (key) entry to the main `Progress` item (`[TestPlanProgressID]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type': 'defines_testing_for'`)."
           ],
           "Required_Input_Context_For_Specialist": {
             "Final_Test_Plan_Content_Or_Path": "[...]",
@@ -133,7 +133,7 @@
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Update main `Progress` (`[TestPlanProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Test Strategy & Plan for [ScopeName] v[Version] defined and logged: `TestPlans:[Key]`."
-        *   Coordinate update of `active_context.state_of_the_union` (via Nova-Orchestrator to LeadArchitect) with "Test Plan for [ScopeName] defined: `TestPlans:[Key]`."
+        *   Coordinate update of `active_context.state_of_the_union` (via Nova-Orchestrator) with "Test Plan for [ScopeName] defined: `TestPlans:[Key]`."
     *   **Output:** Test Plan established and ready for execution phase.
 
 9.  **Nova-LeadQA: `attempt_completion` to Nova-Orchestrator**

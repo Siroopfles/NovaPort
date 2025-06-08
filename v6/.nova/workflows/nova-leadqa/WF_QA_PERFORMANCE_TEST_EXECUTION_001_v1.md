@@ -13,7 +13,7 @@
 **Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or ConPort):**
 - Application build is deployed to a dedicated performance testing environment (details in `CustomData ProjectConfig:ActiveConfig.testing_preferences.performance_test_env` (key)).
 - Performance test scripts/tools are available and configured (e.g., JMeter, k6, Locust scripts; paths/commands potentially in `ProjectConfig:ActiveConfig.testing_preferences.performance_tools.[tool_name]_command`).
-- Clear performance targets/KPIs are defined (e.g., response time, throughput, error rate under load, resource utilization). These might be in `AcceptanceCriteria` (key) or a `CustomData PerformanceTargets:[Component]_Targets_vX` (key) entry.
+- Clear performance targets/KPIs are defined (e.g., in `AcceptanceCriteria` (key) or a `CustomData PerformanceTargets:[Component]_Targets_vX` (key) entry).
 
 **Phases & Steps (managed by Nova-LeadQA within its single active task from Nova-Orchestrator):**
 
@@ -132,7 +132,7 @@
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Update main `Progress` (`[PerfTestProgressID]`) to DONE (or DONE_WITH_PERFORMANCE_ISSUES_NOTED) using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description to summarize key outcomes.
-        *   Coordinate update of `active_context.state_of_the_union` (via Nova-Orchestrator to LeadArchitect) with summary: "Performance test for [Component/Scenario] complete. Result: [Pass/Fail against KPIs]. See `PerformanceNotes` and report [Path/Key]."
+        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **`attempt_completion` to Nova-Orchestrator:** Report completion, summary of performance (pass/fail against KPIs), reference to full report and key `PerformanceNotes` (keys). If critical performance issues are identified that block a release or violate NFRs, highlight them as blockers.
 
 **Key ConPort Items Involved:**

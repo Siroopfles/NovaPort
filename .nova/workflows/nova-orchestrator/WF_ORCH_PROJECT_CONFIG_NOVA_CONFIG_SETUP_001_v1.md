@@ -39,8 +39,7 @@
             "   a. Prepare default values for all fields within `ProjectConfig:ActiveConfig` (e.g., `project_type_hint`, `primary_programming_language`, `testing_preferences`, etc.).",
             "   b. Prepare default values for all fields within `NovaSystemConfig:ActiveSettings` (e.g., `mode_behavior` overrides, `conport_integration` settings).",
             "   c. Guide the user (simulated by you, LeadArchitect, asking me, Orchestrator, to relay `ask_followup_question` to user) through each key setting, presenting the default and allowing them to confirm or provide a project-specific value.",
-            "   d. Your Nova-SpecializedConPortSteward will then log the finalized JSON objects to `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) respectively, using `use_mcp_tool` (`tool_name: 'log_custom_data'` or `update_custom_data`).",
-            "2. Ensure these ConPort entries meet Definition of Done."
+            "   d. Your Nova-SpecializedConPortSteward will then log the finalized JSON objects to `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) respectively, using `use_mcp_tool` (`tool_name: 'log_custom_data'`)."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",

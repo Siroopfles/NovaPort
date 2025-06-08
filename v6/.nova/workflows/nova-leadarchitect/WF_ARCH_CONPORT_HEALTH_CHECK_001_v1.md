@@ -86,8 +86,8 @@
           "Specialist_Specific_Instructions": [
             "Log your own detailed `Progress` (integer `id`) for these updates, parented to `[HCProgressID]`.",
             "For each approved action (provided by LeadArchitect):",
-            "  - Action Example 1: For `Decision` (integer `id`) [ID], update `rationale` to '[New Rationale]' using `use_mcp_tool` (`tool_name: 'update_decision'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'decision_id': [ID_as_string], 'rationale': '[New Rationale]'}`).",
-            "  - Action Example 2: For `CustomData ErrorLogs:[key]`, update `status` to 'NEEDS_REVIEW_STALE' using `use_mcp_tool` (`tool_name: 'update_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ErrorLogs', 'key': '[ErrorLogKey]', 'value': { /* entire_updated_R20_object_with_new_status */ }}`).",
+            "  - Action Example 1: To update `Decision` (integer `id`) [ID], use `use_mcp_tool` (`tool_name: 'update_decision'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'decision_id': [ID_as_string], 'rationale': '[New Rationale]'}`).",
+            "  - Action Example 2: To update `CustomData ErrorLogs:[key]`, first retrieve the current object with `use_mcp_tool` (`tool_name: 'get_custom_data'`), then use `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ErrorLogs', 'key': '[ErrorLogKey]', 'value': { /* entire_updated_R20_object_with_new_status */ }}`).",
             "  - Action Example 3: Link `Decision` (integer `id`) [ID_A_as_string] to `Progress` (integer `id`) [ID_B_as_string] with relationship 'tracked_by' using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'source_item_type': 'decision', 'source_item_id': '[ID_A_as_string]', ...}`).",
             "Document all specific changes made in your `Progress` item's description field."
           ],
@@ -109,7 +109,7 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Once all approved actions are DONE by ConPortSteward:
         *   Update main `Progress` (`[HCProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "ConPort Health Check Cycle - [Date] completed. Findings reported and actions taken. Report: `.nova/reports/architect/ConPortHealthCheck_[YYYYMMDD].md`."
-        *   Update `active_context.state_of_the_union` (using `use_mcp_tool`, `tool_name: 'update_active_context'`, `patch_content: {'state_of_the_union': 'ConPort health check completed on [Date]. Key improvements implemented.'}`) to reflect completion and key outcomes.
+        *   To update `active_context`, first `get_active_context`, modify the `state_of_the_union` field, and then `log_custom_data` to `ActiveContext` with key `active_context` to overwrite.
     *   **Output:** Health check cycle completed and documented.
 
 6.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**

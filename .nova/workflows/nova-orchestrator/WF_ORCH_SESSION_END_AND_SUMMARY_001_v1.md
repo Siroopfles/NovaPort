@@ -36,7 +36,7 @@
             "The user is ending the current session.",
             "Review the overall project progress based on information from Nova-Orchestrator (see context below) and your knowledge of recent architectural/ConPort changes.",
             "Formulate a concise `state_of_the_union` string (e.g., 'Development of Feature X 50% complete, awaiting API integration. QA blocked on Test Environment Setup.').",
-            "Instruct your Nova-SpecializedConPortSteward to update `active_context.state_of_the_union` in ConPort with this string using `use_mcp_tool` (`tool_name: 'update_active_context'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'patch_content': {'state_of_the_union': '[Your_Formulated_String]'}}`)."
+            "Instruct your Nova-SpecializedConPortSteward to update `active_context`. They must first use `use_mcp_tool` (`tool_name: 'get_active_context'`), modify the `state_of_the_union` field in the retrieved object, then use `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'ActiveContext'`, `key': 'active_context'`) to overwrite with the updated object."
           ],
           "Required_Input_Context": {
             "Orchestrator_Current_Project_Status_View": "[Nova-Orchestrator's summary of ongoing main tasks and Lead Mode statuses]",

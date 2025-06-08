@@ -46,7 +46,7 @@
             "    \"high_level_features_envisioned\": [\"Feature A (brief description)\", \"Feature B (brief description)\"],",
             "    \"target_audience_profile_hint\": \"[e.g., General Consumers, Enterprise Users]\",",
             "    \"key_differentiators_ envisioned\": [] }",
-            "Use `use_mcp_tool` (`tool_name: 'update_product_context'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'content': { /* your_json_object */ }}`) to log this. (Note: `update_product_context` with `content` will create if not exists for the fixed ID 1)."
+            "Use `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ProductContext', 'key': 'product_context', 'value': { /* your_json_object */ }}`) to log this. This will create or overwrite the entry."
           ],
           "Required_Input_Context_For_Specialist": {
             "UserProvided_ProjectName": "[...]",
@@ -59,7 +59,7 @@
 
 3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Create Initial `ActiveContext`**
     *   **Task:** "Create the initial `ActiveContext` entry in ConPort for [ProjectName]."
-    *   **Briefing:** Instruct ConPortSteward to log a basic `ActiveContext` with `state_of_the_union`: "Project [ProjectName] initialized. Awaiting initial configurations and detailed design." and an empty `open_issues` list, using `use_mcp_tool` (`tool_name: 'update_active_context'`).
+    *   **Briefing:** Instruct ConPortSteward to log a basic `ActiveContext` with `state_of_the_union`: "Project [ProjectName] initialized. Awaiting initial configurations and detailed design." and an empty `open_issues` list, using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'ActiveContext'`, `key: 'active_context'`).
     *   **Nova-LeadArchitect Action:** Verify. Update plan/progress.
 
 4.  **Nova-LeadArchitect: Log Initial High-Level Decisions**

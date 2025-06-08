@@ -7,7 +7,7 @@
 
 **Trigger / Recognition:**
 - User explicitly requests to address a specific `CustomData TechDebtCandidates:[TechDebtKey]` (key).
-- During project planning or sprint review, a `TechDebtCandidates` item is prioritized for resolution.
+- During project planning or sprint review, a `TechDebtCandidates` item is prioritized for resolution (e.g., based on its impact/effort score).
 - `NovaSystemConfig:ActiveSettings.mode_behavior.nova-orchestrator.tech_debt_review_trigger` (e.g., "if_impact_score_above_X") flags an item.
 
 **Pre-requisites by Nova-Orchestrator:**
@@ -113,7 +113,7 @@
 4.  **Nova-Orchestrator: Finalize Tech Debt Item**
     *   **DoR Check:** LeadQA confirms successful verification.
     *   **Action:**
-        *   Delegate to `Nova-LeadArchitect` (ConPortSteward) to update the `CustomData TechDebtCandidates:[TechDebtKey]` (key) entry: set status to 'RESOLVED' (or 'CLOSED'), add resolution date and summary of outcome (from LeadDeveloper/LeadQA reports), using `use_mcp_tool` (`tool_name: 'update_custom_data'`).
+        *   Delegate to `Nova-LeadArchitect` (ConPortSteward) to update the `CustomData TechDebtCandidates:[TechDebtKey]` (key) entry. Briefing: "Update TD item `[TechDebtKey]`. First `get_custom_data`, then modify the `value` to set status to 'RESOLVED' and add resolution date and summary of outcome (from LeadDeveloper/LeadQA reports). Then use `log_custom_data` to save the updated object."
         *   Update `[TechDebtProgressID]` to "COMPLETED_RESOLVED" using `use_mcp_tool`.
         *   Update `active_context.state_of_the_union` if the resolution was significant.
         *   Inform user of resolution.

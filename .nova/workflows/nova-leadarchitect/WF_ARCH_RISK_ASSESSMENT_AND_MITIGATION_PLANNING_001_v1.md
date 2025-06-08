@@ -92,7 +92,7 @@
             "For each risk provided by LeadArchitect (structure will be a list of objects):",
             "  - Log a new `CustomData` entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'RiskAssessment', ...}`).",
             "  - Key: `RA_[YYYYMMDD]_[ScopeAbbrev]_[RiskNum]` (e.g., `RA_20240115_ProjX_R001_TechStackObsolescence`).",
-            "  - Value (JSON Object - must be R20 compliant for RiskAssessment if we define one): ",
+            "  - Value (JSON Object): ",
             "    {",
             "      \"risk_id_human\": \"[e.g., ProjX-R001]\",",
             "      \"risk_description\": \"[Detailed description from LeadArchitect]\",",
@@ -102,10 +102,10 @@
             "      \"risk_level_calculated\": \"[e.g., Severe, High, Medium, Low]\",",
             "      \"mitigation_actions_planned\": [{\"action_description\": \"...\", \"owner_hint\": \"Nova-LeadDeveloper\", \"status\": \"TODO\"}, ...],",
             "      \"contingency_plan_summary\": \"If risk occurs, do X...\",",
-            "      \"status\": \"Identified\", // Other statuses: Mitigating, Monitoring, Realized, Closed_Mitigated, Closed_Accepted
+            "      \"status\": \"Identified\", // Other statuses: Mitigating, Monitoring, Realized, Closed_Mitigated, Closed_Accepted",
             "      \"date_identified\": \"[YYYY-MM-DD]\",",
             "      \"last_reviewed_date\": \"[YYYY-MM-DD]\",",
-            "      \"related_conport_items\": [ {\"type\": \"decision\", \"id_or_key\": \"123\"}, {\"type\": \"custom_data\", \"id_or_key\": \"ImpactAnalyses:SomeReportKey\"} ]",
+            "      \"related_conport_items\": [ {\"type\": \"decision\", \"id\": \"123\"}, {\"type\": \"custom_data\", \"id_or_key\": \"ImpactAnalyses:SomeReportKey\"} ]",
             "    }",
             "  - Link this new `RiskAssessment` (key) entry to the main `Progress` item (`[RAProgressID]`) for this Risk Assessment phase using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type: 'identified_by_progress'`)."
           ],
@@ -126,7 +126,7 @@
     *   **Action:**
         *   Create a summary of the risk assessment (e.g., top 3-5 risks, overall risk posture, key mitigation decisions). This could be a new `CustomData` entry (e.g., `RiskAssessment:[Scope]_SummaryReport_[Date]` (key)) logged via ConPortSteward, or directly included in the `attempt_completion` to Nova-Orchestrator.
         *   Update main `Progress` (`[RAProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Risk assessment for [Scope] completed. See `RiskAssessment` category, key `[SummaryReportKey]` if applicable."
-        *   Update `active_context.state_of_the_union` (using `use_mcp_tool`, `tool_name: 'update_active_context'`) with a note about the risk assessment completion and overall posture.
+        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Risk assessment documented.
 
 7.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
