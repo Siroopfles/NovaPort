@@ -51,7 +51,7 @@
             "Target Path for file: `.nova/workflows/[TargetModeSlug_From_LeadArchitect]/[WorkflowFileName_From_LeadArchitect]`.",
             "Workflow File Content (Markdown): [Full_Workflow_Markdown_Content_From_LeadArchitect].",
             "1. Use `write_to_file` to create the workflow file at the specified target path with the provided content.",
-            "2. After successful file creation, log its metadata to ConPort using `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', ...}`):",
+            "2. After successful file creation, log its metadata to ConPort using `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', ...}`).",
             "   - Category: `DefinedWorkflows`",
             "   - Key: `[WorkflowFileBasenameWithoutExtension]_SumAndPath` (e.g., `WF_LEADDEV_NEW_COMPONENT_SETUP_001_v1_0_SumAndPath`)",
             "   - Value (JSON Object): {",
@@ -86,7 +86,7 @@
         *   Review the created workflow file and ConPort entry for accuracy and completeness.
         *   (Optional) If this workflow is intended for another Lead Mode (e.g., Nova-LeadDeveloper), inform Nova-Orchestrator so it can notify that Lead Mode of the new available workflow.
         *   Update main `Progress` (`[NWDefProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "New workflow '[Workflow Filename]' defined and registered in ConPort: `DefinedWorkflows:[Key]`."
-        *   Update `active_context.state_of_the_union` using `use_mcp_tool` (`tool_name: 'update_active_context'`) if this new workflow represents a significant process addition (e.g., "New workflow for Library Integration defined.").
+        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** New workflow defined, documented, and registered.
 
 4.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator (if this was a delegated phase)**

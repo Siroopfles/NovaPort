@@ -55,10 +55,10 @@
             "Log your own `Progress` (integer `id`) for this subtask, parented to `[CfgSetupProgressID]`.",
             "1. For `ProjectConfig:ActiveConfig` (key):",
             "   - Value: [Final JSON object for ProjectConfig provided by LeadArchitect].",
-            "   - Use `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'update_custom_data'` (if updating) or `log_custom_data` (if new), `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ProjectConfig', 'key': 'ActiveConfig', 'value': { /* ProjectConfig_JSON */ }}`).",
+            "   - Use `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ProjectConfig', 'key': 'ActiveConfig', 'value': { /* ProjectConfig_JSON */ }}`). This will create or overwrite the entry.",
             "2. For `NovaSystemConfig:ActiveSettings` (key):",
             "   - Value: [Final JSON object for NovaSystemConfig provided by LeadArchitect].",
-            "   - Use `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'update_custom_data'` (if updating) or `log_custom_data` (if new), `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'NovaSystemConfig', 'key': 'ActiveSettings', 'value': { /* NovaSystemConfig_JSON */ }}`).",
+            "   - Use `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'NovaSystemConfig', 'key': 'ActiveSettings', 'value': { /* NovaSystemConfig_JSON */ }}`). This will create or overwrite the entry.",
             "Ensure both entries are complete, correctly structured, and meet Definition of Done."
           ],
           "Required_Input_Context_For_Specialist": {

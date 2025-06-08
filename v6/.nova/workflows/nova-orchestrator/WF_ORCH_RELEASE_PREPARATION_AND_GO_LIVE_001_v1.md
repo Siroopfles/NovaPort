@@ -30,10 +30,10 @@
           "Phase_Goal": "Finalize scope for release [ReleaseVersion], create initial release artifacts in ConPort (Releases entry, draft release notes).",
           "Lead_Mode_Specific_Instructions": [
             "Target Release Version: [ReleaseVersion].",
-            "1. Your ConPortSteward should create/update `CustomData Releases:[ReleaseVersion]` (key) with initial data: `{\"status\": \"Planning\", \"target_date\": \"[UserProvidedDate or TBD]\", \"scope_summary_ref_key\": \"ReleaseNotesDraft:[ReleaseVersion]_Draft\"}` using `use_mcp_tool` (`tool_name: 'log_custom_data'` or `update_custom_data`).",
+            "1. Your ConPortSteward should create/update `CustomData Releases:[ReleaseVersion]` (key) with initial data: `{\"status\": \"Planning\", \"target_date\": \"[UserProvidedDate or TBD]\", \"scope_summary_ref_key\": \"ReleaseNotesDraft:[ReleaseVersion]_Draft\"}` using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
             "2. Review ConPort `Progress` (integer `id`) items (status DONE/RESOLVED since last release) and `CustomData ProjectFeatures:[key]` or `SprintGoals:[key]` to compile a list of features/fixes included in [ReleaseVersion]. Use `use_mcp_tool` (`tool_name: 'get_progress'`, `get_custom_data`).",
             "3. Your ConPortSteward should draft initial release notes content based on this scope. Store as `CustomData ReleaseNotesDraft:[ReleaseVersion]_Draft` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). The value should be structured (e.g., {new_features: [], bug_fixes: [], known_issues: []}).",
-            "4. Update `CustomData Releases:[ReleaseVersion]` (key) with a summary of the scope or confirm link to draft notes.",
+            "4. To update `CustomData Releases:[ReleaseVersion]` (key) with a summary of the scope, first `get_custom_data`, then modify the value, then `log_custom_data` to overwrite.",
             "5. Identify key `Decisions` (integer `id`), `SystemPatterns` (integer `id`), `APIEndpoints` (key) changes relevant to this release for inclusion in technical release notes."
           ],
           "Required_Input_Context": {
@@ -102,9 +102,9 @@
           "Phase_Goal": "Finalize all documentation and release notes for [ReleaseVersion].",
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion].",
-            "1. Your ConPortSteward/WorkflowManager should ensure all user-facing documentation (e.g., in `/docs/` as per `ProjectConfig:ActiveConfig`) and technical documentation (`SystemArchitecture` (key), `APIEndpoints` (key) in ConPort) are updated for features/changes in this release. This may involve your SystemDesigner for technical content. Use `use_mcp_tool` for ConPort updates.",
-            "2. Your ConPortSteward should finalize the release notes based on `CustomData ReleaseNotesDraft:[ReleaseVersion]_Draft` (key) and any last-minute changes or minor issues from QA. Store final version in `CustomData ReleaseNotesFinal:[ReleaseVersion]` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'` or `update_custom_data`).",
-            "3. Update `ProductContext` (key 'product_context') if it needs to reflect the state of this release (e.g., new major version) using `use_mcp_tool` (`tool_name: 'update_product_context'`)"
+            "1. Your ConPortSteward/WorkflowManager should ensure all user-facing documentation (e.g., in `/docs/` as per `ProjectConfig:ActiveConfig`) and technical documentation (`SystemArchitecture` (key), `APIEndpoints` (key) in ConPort) are updated for features/changes in this release. This may involve your SystemDesigner for technical content.",
+            "2. Your ConPortSteward should finalize the release notes based on `CustomData ReleaseNotesDraft:[ReleaseVersion]_Draft` (key) and any last-minute changes or minor issues from QA. Store final version in `CustomData ReleaseNotesFinal:[ReleaseVersion]` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
+            "3. To update `ProductContext` (key 'product_context') if it needs to reflect the state of this release (e.g., new major version), use `get_product_context`, modify the object, then use `log_custom_data` on category `ProductContext` and key `product_context` to overwrite."
           ],
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",
@@ -155,9 +155,9 @@
           "Phase_Goal": "Update ConPort to reflect that [ReleaseVersion] is now considered 'Shipped' or 'Released'.",
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion].",
-            "1. Your ConPortSteward should update `CustomData Releases:[ReleaseVersion]` (key) status to 'Shipped' (or 'Released') and add `release_date: [current_date]` using `use_mcp_tool` (`tool_name: 'update_custom_data'`).",
+            "1. Your ConPortSteward should update `CustomData Releases:[ReleaseVersion]` (key) status to 'Shipped' and add `release_date: [current_date]` by first using `get_custom_data` and then `log_custom_data` to overwrite.",
             "2. Update your main `Progress` (integer `id`) for this entire Release Prep workflow (which I, Nova-Orchestrator, will provide the ID for if you need to link or find it) to DONE.",
-            "3. Update `active_context.state_of_the_union` to reflect: 'Project [ProjectName] version [ReleaseVersion] released on [Date].' using `use_mcp_tool` (`tool_name: 'update_active_context'`)"
+            "3. To update `active_context`, instruct your team to first `get_active_context`, modify the `state_of_the_union` field to 'Project [ProjectName] version [ReleaseVersion] released on [Date].', then use `log_custom_data` on the `ActiveContext` category with key `active_context`."
           ],
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",
