@@ -1,0 +1,102 @@
+{
+  "_comment": "This is a comprehensive example of a `ProjectConfig` file for the Nova System. It serves as a template and should be adapted to the specific needs of your project. The AI modes will rely on this configuration to execute commands and find files, so ensure the paths, tools, and commands accurately reflect your project's setup. This configuration is stored in ConPort as `CustomData` with category 'ProjectConfig' and key 'ActiveConfig'.",
+  "project_name": "Apollo E-commerce Platform",
+  "project_type_hint": "A multi-service platform using Python for the backend API and React for the frontend.",
+  "primary_language": "Python",
+  "versioning_scheme": "SemVer 2.0.0",
+
+  "repository": {
+    "provider": "GitHub",
+    "main_branch": "main",
+    "feature_branch_prefix": "feature/"
+  },
+
+  "dependency_management": {
+    "_comment": "Defines commands for the `WF_DEV_EXTERNAL_LIBRARY_INTEGRATION_001_v1.md` workflow.",
+    "tool": "Poetry",
+    "dependency_file": "pyproject.toml",
+    "commands": {
+      "add": "poetry add {library}",
+      "update": "poetry update {library}",
+      "install_all": "poetry install"
+    }
+  },
+
+  "testing": {
+    "_comment": "Crucial for all QA and Developer workflows. Defines paths, commands, and target environments.",
+    "framework": "pytest",
+    "paths": {
+      "unit_tests": "tests/unit/",
+      "integration_tests": "tests/integration/",
+      "regression_suite_root": "tests/regression/",
+      "performance_scripts": "tests/performance/",
+      "security_reports": ".nova/reports/qa/security/"
+    },
+    "commands": {
+      "run_all": "pytest",
+      "run_regression": "pytest tests/regression/",
+      "run_coverage": "pytest --cov=src",
+      "performance_load_test": "k6 run tests/performance/main_load_test.js"
+    },
+    "environments": {
+      "_comment": "Target URLs used by QA workflows like `WF_QA_RELEASE_CANDIDATE_VALIDATION_001_v1.md`.",
+      "regression_env_url": "https://staging.apollo-platform.com",
+      "rc_validation_env_url": "https://staging.apollo-platform.com",
+      "performance_env_url": "https://perf.apollo-platform.com",
+      "security_scan_env_url": "https://staging.apollo-platform.com"
+    },
+    "checklists": {
+      "_comment": "Reference for `WF_QA_SECURITY_VULNERABILITY_TESTING_BASIC_001_v1.md`.",
+      "security_checklist_conport_key": "SecurityChecklists:BasicWebApp_v1.2"
+    }
+  },
+
+  "code_quality": {
+    "_comment": "Linter and formatter commands used by Developer workflows.",
+    "linter": {
+      "tool": "Ruff",
+      "command": "ruff check .",
+      "config_file": ".ruff.toml"
+    },
+    "formatter": {
+      "tool": "Ruff",
+      "command": "ruff format ."
+    }
+  },
+
+  "documentation": {
+    "_comment": "Settings for managing project documentation.",
+    "tool": "MkDocs",
+    "docstring_format": "Google",
+    "source_directory": "docs_src/",
+    "build_command": "mkdocs build"
+  },
+
+  "security": {
+    "_comment": "Specific tool commands used by the `WF_QA_SECURITY_VULNERABILITY_TESTING_BASIC_001_v1.md` workflow.",
+    "tools": {
+      "dependency_scanner": {
+        "name": "pip-audit",
+        "command": "pip-audit"
+      },
+      "static_analysis": {
+        "name": "Bandit",
+        "command": "bandit -r src/ -f json -o .nova/reports/qa/security/bandit_report.json"
+      },
+      "dynamic_analysis": {
+        "name": "OWASP ZAP",
+        "command": "zap-cli quick-scan --self-contained -s spider -r -j -t {target_url} -o .nova/reports/qa/security/zap_report.json",
+        "default_policy": "light"
+      }
+    }
+  },
+  
+  "logging": {
+    "_comment": "Log file locations needed for `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md`.",
+    "paths": {
+        "application": "/var/log/apollo/app.log",
+        "access": "/var/log/apollo/access.log",
+        "database": "/var/log/apollo/db.log"
+    }
+  }
+}
