@@ -6,7 +6,6 @@ customModes:
       - read
       - command
       - mcp
-    source: project
 
   - slug: nova-leadarchitect
     name: Nova-LeadArchitect
@@ -16,7 +15,6 @@ customModes:
       - edit # For .nova/workflows/ management
       - command
       - mcp
-    source: project
 
   - slug: nova-leaddeveloper
     name: Nova-LeadDeveloper
@@ -26,7 +24,6 @@ customModes:
       - edit # For overseeing code changes
       - command
       - mcp
-    source: project
 
   - slug: nova-leadqa
     name: Nova-LeadQA
@@ -35,18 +32,16 @@ customModes:
       - read
       - command
       - mcp
-    source: project
 
   - slug: nova-flowask
     name: Nova-FlowAsk
     roleDefinition: "Specialized information retrieval and analysis agent for the Nova system."
     groups:
       - read
-      - edit:
-          - fileRegex: \.nova/summary/session_summary_.*\.md$
-            description: "Session summary Markdown files"
+      - - edit
+        - fileRegex: \.nova/summary/session_summary_.*\.md$
+          description: "Session summary Markdown files"
       - mcp
-    source: project
 
   - slug: nova-specializedsystemdesigner
     name: Nova-SpecializedSystemDesigner
@@ -54,33 +49,24 @@ customModes:
     groups:
       - read
       - mcp
-    source: project
 
   - slug: nova-specializedconportsteward
     name: Nova-SpecializedConPortSteward
     roleDefinition: "Nova specialist for ConPort data integrity, quality, glossary management, and administrative tasks."
     groups:
       - read
-      - edit:
-          - fileRegex: \.nova/reports/architect/.*\.md$
-            description: "Architect reports Markdown files"
+      - - edit
+        - fileRegex: \.nova/reports/architect/.*\.md$
+          description: "Architect reports Markdown files"
       - mcp
-    source: project
 
-  - slug: nova-specializedworkflowmanager
+  - slug: nova-specializedworkflowmanager # Aangepast om 1 edit restrictie te hebben
     name: Nova-SpecializedWorkflowManager
     roleDefinition: "Nova specialist for creating, updating, and managing workflow definition files and their ConPort registration."
     groups:
       - read
-      - edit:
-          - fileRegex: \.nova/workflows/.*\.md$
-            description: "Workflow definition Markdown files"
-          - fileRegex: \.nova/README\.md$
-            description: ".nova README file"
-          - fileRegex: docs/conport_schema_guide\.md$
-            description: "ConPort Schema Guide"
+      - edit
       - mcp
-    source: project
 
   - slug: nova-specializedfeatureimplementer
     name: Nova-SpecializedFeatureImplementer
@@ -90,7 +76,6 @@ customModes:
       - edit # General edit for source code
       - command
       - mcp
-    source: project
 
   - slug: nova-specializedcoderefactorer
     name: Nova-SpecializedCodeRefactorer
@@ -100,7 +85,6 @@ customModes:
       - edit # General edit for source code
       - command
       - mcp
-    source: project
 
   - slug: nova-specializedtestautomator
     name: Nova-SpecializedTestAutomator
@@ -110,7 +94,6 @@ customModes:
       - edit # General edit for test scripts and specific reports
       - command
       - mcp
-    source: project
 
   - slug: nova-specializedcodedocumenter
     name: Nova-SpecializedCodeDocumenter
@@ -119,7 +102,6 @@ customModes:
       - read
       - edit # General edit for source files (inline docs) and MD doc files
       - mcp
-    source: project
 
   - slug: nova-specializedbuginvestigator
     name: Nova-SpecializedBugInvestigator
@@ -128,19 +110,17 @@ customModes:
       - read
       - command
       - mcp
-    source: project
 
   - slug: nova-specializedtestexecutor
     name: Nova-SpecializedTestExecutor
     roleDefinition: "Nova specialist for executing defined test cases (manual or automated) and meticulously reporting results."
     groups:
       - read
-      - edit: # Specific edit for QA reports
-          - fileRegex: \.nova/reports/qa/.*\.(log|xml|json|html|md)$
-            description: "QA report files"
+      - - edit # Specific edit for QA reports
+        - fileRegex: \.nova/reports/qa/.*\.(log|xml|json|html|md)$
+          description: "QA report files"
       - command
       - mcp
-    source: project
 
   - slug: nova-specializedfixverifier
     name: Nova-SpecializedFixVerifier
@@ -149,4 +129,3 @@ customModes:
       - read
       - command
       - mcp
-    source: project
