@@ -6,10 +6,6 @@
 **Primary Specialist Actors (delegated to by Nova-LeadQA):** Nova-SpecializedBugInvestigator, Nova-SpecializedFixVerifier.
 **Collaborating Lead (via Nova-Orchestrator):** Nova-LeadDeveloper (for implementing fixes).
 
-**Trigger / Nova-LeadQA Recognition:**
-- Nova-Orchestrator delegates: "Investigate and manage `ErrorLogs:[ReportedBugKey]` for Project [ProjectName]".
-- Nova-SpecializedTestExecutor reports a new bug (and logs initial `ErrorLogs:[key]`); Nova-LeadQA starts this workflow for it.
-
 **Pre-requisites by Nova-LeadQA:**
 - A `CustomData ErrorLogs:[BugKey]` (key) entry exists in ConPort with initial details (symptoms, repro steps if known, environment). If not, Nova-LeadQA instructs Nova-SpecializedTestExecutor or Nova-SpecializedConPortSteward (via LeadArchitect) to create it first using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'ErrorLogs'`).
 
@@ -41,12 +37,12 @@
             "2. Analyze relevant application logs (`read_file` - paths from `ProjectConfig:ActiveConfig.logging_paths` or ErrorLog), system logs, and if necessary, inspect related source code (read-only using `search_files`, `list_code_definition_names`) to identify failure points.",
             "3. Consult related ConPort items using `use_mcp_tool`: `Decisions` (integer `id`), `SystemArchitecture` (key), `APIEndpoints` (key), recent `Progress` (integer `id`) on related features that might have introduced the bug (use `get_linked_items` on ErrorLog or related features if links exist).",
             "4. Formulate a clear Root Cause Hypothesis / Confirmed Root Cause.",
-            "5. Meticulously update the `CustomData ErrorLogs:[BugKey]` (key) entry using `use_mcp_tool` (`tool_name: 'update_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ErrorLogs', 'key': '[BugKey]', 'value': { /* R20_compliant_updated_object */ }}`) with:",
+            "5. To update the `CustomData ErrorLogs:[BugKey]` (key) entry: First use `get_custom_data` to retrieve the current object. Then, create a new JSON object by modifying the retrieved value. Finally, use `log_custom_data` to overwrite the entry with your updated object, which MUST include:",
             "   - Confirmed/refined `reproduction_steps`.",
             "   - Detailed `investigation_notes` (what was checked, tools used, findings).",
             "   - A `root_cause_analysis` section in the value object.",
             "   - Updated `initial_hypothesis` or a new `confirmed_root_cause` field in the value object.",
-            "   - Change `status` field in value object to 'INVESTIGATION_COMPLETE_RCA_FOUND' or 'INVESTIGATION_BLOCKED_NEED_MORE_INFO'."
+            "   - An updated `status` field, e.g., 'INVESTIGATION_COMPLETE_RCA_FOUND' or 'INVESTIGATION_BLOCKED_NEED_MORE_INFO'."
           ],
           "Required_Input_Context_For_Specialist": {
             "Parent_Progress_ID_String": "[BugProgressID_as_string]",
@@ -61,7 +57,7 @@
           ]
         }
         ```
-    *   **Nova-LeadQA Action after Specialist's `attempt_completion`:** Review RCA. Update `[BugProgressID]_QAPlan` and specialist `Progress`. Update `ErrorLogs:[BugKey]` status to 'AWAITING_FIX_COORDINATION' if RCA is clear.
+    *   **Nova-LeadQA Action after Specialist's `attempt_completion`:** Review RCA. To update `ErrorLogs:[BugKey]` status to 'AWAITING_FIX_COORDINATION', use the `get`/`log` pattern.
 
 **Phase BIR.2: Fix Coordination & Implementation (Involves Nova-Orchestrator & Nova-LeadDeveloper)**
 
@@ -69,7 +65,7 @@
     *   **DoR Check:** RCA complete in `ErrorLogs:[BugKey]` (key), root cause points to a code defect.
     *   **Actor:** Nova-LeadQA
     *   **Action:**
-        *   Update `ErrorLogs:[BugKey]` (key) status to "AWAITING_FIX" using `use_mcp_tool` (`tool_name: 'update_custom_data'`).
+        *   Update `ErrorLogs:[BugKey]` (key) status to "AWAITING_FIX" using `use_mcp_tool` (`get_custom_data` then `log_custom_data`).
         *   In its `attempt_completion` to Nova-Orchestrator (if this bug investigation was a delegated phase), or in a new direct communication if LeadQA initiated this workflow for a newly found bug:
             *   Report: "`ErrorLogs:[BugKey]` RCA complete. Root Cause: [Summary from ErrorLog]. Requesting fix implementation by Nova-LeadDeveloper."
             *   Provide `ErrorLogs:[BugKey]` (key) as reference.
@@ -80,7 +76,7 @@
 3.  **Nova-LeadQA: Receive Fix Confirmation & Delegate Verification to Nova-SpecializedFixVerifier**
     *   **Actor:** Nova-LeadQA
     *   **Action:** Nova-Orchestrator informs Nova-LeadQA that a fix for `ErrorLogs:[BugKey]` (key) is ready for verification (providing commit details/PR link if available from Nova-LeadDeveloper).
-    *   Update `ErrorLogs:[BugKey]` (key) status to "AWAITING_VERIFICATION" using `use_mcp_tool`.
+    *   Update `ErrorLogs:[BugKey]` (key) status to "AWAITING_VERIFICATION" using `use_mcp_tool` (`get_custom_data` then `log_custom_data`).
     *   Update `[BugProgressID]_QAPlan`.
     *   **Task:** "Verify the deployed fix for `ErrorLogs:[BugKey]`."
     *   **`new_task` message for Nova-SpecializedFixVerifier:**
@@ -96,8 +92,8 @@
             "1. Execute original reproduction steps from `ErrorLogs:[BugKey]`. Confirm issue is GONE.",
             "2. Execute any specific verification test cases defined in the `ErrorLogs` (key) or related `TestPlans` (key).",
             "3. Perform targeted regression testing around the fix area to check for new issues.",
-            "4. If fix confirmed AND no regressions: Update `ErrorLogs:[BugKey]` (key) value object: set `status` to `RESOLVED`. Add detailed `verification_notes` (what was tested, build version). Use `use_mcp_tool` (`tool_name: 'update_custom_data'`).",
-            "5. If fix NOT confirmed (bug still present): Update `ErrorLogs:[BugKey]` (key) value object: set `status` to `FAILED_VERIFICATION` (or `REOPENED`). Add detailed notes on what failed and how.",
+            "4. If fix confirmed AND no regressions: Update `ErrorLogs:[BugKey]` (key). First `get_custom_data`, then `log_custom_data` with a new value object where `status` is `RESOLVED` and you've added detailed `verification_notes` (what was tested, build version).",
+            "5. If fix NOT confirmed (bug still present): Update `ErrorLogs:[BugKey]` (key) status to `FAILED_VERIFICATION` (or `REOPENED`) using the `get`/`log` pattern, adding detailed failure notes.",
             "6. If fix confirmed BUT a NEW regression is found: Update original `ErrorLogs:[BugKey]` status to `RESOLVED` with notes about the regression. Then, log the NEW regression as a separate `CustomData ErrorLogs:[new_key]` entry (R20 compliant, including `source_task_id` as your current `Progress` ID string) using `use_mcp_tool` (`tool_name: 'log_custom_data'`)."
           ],
           "Required_Input_Context_For_Specialist": {

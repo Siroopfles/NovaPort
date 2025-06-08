@@ -101,7 +101,7 @@
     *   **Action:**
         *   The consolidated test cases now form the core of the detailed test plan for this scope.
         *   Log this test plan to ConPort. This might involve:
-            *   Creating/updating a `CustomData TestPlans:[ScopeName]_TestPlan_vX.Y` (key) entry using `use_mcp_tool` (`tool_name: 'log_custom_data'` or `update_custom_data`).
+            *   Creating/updating a `CustomData TestPlans:[ScopeName]_TestPlan_vX.Y` (key) entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`).
             *   The `value` of this `TestPlans` entry could be a JSON object containing:
                 *   `title`, `scope_summary`, `version`.
                 *   A list of test scenarios, each with a list of detailed test case objects (ID, title, steps, expected results, etc.).

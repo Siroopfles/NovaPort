@@ -129,7 +129,7 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Update main `Progress` (`[IAProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Impact analysis for [ChangeDescriptionShort] completed. Report: `ImpactAnalyses:[Key]`."
-        *   Update `active_context.state_of_the_union` using `use_mcp_tool` (`tool_name: 'update_active_context'`, `patch_content: {'state_of_the_union': 'Impact analysis for [Change] complete. Recommendation: [Rec]. See ImpactAnalyses:[Key].'}`).
+        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Impact analysis completed and documented.
 
 7.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**

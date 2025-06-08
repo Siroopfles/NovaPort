@@ -75,7 +75,7 @@
             *   Determine if it's a known issue (check open `CustomData ErrorLogs:[key]` in ConPort using `use_mcp_tool` (`tool_name: 'get_custom_data'` or `search_custom_data_value_fts`)).
             *   If new and unique:
                 *   Log a new `CustomData ErrorLogs:[YYYYMMDD_RegressionFail_ShortDesc]` (key) entry (R20 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Include: precise repro steps (from test case), expected vs actual, environment (build, env URL), severity (regressions are often HIGH or CRITICAL), link to test case in `TestPlans` (key) if applicable, `source_task_id` (TestExecutor's Progress ID string).
-            *   If it's a recurrence of a previously "RESOLVED" bug, update the existing `ErrorLogs` (key) status to "REOPENED" with new details using `use_mcp_tool` (`tool_name: 'update_custom_data'`).
+            *   If it's a recurrence of a previously "RESOLVED" bug, retrieve the existing `ErrorLogs` (key) with `get_custom_data`, update its status to "REOPENED" with new details, and re-log it with `log_custom_data`.
         *   Coordinate update of `active_context.open_issues` (via Nova-Orchestrator to LeadArchitect/ConPortSteward).
     *   **Output:** All new/reopened regression defects logged in ConPort. List of corresponding `ErrorLogs` keys. Update `[RegressProgressID]_QAPlan`.
 
@@ -96,7 +96,7 @@
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Update main `Progress` (`[RegressProgressID]`) to DONE (or DONE_WITH_FAILURES if significant issues remain) using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description with outcome summary.
-        *   Coordinate update of `active_context.state_of_the_union` (via Nova-Orchestrator to LeadArchitect) with summary of regression outcome: "Full regression for [Date/Version] complete. [X] new critical issues found. Report: [ConPortKey/Path]."
+        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Regression cycle documented.
 
 6.  **Nova-LeadQA: `attempt_completion` to Nova-Orchestrator**

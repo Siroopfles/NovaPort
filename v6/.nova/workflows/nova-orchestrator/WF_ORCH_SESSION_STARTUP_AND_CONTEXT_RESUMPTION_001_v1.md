@@ -83,7 +83,7 @@
     *   **Actor:** Nova-Orchestrator
     *   **Action:** If `ProjectConfig:ActiveConfig` (key) or `NovaSystemConfig:ActiveSettings` (key) were not found or are incomplete after step 4:
         *   Inform user: "Essential configurations (`ProjectConfig:ActiveConfig` or `NovaSystemConfig:ActiveSettings`) are missing or incomplete from ConPort."
-        *   Delegate to `Nova-LeadArchitect` using `new_task` to execute workflow `.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_CONFIG_NOVA_CONFIG_SETUP_001_v1.md` (this current workflow's "child" effectively, or the more detailed `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`).
+        *   Delegate to `Nova-LeadArchitect` using `new_task` to execute workflow `.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_CONFIG_NOVA_CONFIG_SETUP_001_v1.md`.
         *   **Subtask Briefing Object for Nova-LeadArchitect (schematic):**
             ```json
             {
