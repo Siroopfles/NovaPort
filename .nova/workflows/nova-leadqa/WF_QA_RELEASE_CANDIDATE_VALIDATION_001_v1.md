@@ -109,7 +109,7 @@
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Update main `Progress` (`[RCValProgressID]`) to 'DONE' (if GO) or 'FAILED_CRITICAL_BUGS_FOUND' (if NO_GO) using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description with summary.
-        *   Coordinate update of `active_context.state_of_the_union` (via Nova-Orchestrator to LeadArchitect) with summary: "RC [RC_Version] validation complete. Recommendation: [Go/No-Go]. Report: TestExecutionReports:RC_[Key] or [Path]."
+        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **`attempt_completion` to Nova-Orchestrator:** Provide the Go/No-Go recommendation, summary of critical issues (if any) with their `ErrorLogs` (keys), and reference to the full validation report.
 
 **Key ConPort Items Involved:**

@@ -33,7 +33,7 @@
             "1. If ConPort DB was not present and you are performing initial bootstrap (as per Orchestrator's startup): Execute the workflow defined in `.nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md`. This includes creating basic root directory structure (e.g., `/src`, `/docs`, `/tests`, `.nova/`) if it doesn't exist, and bootstrapping initial ConPort `ProductContext` (key: 'product_context') based on user input/project brief, logging initial `Decisions` (integer `id`), `Progress` (integer `id`), and `CustomData ProjectRoadmap:[key]`.",
             "2. Execute workflow `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` to guide the user (via Orchestrator relay if needed) through defining and logging `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) in ConPort.",
             "3. Ensure your specialists (SystemDesigner, ConPortSteward, WorkflowManager) are utilized appropriately for these tasks.",
-            "4. Update `active_context.state_of_the_union` to reflect 'Project Initialized, Awaiting Design Phase' using `use_mcp_tool` (`tool_name: 'update_active_context'`)."
+            "4. To update `active_context`, instruct your team to first `get_active_context`, modify the `state_of_the_union` field to 'Project Initialized, Awaiting Design Phase', then use `log_custom_data` on the `ActiveContext` category with key `active_context`."
           ],
           "Required_Input_Context": {
             "UserProvided_ProjectName": "[UserProvided_ProjectName]",
@@ -69,7 +69,7 @@
             "Execute the workflow defined in `.nova/workflows/nova-leadarchitect/WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md` to manage your team (SystemDesigner, ConPortSteward) for this entire design phase.",
             "Ensure all architectural `Decisions` (integer `id`), `SystemArchitecture` documents (key), `APIEndpoints` (key), and `DBMigrations` (key) / schemas are thoroughly defined and logged in ConPort with DoD met.",
             "Consider creating project-specific workflows (e.g., for new service onboarding within this project) via your WorkflowManager and log them to `DefinedWorkflows` (key).",
-            "At the end of this phase, update `active_context.state_of_the_union` to 'Design Phase Completed, Awaiting Development' using `use_mcp_tool` (`tool_name: 'update_active_context'`)"
+            "At the end of this phase, to update `active_context`, instruct your team to first `get_active_context`, modify the `state_of_the_union` to 'Design Phase Completed, Awaiting Development', then use `log_custom_data` on the `ActiveContext` category with key `active_context`."
           ],
           "Required_Input_Context": {
             "ProjectName": "[UserProvided_ProjectName]",
@@ -104,8 +104,8 @@
             "Execute the workflow defined in `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` (or a more project-specific one if created by LeadArchitect) to manage your team (FeatureImplementer, TestAutomator, CodeDocumenter, Refactorer if needed) for this entire development phase.",
             "Ensure all code adheres to standards in `ProjectConfig:ActiveConfig` and ConPort `SystemPatterns` (integer `id`/name).",
             "All new code must have accompanying unit tests. Integration tests for service interactions are crucial.",
-            "Ensure your team logs technical implementation `Decisions` (integer `id`), `CodeSnippets` (key), `APIUsage` (key), `TechDebtCandidates` (key), and detailed `Progress` (integer `id`) for modules/features.",
-            "At the end of this phase, update `active_context.state_of_the_union` to 'Development Phase Completed (Code Implemented & Unit/Integration Tested), Awaiting QA' (This update will be coordinated via Nova-LeadArchitect if you cannot do it directly)."
+            "Ensure your team logs technical implementation `Decisions` (integer `id`), `CodeSnippets` (key), `APIUsage` (key), `TechDebtCandidates` (key) with scoring, and detailed `Progress` (integer `id`) for modules/features.",
+            "At the end of this phase, coordinate with me, Nova-Orchestrator, to update `active_context.state_of_the_union` to 'Development Phase Completed (Code Implemented & Unit/Integration Tested), Awaiting QA'."
           ],
           "Required_Input_Context": {
             "ProjectName": "[UserProvided_ProjectName]",
@@ -140,10 +140,10 @@
           "Lead_Mode_Specific_Instructions": [
             "Execute the workflow defined in `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md` (or a more project-specific one like `WF_QA_RELEASE_CANDIDATE_VALIDATION_001_v1.md` if this is a release candidate) to manage your team (TestExecutor, BugInvestigator, FixVerifier) for this QA phase.",
             "Develop/utilize test plans based on `FeatureScope` (key), `AcceptanceCriteria` (key), `APIEndpoints` (key), and `SystemArchitecture` (key).",
-            "Ensure your team meticulously logs all defects as structured `CustomData ErrorLogs:[key]` (R20), updates their status through the lifecycle, and contributes to `LessonsLearned` (key).",
+            "Ensure your team meticulously logs all defects as structured `CustomData ErrorLogs:[key]` (R20 compliant), updates their status through the lifecycle, and contributes to `LessonsLearned` (key).",
             "Maintain an accurate list of `active_context.open_issues` (coordinate update via me to Nova-LeadArchitect/ConPortSteward).",
             "Coordinate with Nova-Orchestrator for communication with Nova-LeadDeveloper regarding bug fixes.",
-            "At the end of this phase, update `active_context.state_of_the_union` to 'QA Phase Completed. Quality Status: [e.g., Ready for Release Candidate, Blocked by X critical bugs]' (Coordinate update via me to Nova-LeadArchitect)."
+            "At the end of this phase, coordinate with me to update `active_context.state_of_the_union` to 'QA Phase Completed. Quality Status: [e.g., Ready for Release Candidate, Blocked by X critical bugs]'."
           ],
           "Required_Input_Context": {
             "ProjectName": "[UserProvided_ProjectName]",
@@ -206,6 +206,7 @@
     *   **Action:**
         *   Log final `Decision` (integer `id`) about project launch/release using `use_mcp_tool` (`tool_name: 'log_decision'`).
         *   Update top-level project `Progress` (integer `id`) to "COMPLETED" or "Version 1.0 Released" using `use_mcp_tool` (`tool_name: 'update_progress'`).
+        *   Delegate to `Nova-FlowAsk` to summarize all `Decisions` and `ErrorLogs` for the cycle, then delegate to `Nova-LeadArchitect` to analyze this summary and log a consolidated `LessonsLearned` item.
         *   Consult user for next steps: new feature cycle (using `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`), maintenance, or project closure.
     *   **Output:** Project cycle concluded.
 

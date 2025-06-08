@@ -108,9 +108,9 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Once all specialist subtasks in `LeadPhaseExecutionPlan` (key) are DONE:
         *   Review all created ConPort items (`SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key), `Decisions` (integer `id`)) for consistency, completeness (DoD), and correctness.
-        *   Create or update a main `CustomData SystemArchitecture:[ProjectName]_OverallArch_v1` (key) document that provides an overview and links to all detailed design artifacts.
+        *   To update a main `CustomData SystemArchitecture:[ProjectName]_OverallArch_v1` (key) document, first `get_custom_data`, modify the value to link to all artifacts, then `log_custom_data` to overwrite.
         *   Update main phase `Progress` (`[DesignPhaseProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "System design for [ProjectName] complete. Key artifacts: SystemArchitecture:[ProjectName]_OverallArch_v1, APIEndpoints tagged #[ProjectName]_APIs_v1."
-        *   Update `active_context.state_of_the_union` (using `use_mcp_tool`, `tool_name: 'update_active_context'`) to reflect completion of design phase (e.g., "System architecture for Project [ProjectName] defined, core APIs specified. Ready for development planning.").
+        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Design phase completed. All relevant artifacts logged and interlinked in ConPort. `active_context.state_of_the_union` updated.
 
 7.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
