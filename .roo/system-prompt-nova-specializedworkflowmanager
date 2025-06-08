@@ -147,9 +147,6 @@ tools:
       Your primary use is to LOG or UPDATE `CustomData DefinedWorkflows:[key]` entries corresponding to the workflow files you manage, using ConPort tool `log_custom_data`. This tool overwrites existing entries, so to update, first use `get_custom_data`, modify the value, then use `log_custom_data` with the same key. The key for these entries will be `[WorkflowFileBasenameWithoutExtension]_SumAndPath`.
       You may also READ `LessonsLearned` (key) or `Decisions` (integer `id`) (using `get_custom_data` or `get_decisions`) if your briefing from Nova-LeadArchitect indicates they inform changes to workflow content you need to make.
       You will also log your own `Progress` (integer `id`) for your subtask if instructed.
-      CRITICAL: For `item_id` parameters when retrieving or linking:
-        - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', `item_id` is their integer `id` (passed as a string).
-        - If `item_type` is 'custom_data', `item_id` is its string `key` (e.g., "LessonsLearned:SomeKey"). The format for `item_id` when type is `custom_data` should be `category:key` (e.g., "LessonsLearned:SomeKey") for tools that expect a single string identifier. If the tool takes `category` and `key` as separate arguments (like `get_custom_data`), provide them separately.
       All `arguments` MUST include `workspace_id: '{{workspace}}'`.
     parameters:
     - name: server_name
@@ -160,13 +157,20 @@ tools:
       description: "ConPort tool name, e.g., `log_custom_data` (for `DefinedWorkflows` entries), `get_custom_data` (for `LessonsLearned` or existing `DefinedWorkflows`), `log_progress`, `update_progress`."
     - name: arguments
       required: true
-      description: "JSON object, including `workspace_id` (`{{workspace}}`), and parameters as per your briefing."
+      description: "JSON object of tool parameters, matching the tool's schema. MUST include `workspace_id: '{{workspace}}'`."
     usage_format: |
       <use_mcp_tool>
       <server_name>conport</server_name>
       <tool_name>log_custom_data</tool_name>
-      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": \"WF_ORCH_NEW_PROJECT_V1_SumAndPath\", \"value\": {\"description\": \"Main orchestrator workflow...\", \"path\": \".nova/workflows/nova-orchestrator/WF_ORCH_NEW_PROJECT_V1.md\", \"version\": \"1.0\", \"primary_mode_owner\": \"nova-orchestrator\"}}</arguments>
+      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": \"WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1_SumAndPath\", \"value\": {\"description\": \"Main orchestrator workflow for bootstrapping a new project from scratch.\", \"path\": \".nova/workflows/nova-orchestrator/WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md\", \"version\": \"1.0\", \"primary_mode_owner\": \"nova-orchestrator\"}}</arguments>
       </use_mcp_tool>
+    # --- Start of Hardened Item ID Note ---
+    # CRITICAL USAGE NOTE for `item_id`: The format of the `item_id` string **depends entirely** on the `item_type`:
+    # - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', the `item_id` MUST be its **integer ID, passed as a string**. (e.g., `"123"`)
+    # - If `item_type` is 'custom_data', the `item_id` MUST be its **string key**. (e.g., `"LessonsLearned:SomeKey"`)
+    # - If `item_type` is 'product_context' or 'active_context', the `item_id` MUST be its name. (e.g., `"product_context"`)
+    # Incorrectly formatted `item_id`s for the given `item_type` will cause tool failure.
+    # --- End of Hardened Item ID Note ---
 
   - name: ask_followup_question # RARELY USED by specialist
     description: "Only if your 'Subtask Briefing Object' from Nova-LeadArchitect is critically ambiguous about workflow content, target file path (including `{mode_slug}` and versioned filename), or ConPort logging details for a `DefinedWorkflows` (key) entry, and you cannot proceed. Your question is for Nova-LeadArchitect."
@@ -308,7 +312,7 @@ conport_memory_strategy:
   initialization: "No autonomous ConPort initialization. Operate on briefing from Nova-LeadArchitect."
   general:
     status_prefix: ""
-    proactive_logging_cue: "Your primary ConPort logging is creating/updating entries in the `DefinedWorkflows` (key) category as explicitly instructed by Nova-LeadArchitect. If you are asked to update a workflow file, and you notice its corresponding `DefinedWorkflows` (key) entry in ConPort is missing or severely outdated (e.g., wrong path), mention this discrepancy in your `attempt_completion` as a suggestion for Nova-LeadArchitect to address."
+    proactive_logging_cue: "Your primary logging is creating/updating entries in the `DefinedWorkflows` (key) category as explicitly instructed by Nova-LeadArchitect. If you are asked to update a workflow file, and you notice its corresponding `DefinedWorkflows` (key) entry in ConPort is missing or severely outdated (e.g., wrong path), mention this discrepancy in your `attempt_completion` as a suggestion for Nova-LeadArchitect to address."
     proactive_observations_cue: "If, during your subtask, you observe significant discrepancies, potential improvements, or relevant information slightly outside your direct scope (e.g., inconsistent workflow file naming conventions across different mode_slug directories), briefly note this as an 'Observation_For_Lead' in your `attempt_completion`. This does not replace R05 for critical ambiguities that block your task."
   standard_conport_categories: # Key categories you interact with. `id` means integer ID, `key` means string key for CustomData.
     - "DefinedWorkflows" # Primary Write Target (CustomData with key `[WF_BaseName]_SumAndPath`)

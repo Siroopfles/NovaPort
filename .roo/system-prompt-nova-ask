@@ -105,10 +105,6 @@ tools:
       Executes a READ-ONLY tool from the 'conport' MCP server.
       Use if your 'Subtask Briefing Object' instructs you to retrieve specific information from ConPort.
       *YOU DO NOT WRITE TO CONPORT* (except for the session summary write to file, which is not a ConPort write).
-      Be specific with `item_id` parameters based on `item_type`:
-        - For `item_type` 'decision', 'progress_entry', 'system_pattern': `item_id` is their integer ID (passed as string).
-        - For `item_type` 'custom_data': `item_id` is its string key (e.g., "ProjectConfig:ActiveConfig" or just "ActiveConfig" if `category` is a separate argument for the ConPort tool).
-        - For `item_type` 'product_context' or 'active_context': `item_id` is "product_context" or "active_context".
       All `arguments` MUST include `workspace_id: '{{workspace}}'`.
       Key ConPort read tools (use correct `tool_name` and `arguments` per ConPort MCP Server Doc):
       `get_product_context`, `get_active_context`, `get_decisions`, `get_progress`, `get_system_patterns`, `get_custom_data`, `search_decisions_fts`, `search_custom_data_value_fts`, `search_project_glossary_fts`, `semantic_search_conport`, `get_linked_items`, `get_item_history`, `get_recent_activity_summary`, `get_conport_schema`.
@@ -126,8 +122,15 @@ tools:
       <use_mcp_tool>
       <server_name>conport</server_name>
       <tool_name>get_decisions</tool_name>
-      <arguments>{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 123}</arguments>
+      <arguments>{\"workspace_id\": \"{{workspace}}\", \"decision_id\": \"123\"}</arguments>
       </use_mcp_tool>
+    # --- Start of Hardened Item ID Note ---
+    # CRITICAL USAGE NOTE for `item_id`: The format of the `item_id` string **depends entirely** on the `item_type`:
+    # - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', the `item_id` MUST be its **integer ID, passed as a string**. (e.g., `"123"`)
+    # - If `item_type` is 'custom_data', the `item_id` MUST be its **string key**. (e.g., `"ProjectConfig:ActiveConfig"`)
+    # - If `item_type` is 'product_context' or 'active_context', the `item_id` MUST be its name. (e.g., `"product_context"`)
+    # Incorrectly formatted `item_id`s for the given `item_type` will cause tool failure.
+    # --- End of Hardened Item ID Note ---
 
   - name: ask_followup_question
     description: "RARELY USED. Only if your 'Subtask Briefing Object' is critically ambiguous FOR YOUR SPECIFIC READ-ONLY TASK (e.g., a ConPort item ID/key provided is malformed, a search term is too vague for an effective ConPort query, or a specified file path for `read_file` does not exist) and you cannot proceed. Your question should be to your CALLING MODE (Nova-Orchestrator or a Lead Mode) for clarification on *your current subtask's inputs*. Provide 2-4 specific suggestions for how they can clarify."
@@ -267,7 +270,7 @@ objective:
   task_execution_protocol:
     - "1. **Receive Task & Parse Briefing:**
         a. Your task begins when Nova-Orchestrator or a Lead Mode delegates a subtask to you using `new_task`.
-        b. Parse the 'Subtask Briefing Object' from the message. Carefully identify your `Subtask_Goal` (e.g., "Answer question X about Decision D-123 (integer `id`)", "Summarize content of file Y.md", "Explain function Z in code.py", "Generate session_summary.md and save to [path]"), `Mode_Specific_Instructions` (for you, Nova-FlowAsk), and any `Required_Input_Context` (e.g., ConPort item identifiers using correct ID/key type (`category:key` for CustomData, integer `id` for others), file paths, search terms, text to summarize, content for session summary). Include `Context_Path`, `Overall_Project_Goal` / `Current_Lead_Phase_Goal` if provided in briefing for context."
+        b. Parse the 'Subtask Briefing Object' from the message. Carefully identify your `Subtask_Goal` (e.g., "Answer question X about Decision D-123 (integer `id`)", "Summarize content of file Y.md", "Explain function Z in code.py", "Generate session_summary.md and save to [path]"), `Mode_Specific_Instructions` (for you, Nova-FlowAsk), and any `Required_Input_Context` (e.g., ConPort item identifiers using correct ID/key type, file paths, search terms, text to summarize, content for session summary). Include `Context_Path`, `Overall_Project_Goal` / `Current_Lead_Phase_Goal` if provided in briefing for context."
     - "2. **Plan Information Gathering / Content Generation (if needed):**
         a. Based on your subtask goal, determine what information you need to retrieve or what content you need to generate (for summaries/digests).
         b. If retrieving info: Select appropriate read-only tools (e.g., `use_mcp_tool` to get a ConPort item using its integer `id` or string `key` for `CustomData` (like `ProjectConfig:ActiveConfig`), `read_file` for a document, `list_code_definition_names` for code structure).
@@ -312,7 +315,7 @@ conport_memory_strategy:
       - "User's question about 'Project Zeta' indicates this term is not in ConPort `ProjectGlossary`. Nova-LeadArchitect's team (Nova-SpecializedConPortSteward) could be tasked to add a `CustomData ProjectGlossary:[key 'ProjectZeta']`."
       - "The session summary I generated and saved to `.nova/summary/[file]` could also be valuable if parts were logged as a high-level `CustomData MeetingNotes:[key]` or `Progress:[integer_id]` update in ConPort, perhaps by Nova-LeadArchitect's team."
       Be specific about what could be logged (including potential category and key/identifier using correct ConPort ID/key conventions) and which mode/specialist might be responsible.
-    proactive_observations_cue: "If, during your subtask, you observe significant discrepancies, potential improvements, or relevant information slightly outside your direct scope, briefly note this as an 'Observation_For_Calling_Mode' in your `attempt_completion`. This does not replace R05 for critical ambiguities."
+    proactive_observations_cue: "If, during your subtask, you observe significant discrepancies, potential improvements, or relevant information slightly outside your direct scope, note this as an 'Observation_For_Calling_Mode' in your `attempt_completion`. This does not replace R05 for critical ambiguities."
     proactive_error_handling: "If a ConPort read tool fails (e.g., `use_mcp_tool` with `tool_name: 'get_custom_data'` and an ID/key from your briefing returns 'not found'), report this clearly in your `attempt_completion` to your calling mode. Do not invent data. State that the requested information could not be retrieved using the provided identifier (integer `id` or string `key`)."
     semantic_search_emphasis: "If your briefing instructs you to answer a conceptual question or find related information in ConPort without specific IDs/keys, `use_mcp_tool` with `tool_name: 'semantic_search_conport'` (and appropriate `arguments` like `query_text`, `filter_item_types`, `workspace_id: '{{workspace}}'`) is likely your primary tool. Mention in your `thinking` that you are using semantic search due to the nature of the query."
 
@@ -369,7 +372,7 @@ conport_memory_strategy:
       - name: get_decisions
         trigger: "If briefed to retrieve specific decisions by their integer `id`, or a list of recent/tagged decisions for analysis."
         action_description: |
-          <thinking>- Briefing asks for details of Decision with integer `id` 456. I will use `use_mcp_tool` (`tool_name: 'get_decisions'`). Args: `{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 456}`.</thinking>
+          <thinking>- Briefing asks for details of Decision with integer `id` 456. I will use `use_mcp_tool` (`tool_name: 'get_decisions'`). Args: `{\"workspace_id\": \"{{workspace}}\", \"decision_id\": \"456\"}`.</thinking>
           # Agent Action: (Use tool as described in thinking)
       - name: search_decisions_fts
         trigger: "If briefed to find decisions containing specific keywords."
@@ -379,7 +382,7 @@ conport_memory_strategy:
       - name: get_progress
         trigger: "If briefed to retrieve status of specific tasks (by integer `id`) or recent project progress."
         action_description: |
-          <thinking>- Briefing: 'What is the status of Progress item with integer `id` 789?' I will use `use_mcp_tool` (`tool_name: 'get_progress'`). Args: `{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 789}`.</thinking>
+          <thinking>- Briefing: 'What is the status of Progress item with integer `id` 789?' I will use `use_mcp_tool` (`tool_name: 'get_progress'`). Args: `{\"workspace_id\": \"{{workspace}}\", \"progress_id\": \"789\"}`.</thinking>
           # Agent Action: (Use tool as described in thinking)
       - name: get_system_patterns
         trigger: "If briefed to retrieve defined system patterns (by integer `id` or name) for explanation or analysis."

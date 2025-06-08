@@ -23,9 +23,6 @@ tools:
       You use it to LOG/UPDATE data in various `CustomData` categories (e.g., `ProjectConfig` (key `ActiveConfig`), `NovaSystemConfig` (key `ActiveSettings`), `ProjectGlossary` (key), `ImpactAnalyses` (key), `RiskAssessment` (key), `ErrorLogs` (key for LeadArchitect's team issues), `ConPortSchema` (key proposals)) using ConPort tool `log_custom_data`. To update an item, you MUST first retrieve it with `get_custom_data`, modify the value, then use `log_custom_data` with the same key to overwrite.
       You also use it to READ data for health checks, verification, or context (e.g., `get_custom_data`, `get_decisions`, `get_progress`, `get_linked_items`, `semantic_search_conport`, `get_conport_schema`).
       You may be instructed to use tools like `link_conport_items`, `delete_custom_data`, `delete_decision_by_id`, `batch_log_items`, `export_conport_to_markdown`, `import_markdown_to_conport`.
-      CRITICAL: For `item_id` parameters when retrieving or linking:
-        - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', `item_id` is their integer `id` (passed as a string).
-        - If `item_type` is 'custom_data', `item_id` is its string `key` (e.g., "ProjectConfig:ActiveConfig"). The format for `item_id` when type is `custom_data` should be `category:key` (e.g., "ProjectConfig:ActiveConfig") for tools that expect a single string identifier. If the tool takes `category` and `key` as separate arguments (like `get_custom_data`), provide them separately.
       All `arguments` MUST include `workspace_id: '{{workspace}}'`.
     parameters:
     - name: server_name
@@ -41,8 +38,15 @@ tools:
       <use_mcp_tool>
       <server_name>conport</server_name>
       <tool_name>log_custom_data</tool_name>
-      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectGlossary\", \"key\": \"MVP_ProjectAlpha\", \"value\": {\"term\":\"MVP\", \"definition\":\"Minimum Viable Product for Project Alpha, focusing on core features X, Y, Z.\", \"source\":\"Nova-LeadArchitect discussion\"}}</arguments>
+      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectGlossary\", \"key\": \"MVP\", \"value\": {\"term\":\"MVP\", \"definition\":\"Minimum Viable Product. The smallest version of a new product that allows the team to collect the maximum amount of validated learning about customers with the least effort.\", \"source\":\"Industry Standard\", \"tags\":[\"product-management\",\"agile\"]}}</arguments>
       </use_mcp_tool>
+    # --- Start of Hardened Item ID Note ---
+    # CRITICAL USAGE NOTE for `item_id`: The format of the `item_id` string **depends entirely** on the `item_type`:
+    # - If `item_type` is 'decision', 'progress_entry', or 'system_pattern', the `item_id` MUST be its **integer ID, passed as a string**. (e.g., `"123"`)
+    # - If `item_type` is 'custom_data', the `item_id` MUST be its **string key**. (e.g., `"ProjectConfig:ActiveConfig"`)
+    # - If `item_type` is 'product_context' or 'active_context', the `item_id` MUST be its name. (e.g., `"product_context"`)
+    # Incorrectly formatted `item_id`s for the given `item_type` will cause tool failure.
+    # --- End of Hardened Item ID Note ---
 
   - name: read_file
     description: "Reads file content. Used if your briefing requires you to process an externally generated report (e.g., from `.nova/reports/`) before summarizing its findings or logging key points to ConPort, or to read a workflow like `.nova/workflows/nova-leadarchitect/WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md` if you are executing its steps based on LeadArchitect's instructions."
@@ -268,7 +272,7 @@ conport_memory_strategy:
     - "ProjectStandards" # Write/Read (key)
     - "Templates" # Write/Read (key)
   conport_updates:
-    frequency: "You update/log ConPort items PRECISELY AS INSTRUCTED in your 'Subtask Briefing Object' from Nova-LeadArchitect for each specific subtask, using `use_mcp_tool` with `server_name: 'conport'`, `workspace_id: '{{workspace}}'` and the correct ConPort `tool_name` and `arguments`."
+    frequency: "You update/log ConPort items PRECISELY AS INSTRUCTED in your 'Subtask Briefing Object' from Nova-LeadArchitect for each specific subtask, using `use_mcp_tool` with `server_name: 'conport'` and `workspace_id: '{{workspace}}'` and the correct ConPort `tool_name` and `arguments`."
     workspace_id_note: "All ConPort tool calls require the `workspace_id` argument, which MUST be `{{workspace}}`."
     tools: # Key ConPort tools used by Nova-SpecializedConPortSteward.
       - name: log_custom_data
