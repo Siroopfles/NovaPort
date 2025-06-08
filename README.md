@@ -17,7 +17,7 @@
 4.  [Configuration](#configuration)
 5.  [Introduction](#introduction)
 6.  [Core Concepts](#core-concepts)
-    *   [System Architecture & Data Flow](#system-architecture--data-flow)
+    *   [System Architecture & Communication Flow](#system-architecture--communication-flow)
     *   [Context Portal (ConPort)](#context-portal-conport)
     *   [Nova Modes](#nova-modes)
     *   [Workflows](#workflows)
@@ -162,9 +162,15 @@ The core of Nova's knowledge management is the **Context Portal (ConPort)**, a p
 
 ## Core Concepts
 
-### System Architecture & Data Flow
+### System Architecture & Communication Flow
 
-The following diagram illustrates the hierarchical structure and the primary flow of tasks and information within the Nova System. The `Nova-Orchestrator` receives user requests and delegates high-level phases to the `Lead` modes, who in turn break them down into specific sub-tasks for their `Specialized` teams.
+The Nova System is built on a strict hierarchical model of delegation and reporting. The `Nova-Orchestrator` acts as the central coordinator, delegating high-level project phases. `Lead` modes manage these phases by breaking them down into specific sub-tasks for their teams of `Specialized` modes.
+
+Communication is formalized:
+-   **Delegation (`new_task`):** Solid lines represent a higher-level mode assigning a task to a lower-level mode.
+-   **Reporting (`attempt_completion`):** Dotted lines represent a mode reporting the completion of its task back to its superior.
+
+The following diagram illustrates this detailed communication flow:
 
 ```mermaid
 graph TD
@@ -192,7 +198,8 @@ graph TD
         subgraph "Developer Team"
             S_Implementer(SpecializedFeatureImplementer)
             S_Refactorer(SpecializedCodeRefactorer)
-            S_Tester(SpecializedTestAutomator)
+            S_TestAutomator(SpecializedTestAutomator)
+            S_Doc(SpecializedCodeDocumenter)
         end
         subgraph "QA Team"
             S_Investigator(SpecializedBugInvestigator)
@@ -205,22 +212,47 @@ graph TD
         FlowAsk(Nova-FlowAsk)
     end
 
-    User -- "Requests a new feature" --> Orchestrator;
-    Orchestrator -- "Delegates Design Phase via `new_task`" --> LeadArch;
-    Orchestrator -- "Delegates Development Phase via `new_task`" --> LeadDev;
-    Orchestrator -- "Delegates QA Phase via `new_task`" --> LeadQA;
+    %% Main Request Flow
+    User -- "Requests feature" --> Orchestrator
+    Orchestrator -- "Delegates Phase" --> LeadArch
+    Orchestrator -- "Delegates Phase" --> LeadDev
+    Orchestrator -- "Delegates Phase" --> LeadQA
+    Orchestrator -- "Reports Final Result" --> User
 
-    LeadArch -- "Sub-task: Design Component" --> S_Designer;
-    LeadArch -- "Sub-task: Update ConPort Config" --> S_ConPort;
-    LeadDev -- "Sub-task: Implement Feature" --> S_Implementer;
-    LeadQA -- "Sub-task: Verify Fix" --> S_Verifier;
-    
-    S_Implementer -- "Reports `attempt_completion`" --> LeadDev;
-    LeadDev -- "Reports Phase `attempt_completion`" --> Orchestrator;
-    Orchestrator -- "Provides final result to User" --> User;
-    
-    Orchestrator -- "Asks for analysis via `new_task`" --> FlowAsk;
+    %% Architect Delegation & Feedback
+    LeadArch -- "Sub-task" --> S_Designer
+    LeadArch -- "Sub-task" --> S_ConPort
+    LeadArch -- "Sub-task" --> S_Workflow
+    S_Designer -.-> |attempt_completion| LeadArch
+    S_ConPort  -.-> |attempt_completion| LeadArch
+    S_Workflow -.-> |attempt_completion| LeadArch
+    LeadArch -.-> |Phase Complete| Orchestrator
 
+    %% Developer Delegation & Feedback
+    LeadDev -- "Sub-task" --> S_Implementer
+    LeadDev -- "Sub-task" --> S_Refactorer
+    LeadDev -- "Sub-task" --> S_TestAutomator
+    LeadDev -- "Sub-task" --> S_Doc
+    S_Implementer   -.-> |attempt_completion| LeadDev
+    S_Refactorer    -.-> |attempt_completion| LeadDev
+    S_TestAutomator -.-> |attempt_completion| LeadDev
+    S_Doc           -.-> |attempt_completion| LeadDev
+    LeadDev -.-> |Phase Complete| Orchestrator
+    
+    %% QA Delegation & Feedback
+    LeadQA -- "Sub-task" --> S_Investigator
+    LeadQA -- "Sub-task" --> S_Executor
+    LeadQA -- "Sub-task" --> S_Verifier
+    S_Investigator -.-> |attempt_completion| LeadQA
+    S_Executor     -.-> |attempt_completion| LeadQA
+    S_Verifier     -.-> |attempt_completion| LeadQA
+    LeadQA -.-> |Phase Complete| Orchestrator
+
+    %% FlowAsk Utility Calls
+    Orchestrator -- "Asks for analysis" --> FlowAsk
+    LeadArch -- "Asks for analysis" --> FlowAsk
+    LeadDev -- "Asks for analysis" --> FlowAsk
+    LeadQA -- "Asks for analysis" --> FlowAsk
 ```
 
 ### Context Portal (ConPort)
