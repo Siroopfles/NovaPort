@@ -15,11 +15,28 @@
 - `CustomData ProjectConfig:ActiveConfig` (key) is defined, specifying language, frameworks, testing tools, etc.
 - User/Nova-Orchestrator confirms readiness to start development.
 
+---
+
 **Phases & Steps (managed by Nova-LeadDeveloper within its single active task from Nova-Orchestrator):**
+
+**Phase DEV.0: Pre-flight Checks by Nova-LeadDeveloper**
+
+1.  **Nova-LeadDeveloper: Verify All Specifications and Designs are Ready**
+    *   **Actor:** Nova-LeadDeveloper
+    *   **Action:** Before creating an implementation plan or delegating any sub-tasks, perform these critical pre-flight checks using `use_mcp_tool`.
+    *   **Checks:**
+        1.  **Retrieve All Prerequisite ConPort Items:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the content of all specification items provided in the briefing from Nova-Orchestrator. This includes `FeatureScope:[key]`, `AcceptanceCriteria:[key]`, and all relevant `SystemArchitecture:[key]`, `APIEndpoints:[key]`, and `DBMigrations:[key]` items.
+        2.  **Check for Existence:**
+            - Verify that none of the retrieval calls returned `null` or `not found`.
+            - **Failure:** If any required specification or design artifact is missing, report to Nova-Orchestrator: "BLOCKER: The required artifact `[Category:Key]` is missing from ConPort. Cannot proceed with development planning. Please coordinate with Nova-LeadArchitect to provide this specification." Halt this workflow.
+        3.  **Check for Correct Status:**
+            - Review the `status` field within the value of key design artifacts like `SystemArchitecture` and `APIEndpoints`. The status should be 'APPROVED' or 'FINAL', not 'DRAFT' or 'UNDER_REVIEW'.
+            - **Failure:** If a critical design artifact is not in an approved state, report to Nova-Orchestrator: "BLOCKER: The design artifact `[Category:Key]` has a status of '[Status]' and is not approved for implementation. Cannot proceed with development planning. Please coordinate with Nova-LeadArchitect for final approval." Halt this workflow.
+    *   **Output:** All specifications and designs are confirmed to exist and are in an approved state. Development can proceed.
 
 **Phase DEV.1: Initial Planning & Decomposition by Nova-LeadDeveloper**
 
-1.  **Nova-LeadDeveloper: Receive Phase Task & Plan Implementation**
+2.  **Nova-LeadDeveloper: Receive Phase Task & Plan Implementation**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Implement User Authentication Feature"), `Required_Input_Context` (refs to specs, designs, configs using correct ConPort ID/key types), and `Expected_Deliverables_In_Attempt_Completion_From_Lead`.
@@ -35,8 +52,7 @@
             8.  Document Module M Public API (Delegate to CodeDocumenter).
             9.  Final Linter & Full Test Suite Run for Feature (Delegate to TestAutomator).
     *   **Logic:**
-        *   Review all provided specifications (`FeatureScope` (key), `AcceptanceCriteria` (key), `APIEndpoints` (key), `SystemArchitecture` (key) components relevant to this feature) using `use_mcp_tool` (`tool_name: 'get_custom_data'`).
-        *   Identify key modules/components to be built or modified.
+        *   Review all provided specifications (`FeatureScope` (key), `AcceptanceCriteria` (key), `APIEndpoints` (key), `SystemArchitecture` (key) components relevant to this feature) that were successfully retrieved during the pre-flight check.
         *   Log any high-level implementation `Decisions` (integer `id`) (e.g., choice of a specific utility library not covered by `ProjectConfig`, overall data flow within the feature if not detailed by architect) using `use_mcp_tool` (`tool_name: 'log_decision'`).
     *   **Output:** Detailed, sequenced plan of specialist subtasks in `LeadPhaseExecutionPlan`. Main `Progress` (`[DevPhaseProgressID]`) created.
 
@@ -44,7 +60,7 @@
 
 *(Nova-LeadDeveloper iterates through its `LeadPhaseExecutionPlan`, delegating one subtask at a time using `new_task` to the appropriate specialist, awaiting their `attempt_completion`, processing results (incl. test/lint status, ConPort items logged by specialist), and then initiating the next subtask.)*
 
-2.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Implement Component/Endpoint**
+3.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Implement Component/Endpoint**
     *   **Actor:** Nova-LeadDeveloper
     *   **Task:** "Implement [Specific Component/Backend API EndpointName] as per specification [APIEndpointKey/SystemArchitectureKey]."
     *   **`new_task` message for Nova-SpecializedFeatureImplementer (schematic):**
@@ -79,7 +95,7 @@
         ```
     *   **Nova-LeadDeveloper Action after Specialist's `attempt_completion`:** Review code (conceptually), test results, ConPort logs. Update `LeadPhaseExecutionPlan` (key) and specialist `Progress` (integer `id`). If tests fail or linter errors, re-delegate fix to implementer or a new task to TestAutomator for deeper analysis.
 
-3.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Write/Run Integration Tests**
+4.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Write/Run Integration Tests**
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** Component(s) implemented and unit tested by FeatureImplementer.
     *   **Task:** "Write and execute integration tests for the interaction between [ComponentA] and [ComponentB] for [FeatureName]."
@@ -116,21 +132,21 @@
 
 **Phase DEV.3: Final Review & Reporting by Nova-LeadDeveloper**
 
-4.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeDocumenter: Final Documentation**
+5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeDocumenter: Final Documentation**
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** All code implemented and tested (unit/integration).
     *   **Task:** "Ensure all new/modified code for [FeatureName] is adequately documented (inline and module-level technical docs)."
     *   **Briefing for CodeDocumenter:** Point to all new/modified source files, relevant `APIEndpoints` (key), `SystemArchitecture` (key). Specify documentation standards from `ProjectConfig:ActiveConfig.documentation_standards`.
     *   **Nova-LeadDeveloper Action:** Review documentation. Update plan/progress.
 
-5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Final Linter & Full Feature Test Suite Run**
+6.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Final Linter & Full Feature Test Suite Run**
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** Code implemented, initial tests passed, documentation updated.
     *   **Task:** "Perform a final linter run on all changed code for [FeatureName] and execute the full test suite relevant to this feature."
     *   **Briefing for TestAutomator:** Specify all relevant source and test directories. Command from `ProjectConfig:ActiveConfig`. Expect clean linter output and all tests passing.
     *   **Nova-LeadDeveloper Action:** If issues, loop back to relevant specialist for fixes. This is the final gate before reporting phase completion.
 
-6.  **Nova-LeadDeveloper: Consolidate & Finalize Feature Implementation**
+7.  **Nova-LeadDeveloper: Consolidate & Finalize Feature Implementation**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:** Once all specialist subtasks in `LeadPhaseExecutionPlan` (key) are DONE and final checks passed:
         *   Log a final `Decision` (integer `id`) for the development phase completion using `use_mcp_tool` (`tool_name: 'log_decision'`, e.g., "Feature [FeatureName] implementation complete, unit/integration tested, and meets quality standards"). Link to `[DevPhaseProgressID]`.
@@ -138,7 +154,7 @@
         *   Coordinate with Nova-Orchestrator to update `active_context.state_of_the_union` to "Feature [FeatureName] Development Completed, Awaiting QA".
     *   **Output:** Feature developed, tested by dev team, documented.
 
-7.  **Nova-LeadDeveloper: `attempt_completion` to Nova-Orchestrator**
+8.  **Nova-LeadDeveloper: `attempt_completion` to Nova-Orchestrator**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:** Prepare and send `attempt_completion` message including all `Expected_Deliverables_In_Attempt_Completion_From_Lead` specified by Nova-Orchestrator (summary, test status, key ConPort items created/updated with their correct ID/key types, new issues, tech debt, critical outputs).
 

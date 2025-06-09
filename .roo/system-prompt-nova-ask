@@ -407,7 +407,7 @@ conport_memory_strategy:
       - name: semantic_search_conport
         trigger: "If briefed to answer a conceptual question based on overall ConPort knowledge, or to find items related to a natural language query where specific keywords are unknown/insufficient."
         action_description: |
-          <thinking>- Briefing: 'What were the main challenges encountered when implementing feature X?' I will use `use_mcp_tool` (`tool_name: 'semantic_search_conport'`). Args: `{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"challenges implementing feature X\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\", \"progress_entry\"]}`.</thinking>
+          <thinking>- Briefing: 'What were the main challenges encountered when implementing feature X?' I will use `use_mcp_tool` (`tool_name: 'semantic_search_conport'`). Args: `{\"workspace_id\":\"{{workspace}}\", \"query_text\": \"challenges implementing feature X\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\", \"progress_entry\"]}`.</thinking>
           # Agent Action: (Use tool as described in thinking)
       - name: get_linked_items
         trigger: "If briefed to explore relationships for a specific ConPort item (using integer `id` or `category:key` string for `item_id`)."

@@ -15,11 +15,26 @@
 - The reason for refactoring and the desired outcome/improvement are understood (e.g., from `CustomData TechDebtCandidates:[TechDebtKey]` (key) - "Improve performance of `OrderProcessor` by 20%", "Reduce complexity of `AuthValidationModule`").
 - (Ideally) Existing test coverage for the component exists or can be established first. This should be checked by LeadDeveloper.
 
+---
+
 **Phases & Steps (managed by Nova-LeadDeveloper within its single active task from Nova-Orchestrator):**
+
+**Phase TDR.0: Pre-flight Checks by Nova-LeadDeveloper**
+
+1.  **Nova-LeadDeveloper: Verify Tech Debt Definition is Ready**
+    *   **Actor:** Nova-LeadDeveloper
+    *   **Action:** Before creating a refactoring plan or delegating any sub-tasks, perform this critical pre-flight check using `use_mcp_tool`.
+    *   **Checks:**
+        1.  **Retrieve `TechDebtCandidates` Item:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the `CustomData TechDebtCandidates:[TechDebtKey]` entry referenced in your briefing.
+        2.  **Check for Existence and Completeness:**
+            - Verify that the retrieval did not return `null` or `not found`.
+            - Check that the `value` object of the item contains essential fields like `description`, `impact`, and `effort`.
+            - **Failure:** If the item is missing or key fields are empty, report to Nova-Orchestrator in your `attempt_completion`: "BLOCKER: The required artifact `TechDebtCandidates:[TechDebtKey]` is missing or incomplete in ConPort. The description of the debt or its impact/effort is not defined. Cannot proceed with refactoring planning." Halt this workflow.
+    *   **Output:** The `TechDebtCandidates` item is confirmed to exist and be sufficiently detailed to plan the refactoring work.
 
 **Phase TDR.1: Planning & Preparation by Nova-LeadDeveloper**
 
-1.  **Nova-LeadDeveloper: Receive Task & Analyze Refactoring Scope**
+2.  **Nova-LeadDeveloper: Receive Task & Analyze Refactoring Scope**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Refactor [ComponentName] to address [TechDebtReason]"), `Required_Input_Context` (ref to `TechDebtCandidates:[TechDebtKey]`, specific component path).
@@ -34,7 +49,6 @@
             7.  Update Documentation (Delegate to CodeDocumenter).
             8.  Propose Update for `TechDebtCandidates` status (LeadDeveloper, in `attempt_completion`).
     *   **ConPort Action:**
-        *   Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `category: 'TechDebtCandidates'`, `key: '[TechDebtKey_From_Briefing]'`) to retrieve the full details of the tech debt item.
         *   Use `read_file` to analyze current code of `[ComponentName]`.
         *   Define a specific refactoring strategy (e.g., "Extract class X", "Simplify method Y by applying Strategy Pattern", "Replace algorithm Z with library L").
         *   Log this strategy as a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `summary: "Refactoring strategy for [ComponentName]: [Strategy]"`, `rationale: "Addresses [TechDebtKey] by..."`).
@@ -43,9 +57,9 @@
 
 **Phase TDR.2: Iterative Refactoring & Testing by Specialists**
 
-2.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Enhance Test Coverage (If Needed)**
+3.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Enhance Test Coverage (If Needed)**
     *   **Actor:** Nova-LeadDeveloper
-    *   **DoR Check:** Analysis in Step 1 shows inadequate test coverage for safe refactoring.
+    *   **DoR Check:** Analysis in Step 2 shows inadequate test coverage for safe refactoring.
     *   **Task:** "Before refactoring [ComponentName], ensure sufficient test coverage exists to detect regressions. Add characterization/unit tests as needed."
     *   **`new_task` message for Nova-SpecializedTestAutomator (schematic):**
         ```json
@@ -65,7 +79,7 @@
         ```
     *   **Nova-LeadDeveloper Action after Specialist's `attempt_completion`:** Review. Update plan/progress.
 
-3.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeRefactorer: Execute Refactoring Iteration**
+4.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeRefactorer: Execute Refactoring Iteration**
     *   **Actor:** Nova-LeadDeveloper
     *   **Task:** "Implement refactoring iteration [N] for [ComponentName] as per strategy in `Decision:[RefactorStrategyDecisionID]` and specific instructions for this iteration."
     *   **`new_task` message for Nova-SpecializedCodeRefactorer:**
@@ -98,15 +112,15 @@
         ```
     *   **Nova-LeadDeveloper Action after Specialist's `attempt_completion`:** Review changes. Update plan/progress.
 
-4.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Run Tests & Linters Post-Iteration**
+5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Run Tests & Linters Post-Iteration**
     *   **Actor:** Nova-LeadDeveloper
     *   **Task:** "Run all relevant tests (unit, integration) and linters after refactoring iteration [N] for [ComponentName]."
     *   **Briefing for TestAutomator:** Specify scope of tests to run (module-specific, plus any designated integration tests). Command from `ProjectConfig:ActiveConfig.testing_preferences`. Expect detailed pass/fail report.
-    *   **Nova-LeadDeveloper Action:** If failures, log `ErrorLogs` (key) (or instruct specialist) and delegate fixes back to CodeRefactorer (looping steps 3 & 4 for that part of refactoring). Update plan/progress.
+    *   **Nova-LeadDeveloper Action:** If failures, log `ErrorLogs` (key) (or instruct specialist) and delegate fixes back to CodeRefactorer (looping steps 4 & 5 for that part of refactoring). Update plan/progress.
 
-*(... Repeat steps 3 & 4 for further refactoring iterations if the plan involves multiple distinct refactoring steps on the component ...)*
+*(... Repeat steps 4 & 5 for further refactoring iterations if the plan involves multiple distinct refactoring steps on the component ...)*
 
-5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Final Verification & Benchmarking (if applicable)**
+6.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Final Verification & Benchmarking (if applicable)**
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** All planned refactoring iterations complete, all tests pass.
     *   **Task:** "Perform final verification of refactored [ComponentName] against criteria in `CustomData RefactorCriteria:[Key]` and run full regression tests potentially impacting this component."
@@ -115,26 +129,26 @@
 
 **Phase TDR.3: Documentation & Closure**
 
-6.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeDocumenter: Update Documentation**
+7.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeDocumenter: Update Documentation**
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** Refactoring complete and verified.
     *   **Task:** "Update all inline (docstrings) and technical documentation (e.g., in `/docs/`) for the refactored [ComponentName] to reflect changes in structure, API, or behavior."
     *   **Briefing for CodeDocumenter:** Point to refactored code, highlight key changes from the original `TechDebtCandidates` item and refactoring `Decisions`.
     *   **Nova-LeadDeveloper Action:** Review. Update plan/progress.
 
-7.  **Nova-LeadDeveloper: Propose Update for `TechDebtCandidates` Item & Log Final Decision**
+8.  **Nova-LeadDeveloper: Propose Update for `TechDebtCandidates` Item & Log Final Decision**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Based on the outcome, prepare a proposal for updating the original `CustomData TechDebtCandidates:[TechDebtKey]` (key) entry. This is NOT a direct update by LeadDeveloper, but a proposal. LeadDeveloper will state in its `attempt_completion` to Orchestrator: "Refactoring for `TechDebtCandidates:[TechDebtKey]` is complete. Suggest updating its status to 'RESOLVED' and adding notes: '[Summary of improvements]'." Nova-Orchestrator might then delegate the actual update to Nova-LeadArchitect/ConPortSteward if ConPort governance rules dictate.
         *   Log a final `Decision` (integer `id`) for the refactoring phase using `use_mcp_tool` (`tool_name: 'log_decision'`, `summary: "[ComponentName] refactoring completed. Addressed TechDebtCandidates:[TechDebtKey]. Outcome: [e.g., Performance improved by X%, Complexity reduced by Y points]."`). Link this decision to `[RefactorProgressID]`.
     *   **Output:** Proposal for `TechDebtCandidates` (key) update ready. Final refactoring `Decision` (integer `id`) logged.
 
-8.  **Nova-LeadDeveloper: Finalize Refactoring Phase**
+9.  **Nova-LeadDeveloper: Finalize Refactoring Phase**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:** Update main phase `Progress` (`[RefactorProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description.
     *   **Output:** Refactoring phase documented and closed for LeadDeveloper.
 
-9.  **Nova-LeadDeveloper: `attempt_completion` to Nova-Orchestrator**
+10. **Nova-LeadDeveloper: `attempt_completion` to Nova-Orchestrator**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:** Report completion, summary of improvements, verification status, key ConPort items (Decisions, new TechDebt if any), and the proposed update/status for the original `TechDebtCandidates:[TechDebtKey]`.
 

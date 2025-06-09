@@ -9,11 +9,26 @@
 **Pre-requisites by Nova-LeadQA:**
 - A `CustomData ErrorLogs:[BugKey]` (key) entry exists in ConPort with initial details (symptoms, repro steps if known, environment). If not, Nova-LeadQA instructs Nova-SpecializedTestExecutor or Nova-SpecializedConPortSteward (via LeadArchitect) to create it first using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'ErrorLogs'`).
 
+---
+
 **Phases & Steps (managed by Nova-LeadQA within its single active task from Nova-Orchestrator for a specific bug, or self-initiated for new bugs from its team):**
+
+**Phase BIR.0: Pre-flight Checks by Nova-LeadQA**
+
+1.  **Nova-LeadQA: Verify Bug Report is Ready for Investigation**
+    *   **Actor:** Nova-LeadQA
+    *   **Action:** Before planning the investigation, perform this critical pre-flight check.
+    *   **Checks:**
+        1.  **Retrieve `ErrorLogs` Item:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the `CustomData ErrorLogs:[BugKey]` entry referenced in your briefing.
+        2.  **Check for Existence and Status:**
+            - **Failure (Missing):** If the item is not found, report to Nova-Orchestrator: "BLOCKER: The specified bug report `ErrorLogs:[BugKey]` does not exist in ConPort. Cannot start investigation." Halt this workflow.
+            - **Check Status:** Review the `status` field in the `value` of the retrieved item. It should typically be 'OPEN', 'REOPENED', or a similar state that warrants investigation.
+            - **Failure (Invalid Status):** If the status is 'RESOLVED', 'CLOSED_WONTFIX', or 'INVESTIGATION_COMPLETE_RCA_FOUND', the bug is not in a state for a *new* investigation. Report to Nova-Orchestrator: "NOTICE: Bug `ErrorLogs:[BugKey]` has status '[Status]' and does not require a new investigation. Halting this workflow."
+    *   **Output:** The bug report is confirmed to exist and be in a state that requires investigation.
 
 **Phase BIR.1: Detailed Investigation & Root Cause Analysis (RCA)**
 
-1.  **Nova-LeadQA: Plan Investigation & Delegate to Nova-SpecializedBugInvestigator**
+2.  **Nova-LeadQA: Plan Investigation & Delegate to Nova-SpecializedBugInvestigator**
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Log/Update main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`): "Bug Lifecycle: `ErrorLogs:[BugKey]`", Status: "INVESTIGATION_ACTIVE". Let this be `[BugProgressID]`.
@@ -31,7 +46,7 @@
           "Overall_QA_Phase_Goal": "Investigate, facilitate fix, and verify `ErrorLogs:[BugKey]`.",
           "Specialist_Subtask_Goal": "Conduct detailed RCA for `ErrorLogs:[BugKey]` ([Symptom_From_ErrorLog]).",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[BugProgressID]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
+            "Log your own `Progress` (integer `id`), parented to `[BugProgressID]`.",
             "Target ErrorLog: `CustomData ErrorLogs:[BugKey]` (key). Review all current details using `use_mcp_tool` (`tool_name: 'get_custom_data'`).",
             "1. Attempt to reproduce the bug consistently in the environment specified in the ErrorLog or `ProjectConfig:ActiveConfig.testing_preferences.default_test_env`. Document exact steps if different from ErrorLog.",
             "2. Analyze relevant application logs (`read_file` - paths from `ProjectConfig:ActiveConfig.logging_paths` or ErrorLog), system logs, and if necessary, inspect related source code (read-only using `search_files`, `list_code_definition_names`) to identify failure points.",
@@ -61,7 +76,7 @@
 
 **Phase BIR.2: Fix Coordination & Implementation (Involves Nova-Orchestrator & Nova-LeadDeveloper)**
 
-2.  **Nova-LeadQA: Request Fix from Development via Nova-Orchestrator**
+3.  **Nova-LeadQA: Request Fix from Development via Nova-Orchestrator**
     *   **DoR Check:** RCA complete in `ErrorLogs:[BugKey]` (key), root cause points to a code defect.
     *   **Actor:** Nova-LeadQA
     *   **Action:**
@@ -73,7 +88,7 @@
 
 **Phase BIR.3: Fix Verification**
 
-3.  **Nova-LeadQA: Receive Fix Confirmation & Delegate Verification to Nova-SpecializedFixVerifier**
+4.  **Nova-LeadQA: Receive Fix Confirmation & Delegate Verification to Nova-SpecializedFixVerifier**
     *   **Actor:** Nova-LeadQA
     *   **Action:** Nova-Orchestrator informs Nova-LeadQA that a fix for `ErrorLogs:[BugKey]` (key) is ready for verification (providing commit details/PR link if available from Nova-LeadDeveloper).
     *   Update `ErrorLogs:[BugKey]` (key) status to "AWAITING_VERIFICATION" using `use_mcp_tool` (`get_custom_data` then `log_custom_data`).
@@ -112,7 +127,7 @@
 
 **Phase BIR.4: Closure & Learning**
 
-4.  **Nova-LeadQA: Process Verification Outcome**
+5.  **Nova-LeadQA: Process Verification Outcome**
     *   **Actor:** Nova-LeadQA
     *   **Condition:** If `ErrorLogs:[BugKey]` (key) status is `RESOLVED`:
         *   Update main `Progress` (`[BugProgressID]`) to DONE using `use_mcp_tool`.
@@ -124,7 +139,7 @@
         *   Inform Nova-Orchestrator, providing details from FixVerifier. Orchestrator will re-engage Nova-LeadDeveloper. Loop back to Phase BIR.2 of this workflow.
     *   **Output:** Bug resolved or re-routed for further fixing.
 
-5.  **Nova-LeadQA: `attempt_completion` to Nova-Orchestrator (if this was a delegated phase)**
+6.  **Nova-LeadQA: `attempt_completion` to Nova-Orchestrator (if this was a delegated phase)**
     *   **Actor:** Nova-LeadQA
     *   **Action:** Report final outcome for `ErrorLogs:[BugKey]` (key).
 

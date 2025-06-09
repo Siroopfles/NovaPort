@@ -14,11 +14,28 @@
 - Relevant `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) are available in ConPort.
 - User (via Nova-Orchestrator) has confirmed readiness to start the design phase.
 
+---
+
 **Phases & Steps (managed by Nova-LeadArchitect within its single active task from Nova-Orchestrator):**
+
+**Phase SD.0: Pre-flight Checks by Nova-LeadArchitect**
+
+1.  **Nova-LeadArchitect: Verify All Requirements and Specifications are Ready**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action:** Before creating a design plan or delegating any sub-tasks, perform these critical pre-flight checks using `use_mcp_tool`.
+    *   **Checks:**
+        1.  **Retrieve All Prerequisite ConPort Items:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the content of all requirement and specification items provided in the briefing from Nova-Orchestrator. This primarily includes the `FeatureScope:[key]` and `AcceptanceCriteria:[key]` items.
+        2.  **Check for Existence:**
+            - Verify that none of the retrieval calls returned `null` or `not found`.
+            - **Failure:** If any required requirement artifact is missing, report to Nova-Orchestrator in your `attempt_completion`: "BLOCKER: The required artifact `[Category:Key]` is missing from ConPort. Cannot proceed with system design. Please ensure all requirements are defined first." Halt this workflow.
+        3.  **Check for Correct Status:**
+            - Review the `status` field within the `value` of the `FeatureScope` and `AcceptanceCriteria` items. The status should be 'APPROVED' or 'FINAL', not 'DRAFT' or 'UNDER_REVIEW'.
+            - **Failure:** If a critical requirement artifact is not in an approved state, report to Nova-Orchestrator in your `attempt_completion`: "BLOCKER: The requirement artifact `[Category:Key]` has a status of '[Status]' and is not approved for design. Cannot proceed. Please ensure requirements are finalized and approved." Halt this workflow.
+    *   **Output:** All requirements and specifications are confirmed to exist and are in an approved state. Design phase can proceed.
 
 **Phase SD.1: Initial Planning & Decomposition by Nova-LeadArchitect**
 
-1.  **Nova-LeadArchitect: Receive Phase Task & Initial Planning**
+2.  **Nova-LeadArchitect: Receive Phase Task & Initial Planning**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Define system architecture for Project Alpha"), `Required_Input_Context` (e.g., user requirements summary, `ProjectConfig:ActiveConfig` (key) JSON string), and `Expected_Deliverables_In_Attempt_Completion_From_Lead`.
@@ -37,7 +54,7 @@
 
 *(Nova-LeadArchitect iterates through its `LeadPhaseExecutionPlan`, delegating one subtask at a time using `new_task` to the appropriate specialist, awaiting their `attempt_completion`, processing results, and then initiating the next subtask.)*
 
-2.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Define High-Level Architecture**
+3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Define High-Level Architecture**
     *   **Actor:** Nova-LeadArchitect
     *   **Task:** "Define and document the high-level system architecture, main components, their interactions, and propose key technology choices for [Project/Feature Name]."
     *   **`new_task` message for Nova-SpecializedSystemDesigner:**
@@ -65,7 +82,7 @@
         ```
     *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review logged `SystemArchitecture` (key). Make and log initial high-level `Decisions` (integer `id`) regarding technology choices and architectural style using `use_mcp_tool` (`tool_name: 'log_decision'`). Update `[DesignPhaseProgressID]_ArchitectPlan` and specialist `Progress` in ConPort.
 
-3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Detail Specific Component & Its APIs**
+4.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Detail Specific Component & Its APIs**
     *   **Actor:** Nova-LeadArchitect
     *   **Task:** "Define detailed design for [Specific Component, e.g., UserService] and its API endpoints based on approved high-level architecture and decisions."
     *   **`new_task` message for Nova-SpecializedSystemDesigner (schematic):**
@@ -91,20 +108,20 @@
         ```
     *   **Nova-LeadArchitect Action:** Review. Update plan/progress. (Repeat for other components/services).
 
-4.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Define Database Schema(s)**
+5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Define Database Schema(s)**
     *   **Actor:** Nova-LeadArchitect
     *   **Task:** "Define and document the database schema(s) required for [ProjectName / Specific Service]."
     *   **Briefing for SystemDesigner:** Refer to component designs, API data models, and `Decision` (integer `id`) on DB technology. Instruct to define tables, columns, types, relationships, and indexes. Log as `CustomData DBMigrations:[ProjectName_SchemaName_v1]` (key), with `value` containing DDL or structured schema description.
     *   **Nova-LeadArchitect Action:** Review. Update plan/progress.
 
-5.  **Nova-LeadArchitect (or delegate to Nova-SpecializedConPortSteward): Log Consolidated Key Architectural Decisions**
+6.  **Nova-LeadArchitect (or delegate to Nova-SpecializedConPortSteward): Log Consolidated Key Architectural Decisions**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Throughout the design phase, ensure all major architectural choices (tech stack, patterns, protocols, COTS product selections) are logged as formal `Decisions` (integer `id`) in ConPort with full rationale and implications (DoD met), using `use_mcp_tool` (`tool_name: 'log_decision'`). Link these decisions to relevant `SystemArchitecture` (key) entries using `use_mcp_tool` (`tool_name: 'link_conport_items'`).
     *   **Output:** Key `Decisions` (integer `id`s) logged and linked.
 
 **Phase SD.3: Final Review & Reporting by Nova-LeadArchitect**
 
-6.  **Nova-LeadArchitect: Consolidate & Finalize Design Documentation**
+7.  **Nova-LeadArchitect: Consolidate & Finalize Design Documentation**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Once all specialist subtasks in `LeadPhaseExecutionPlan` (key) are DONE:
         *   Review all created ConPort items (`SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key), `Decisions` (integer `id`)) for consistency, completeness (DoD), and correctness.
@@ -113,7 +130,7 @@
         *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Design phase completed. All relevant artifacts logged and interlinked in ConPort. `active_context.state_of_the_union` updated.
 
-7.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
+8.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Prepare and send `attempt_completion` message including all `Expected_Deliverables_In_Attempt_Completion_From_Lead` specified by Nova-Orchestrator (summary, list of CRITICAL ConPort items created/updated with their correct ID/key types, new issues, critical outputs like key to overall architecture doc).
 
