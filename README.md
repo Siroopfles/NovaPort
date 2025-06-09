@@ -52,7 +52,7 @@
 
 ## Installation
 
-You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.1.1-beta`). For most users, **installing a specific version is recommended for stability.**
+You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.2.0-beta`). For most users, **installing a specific version is recommended for stability.**
 
 The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
 
@@ -60,7 +60,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.1.1-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.0-beta`):
 1.  Download the installation script:
     ```bash
     curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
@@ -71,7 +71,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
     ```
 3.  Run the script, passing the desired version number as an argument:
     ```bash
-    ./install_nova_modes.sh v0.1.1-beta
+    ./install_nova_modes.sh v0.2.0-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -86,14 +86,14 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.1.1-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.0-beta`):
 1.  Download the installation script:
     ```powershell
     Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
     ```
 2.  Run the script, passing the desired version using the `-Version` parameter:
     ```powershell
-    .\install_nova_modes.ps1 -Version v0.1.1-beta
+    .\install_nova_modes.ps1 -Version v0.2.0-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -371,6 +371,7 @@ These guide the overall project lifecycle or key cross-mode processes. Examples:
 *   `WF_ORCH_MANAGE_TECH_DEBT_ITEM_001_v1.md`: For addressing a prioritized technical debt item.
 *   `WF_ORCH_TRIAGE_NEW_ISSUE_REPORTED_BY_LEAD_001_v1.md`: For processing new issues discovered by Lead modes.
 *   `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md`: To direct `Nova-FlowAsk` for complex ConPort queries.
+*   `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md`: Generates a high-level project summary report for stakeholders.
 *   `WF_ORCH_SESSION_END_AND_SUMMARY_001_v1.md`: For ending a session and generating a summary.
 *   `WF_PROJ_INIT_001_NewProjectBootstrap.md`: (Often initiated via LeadArchitect) For the very first setup of an empty workspace.
 
@@ -423,7 +424,7 @@ ConPort structures project knowledge into several key entities stored in SQLite 
 7.  **`ContextLinks` (integer `id`):** Defines explicit relationships between ConPort items, forming the knowledge graph edges.
 8.  **Vector Store (ChromaDB):** Stores vector embeddings of text content from various ConPort entities for semantic search, linked to SQLite data via item type and ID.
 
-Pydantic models in ConPort's source (`src/context_portal_mcp/db/models.py`) mirror these structures.
+Pydantic models in ConPort's source (`src/context_portal_mcp/db/models.py`) mirror these structures. For detailed standard structures and guidelines for key `CustomData` entities like `ErrorLogs` and `LessonsLearned`, refer to `.nova/docs/conport_standards.md`.
 
 ### Key Configuration Items
 *   **`ProjectConfig:ActiveConfig`:** Crucial for tailoring Nova's actions to project-specific technologies and standards (e.g., primary language, testing frameworks, documentation styles, linter commands, dependency management). Managed by Nova-LeadArchitect's team (ConPortSteward) with user input.
