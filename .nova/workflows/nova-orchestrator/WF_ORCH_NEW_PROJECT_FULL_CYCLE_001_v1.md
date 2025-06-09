@@ -20,7 +20,7 @@
 
 1.  **Nova-Orchestrator: Delegate Initial Project & ConPort Setup**
     *   **Action:**
-        *   Log/Update its own top-level `Progress` (integer `id`) for "Project [UserProvided_ProjectName] Full Cycle" to status "INITIALIZATION_PHASE".
+        *   Log/Update its own top-level `Progress` (integer `id`) for "Project [UserProvided_ProjectName] Full Cycle" to status "INITIALIZATION_PHASE", using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`).
     *   **Task:** "Delegate the complete initial setup of the new project's ConPort, directory structure, essential configurations (`ProjectConfig`, `NovaSystemConfig`), and initial `ProductContext` to Nova-LeadArchitect."
     *   **`new_task` message for Nova-LeadArchitect:**
         ```json
@@ -51,7 +51,7 @@
         }
         ```
     *   **Nova-Orchestrator Action after Lead's `attempt_completion`:**
-        *   Verify key deliverables are reported.
+        *   Verify key deliverables.
         *   Update its own top-level `Progress` (integer `id`) to "Initialization Complete, Design Pending".
 
 **Phase 2: System Design & Architecture (Nova-Orchestrator -> Nova-LeadArchitect)**

@@ -33,9 +33,9 @@
             *   Describe `ProposedChanges` (e.g., "Add new optional field `review_status` (string: 'pending', 'approved', 'rejected') to Decisions entity schema", "Standardize key naming for APIEndpoints to include version suffix like `_v1`").
             *   Provide `RationaleForChange` and `PotentialBenefitsOrImpacts`.
     *   **ConPort Action:**
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Develop ConPort Schema Proposal: [ProposalName]". Let this be `[SPProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Develop ConPort Schema Proposal: [ProposalName]\"}`). Let this be `[SPProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[SPProgressID]_ArchitectPlan` (key) using `use_mcp_tool`. Main step: Delegate logging to ConPortSteward.
-        *   Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) outlining the intent to propose this schema change, with initial rationale and benefits. Link this Decision to `[SPProgressID]`.
+        *   Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Propose ConPort schema change for [ProposalName]\", \"rationale\": \"[Initial rationale and benefits]\"}`) outlining the intent to propose this schema change. Link this Decision to `[SPProgressID]`.
     *   **Output:** Detailed specification of the schema proposal, ready for logging. `[SPProgressID]` known.
 
 **Phase SP.2: Logging Proposal by Nova-SpecializedConPortSteward**
@@ -50,32 +50,30 @@
           "Overall_Architect_Phase_Goal": "Develop and log ConPort Schema Proposal: [ProposalName_From_LeadArchitect].",
           "Specialist_Subtask_Goal": "Log the schema proposal details to ConPort category `ConPortSchema`.",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[SPProgressID]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
-            "Create a new `CustomData` entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ConPortSchema', ...}`).",
-            "  - Key: `ProposedSchemaChange_[YYYYMMDD]_[ProposalNameShort_From_LeadArchitect]` (e.g., `ProposedSchemaChange_20240115_NewCIResultsCategory`).",
-            "  - Value (JSON Object): {",
-            "      \"proposal_name\": \"[Full_Proposal_Name_From_LeadArchitect]\",",
-            "      \"proposal_date\": \"[Current_YYYY-MM-DD]\",",
-            "      \"proposed_by_mode\": \"Nova-LeadArchitect\",",
-            "      \"change_type\": \"[NewCategory | ModifyEntity | NewField | StandardizeUsage - from LeadArchitect]\",",
-            "      \"details\": { /* Structure depends on change_type, content from LeadArchitect */",
-            "        // If NewCategory:",
-            "        \"proposed_category_name\": \"[Name]\",",
-            "        \"description\": \"[...Purpose...]\",",
-            "        \"example_keys\": [\"key1\", \"key2\"],",
-            "        \"expected_value_structure_desc\": \"JSON object with fields A, B...\",",
-            "        // If ModifyEntity or NewField:",
-            "        \"target_entity_or_category\": \"[e.g., Decisions, CustomData:ErrorLogs]\",",
-            "        \"proposed_modification_details\": \"[Description of change, e.g., Add field 'review_status' (string: 'pending', 'approved', 'rejected') to Decisions entity schema. Default: 'pending'.]\"",
-            "       },",
-            "      \"rationale_and_benefits\": \"[Rationale_Text_From_LeadArchitect]\",",
-            "      \"potential_impacts_or_migration_notes\": \"[Impacts_Text_From_LeadArchitect, e.g., Existing items might need backfill. No direct code impact expected.]\",",
-            "      \"status\": \"Proposed\" // Other statuses: UnderReview, Approved, Implemented, Rejected, Deprecated",
-            "    }",
+            "Log your own `Progress` (integer `id`), parented to `[SPProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Log schema proposal for [ProposalNameShort]\", \"parent_id\": [SPProgressID_as_integer]} `).",
+            "Create a new `CustomData` entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ConPortSchema\", \"key\": \"ProposedSchemaChange_[YYYYMMDD]_[ProposalNameShort_From_LeadArchitect]\", \"value\": { /* The full JSON object provided in the context below */ }}`).",
+            "The `value` of the `ConPortSchema` entry MUST be a JSON object with the following structure:",
+            "  - `proposal_name`: \"[Full_Proposal_Name_From_LeadArchitect]\",",
+            "  - `proposal_date\": \"[Current_YYYY-MM-DD]\",",
+            "  - `proposed_by_mode\": \"Nova-LeadArchitect\",",
+            "  - `change_type\": \"[NewCategory | ModifyEntity | NewField | StandardizeUsage - from LeadArchitect]\",",
+            "  - `details`: { /* Structure depends on change_type, content from LeadArchitect */",
+            "    // If NewCategory:",
+            "    \"proposed_category_name\": \"[Name]\",",
+            "    \"description\": \"[...Purpose...]\",",
+            "    \"example_keys\": [\"key1\", \"key2\"],",
+            "    \"expected_value_structure_desc\": \"JSON object with fields A, B...\",",
+            "    // If ModifyEntity or NewField:",
+            "    \"target_entity_or_category\": \"[e.g., Decisions, CustomData:ErrorLogs]\",",
+            "    \"proposed_modification_details\": \"[Description of change, e.g., Add field 'review_status' (string: 'pending', 'approved', 'rejected') to Decisions entity schema. Default: 'pending'.]\"",
+            "   },",
+            "  - `rationale_and_benefits\": \"[Rationale_Text_From_LeadArchitect]\",",
+            "  - `potential_impacts_or_migration_notes\": \"[Impacts_Text_From_LeadArchitect, e.g., Existing items might need backfill. No direct code impact expected.]\",",
+            "  - `status\": \"Proposed\" // Other statuses: UnderReview, Approved, Implemented, Rejected, Deprecated",
             "Ensure all fields in the value object are complete and clearly describe the proposal."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[SPProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[SPProgressID_as_integer]",
             "Proposal_Details_Structured_From_LeadArchitect": "{ /* All details from LeadArchitect's Step 1, matching the value structure above */ }",
             "ProposalNameShort_For_Key_From_LeadArchitect": "[e.g., NewCIResultsCat]"
           },
@@ -91,7 +89,7 @@
 3.  **Nova-LeadArchitect: Finalize Proposal Process**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
-        *   Update main `Progress` (`[SPProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "ConPort Schema Proposal '[ProposalName]' developed and logged as `ConPortSchema:[ProposalKey]`."
+        *   Update main `Progress` (`[SPProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"progress_id\": [SPProgressID_as_integer], \"status\": \"DONE\", \"description\": \"ConPort Schema Proposal '[ProposalName]' developed and logged as `ConPortSchema:[ProposalKey]`.\"}`).
         *   (If tasked by Nova-Orchestrator) Prepare to report the proposal completion.
         *   (Internal step for LeadArchitect) If this proposal needs wider discussion or approval from other Leads, Nova-LeadArchitect would typically request Nova-Orchestrator to facilitate this. The `ConPortSchema:[ProposalKey]` status would then be updated by ConPortSteward based on the outcome of such discussions (e.g., to 'UnderReview', 'Approved').
     *   **Output:** Schema proposal logged and ready for review/action.

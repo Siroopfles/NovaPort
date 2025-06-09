@@ -38,7 +38,7 @@
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Refactor [ComponentName] to address [TechDebtReason]"), `Required_Input_Context` (ref to `TechDebtCandidates:[TechDebtKey]`, specific component path).
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Refactor Component: [ComponentName] - [Date]". Let this be `[RefactorProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Refactor Component: [ComponentName] - [Date]\"}`). Let this be `[RefactorProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[RefactorProgressID]_DeveloperPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Plan items:
             1.  Analyze Current Code & Tests, Define Refactor Strategy (LeadDeveloper).
             2.  (If needed) Enhance Test Coverage Pre-Refactor (Delegate to TestAutomator).
@@ -51,8 +51,8 @@
     *   **ConPort Action:**
         *   Use `read_file` to analyze current code of `[ComponentName]`.
         *   Define a specific refactoring strategy (e.g., "Extract class X", "Simplify method Y by applying Strategy Pattern", "Replace algorithm Z with library L").
-        *   Log this strategy as a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `summary: "Refactoring strategy for [ComponentName]: [Strategy]"`, `rationale: "Addresses [TechDebtKey] by..."`).
-        *   Identify key metrics or tests to verify success (from `ProjectConfig:ActiveConfig.testing_preferences` or define new ones). Log these as `CustomData RefactorCriteria:[ComponentName_RefactorCriteriaKey]` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).
+        *   Log this strategy as a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Refactoring strategy for [ComponentName]: [Strategy]\", \"rationale\": \"Addresses [TechDebtKey] by...\"}`).
+        *   Identify key metrics or tests to verify success (from `ProjectConfig:ActiveConfig.testing` or define new ones). Log these as `CustomData RefactorCriteria:[ComponentName_RefactorCriteriaKey]` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).
     *   **Output:** Detailed refactoring plan in `LeadPhaseExecutionPlan`. Main `Progress` (integer `id`) and `Decision` (integer `id`) created. `RefactorCriteria` (key) logged.
 
 **Phase TDR.2: Iterative Refactoring & Testing by Specialists**
@@ -68,12 +68,13 @@
           "Overall_Developer_Phase_Goal": "Refactor Component [ComponentName].",
           "Specialist_Subtask_Goal": "Enhance test coverage for [ComponentName] before refactoring.",
           "Specialist_Specific_Instructions": [
+            "Log your own `Progress` (integer `id`), parented to `[RefactorProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
             "Target Component: [ComponentName] (Path: [path/to/component]).",
             "Review existing tests. Add new tests to cover [Specific_Areas_Identified_By_LeadDeveloper] to ensure behavior is captured before changes.",
             "Ensure all tests (existing and new) pass against the current code.",
             "Commit new/updated test files."
           ],
-          "Required_Input_Context_For_Specialist": { "Component_Path": "[...]", "Areas_For_Improved_Coverage": "[...]" },
+          "Required_Input_Context_For_Specialist": { "Parent_Progress_ID_as_integer": "[RefactorProgressID_as_integer]", "Component_Path": "[...]", "Areas_For_Improved_Coverage": "[...]" },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": ["Paths to new/updated test script files.", "Confirmation all pre-refactor tests pass."]
         }
         ```
@@ -89,16 +90,18 @@
           "Overall_Developer_Phase_Goal": "Refactor Component [ComponentName].",
           "Specialist_Subtask_Goal": "Implement refactoring iteration [N]: [Specific Refactoring Action for this iteration, e.g., 'Extract PriceCalculation logic into new class OrderItemPricer'].",
           "Specialist_Specific_Instructions": [
+            "Log your own `Progress` (integer `id`), parented to `[RefactorProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
             "Target Component: [ComponentName] (Path: [path/to/component]).",
-            "Refactoring Strategy Reference: `Decision:[RefactorStrategyDecisionID]` (integer `id`).",
+            "Refactoring Strategy Reference: `Decision:[RefactorStrategyDecisionID_as_integer]`.",
             "Specific action for this iteration: [Detailed instruction, e.g., 'Create OrderItemPricer.java in src/order/pricing/. Move price calculation methods from Order.java to OrderItemPricer. Update Order.java to use OrderItemPricer.']",
             "Ensure code adheres to standards (`SystemPatterns:[CodingStd_ID]` (integer `id`/name)).",
             "Update/add unit tests for the modified/new code. Tests for `Order.java` might need significant updates.",
             "Run linter on changed files."
           ],
           "Required_Input_Context_For_Specialist": {
+            "Parent_Progress_ID_as_integer": "[RefactorProgressID_as_integer]",
             "Component_Path": "[...]",
-            "Refactor_Strategy_Decision_ID_String": "[Integer_id_as_string]",
+            "Refactor_Strategy_Decision_ID_as_integer": "[Integer_id_as_integer]",
             "Specific_Iteration_Goal_And_Changes": "[...]",
             "Coding_Standards_Ref": { "type": "system_pattern", "id_or_name": "[ID or Name of pattern]" }
           },
@@ -115,7 +118,7 @@
 5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Run Tests & Linters Post-Iteration**
     *   **Actor:** Nova-LeadDeveloper
     *   **Task:** "Run all relevant tests (unit, integration) and linters after refactoring iteration [N] for [ComponentName]."
-    *   **Briefing for TestAutomator:** Specify scope of tests to run (module-specific, plus any designated integration tests). Command from `ProjectConfig:ActiveConfig.testing_preferences`. Expect detailed pass/fail report.
+    *   **Briefing for TestAutomator:** Specify scope of tests to run (module-specific, plus any designated integration tests). Command from `ProjectConfig:ActiveConfig.testing.commands`. Expect detailed pass/fail report.
     *   **Nova-LeadDeveloper Action:** If failures, log `ErrorLogs` (key) (or instruct specialist) and delegate fixes back to CodeRefactorer (looping steps 4 & 5 for that part of refactoring). Update plan/progress.
 
 *(... Repeat steps 4 & 5 for further refactoring iterations if the plan involves multiple distinct refactoring steps on the component ...)*
@@ -140,7 +143,7 @@
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Based on the outcome, prepare a proposal for updating the original `CustomData TechDebtCandidates:[TechDebtKey]` (key) entry. This is NOT a direct update by LeadDeveloper, but a proposal. LeadDeveloper will state in its `attempt_completion` to Orchestrator: "Refactoring for `TechDebtCandidates:[TechDebtKey]` is complete. Suggest updating its status to 'RESOLVED' and adding notes: '[Summary of improvements]'." Nova-Orchestrator might then delegate the actual update to Nova-LeadArchitect/ConPortSteward if ConPort governance rules dictate.
-        *   Log a final `Decision` (integer `id`) for the refactoring phase using `use_mcp_tool` (`tool_name: 'log_decision'`, `summary: "[ComponentName] refactoring completed. Addressed TechDebtCandidates:[TechDebtKey]. Outcome: [e.g., Performance improved by X%, Complexity reduced by Y points]."`). Link this decision to `[RefactorProgressID]`.
+        *   Log a final `Decision` (integer `id`) for the refactoring phase using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"[ComponentName] refactoring completed. Addressed TechDebtCandidates:[TechDebtKey]. Outcome: [e.g., Performance improved by X%, Complexity reduced by Y points].\"}`). Link this decision to `[RefactorProgressID]`.
     *   **Output:** Proposal for `TechDebtCandidates` (key) update ready. Final refactoring `Decision` (integer `id`) logged.
 
 9.  **Nova-LeadDeveloper: Finalize Refactoring Phase**

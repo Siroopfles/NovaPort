@@ -21,8 +21,8 @@
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
         *   Parse the user's question/request. Identify key entities, keywords, desired information type, and potential ConPort categories or item types.
-        *   Log a `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "ConPort Query & Summarize: [Brief User Question/Topic]". Let this be `[QueryProgressID]`.
-        *   Determine the best ConPort tools for Nova-FlowAsk to use (e.g., `get_custom_data` for specific keys, `search_decisions_fts` for keyword search in decisions, `semantic_search_conport` for conceptual queries, `get_linked_items` for relationships).
+        *   Log a `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"ConPort Query & Summarize: [Brief User Question/Topic]\"}`). Let this be `[QueryProgressID]`.
+        *   Determine the best ConPort tools for Nova-FlowAsk to use (e.g., `get_custom_data` for specific keys, `search_decisions_fts` for keyword search in decisions, `get_linked_items` for relationships).
     *   **Output:** Strategy for ConPort query defined. `[QueryProgressID]` known.
 
 2.  **Nova-Orchestrator -> Delegate to Nova-FlowAsk: Execute Query & Summarize**
@@ -43,7 +43,7 @@
           ],
           "Required_Input_Context": {
             "Full_User_Question_Or_Request": "[...]",
-            "ConPort_Query_Strategy": [ // Array of query steps for FlowAsk
+            "ConPort_Query_Strategy": [ 
               {
                 "step_description": "Retrieve all decisions tagged with '#ModuleX' and '#architecture'.",
                 "conport_tool_to_use": "get_decisions",
@@ -52,13 +52,12 @@
               {
                 "step_description": "From the above decisions, extract rationales and summarize.",
                 "analysis_needed": "Extract 'rationale' field, synthesize common themes."
+              },
+              {
+                "step_description": "Find system patterns related to caching using a full-text search.",
+                "conport_tool_to_use": "search_custom_data_value_fts",
+                "arguments": { "workspace_id": "ACTUAL_WORKSPACE_ID", "query_term": "caching pattern", "category_filter": "SystemPatterns", "limit": 3 }
               }
-              // Or for semantic search:
-              // {
-              //   "step_description": "Find system patterns related to caching.",
-              //   "conport_tool_to_use": "semantic_search_conport",
-              //   "arguments": { "workspace_id": "ACTUAL_WORKSPACE_ID", "query_text": "system patterns for caching layer", "filter_item_types": ["system_pattern"], "top_k": 3 }
-              // }
             ]
           },
           "Expected_Deliverables_In_Attempt_Completion": [
@@ -69,7 +68,7 @@
         ```
     *   **Nova-Orchestrator Action after Nova-FlowAsk's `attempt_completion`:**
         *   Review the answer/summary from Nova-FlowAsk.
-        *   Update `[QueryProgressID]` status using `use_mcp_tool` (`tool_name: 'update_progress'`) to "DONE".
+        *   Update `[QueryProgressID]` status using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"progress_id\": [QueryProgressID_as_integer], \"status\": \"DONE\"}`).
 
 **Phase CQS.2: Present Information to User**
 

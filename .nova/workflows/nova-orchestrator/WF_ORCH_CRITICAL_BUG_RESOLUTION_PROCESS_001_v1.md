@@ -40,7 +40,7 @@
 2.  **Nova-Orchestrator: Acknowledge Criticality & Delegate Investigation**
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
-        *   Log/Update a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`): "CRITICAL BUG Resolution: [ErrorLogKey/Symptom]", Status: "TRIAGE_INVESTIGATION_PENDING". Let this be `[CritBugProgressID]`.
+        *   Log/Update a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"CRITICAL BUG Resolution: [ErrorLogKey/Symptom]\"}`). Let this be `[CritBugProgressID]`.
         *   Delegate to `Nova-LeadArchitect`: "Please have your ConPortSteward update `active_context.state_of_the_union` to reflect 'CRITICAL BUG [ErrorLogKey] under active investigation. Potential impact on current sprint goals.'." (This requires get/log).
     *   **Task:** "Delegate immediate and thorough investigation of critical `ErrorLogs:[ErrorLogKey]` to Nova-LeadQA."
     *   **`new_task` message for Nova-LeadQA:**
@@ -146,7 +146,7 @@
         ```
     *   **Nova-Orchestrator Action after LeadQA's `attempt_completion`:**
         *   If RESOLVED: Proceed to Phase CB.4.
-        *   If FAILED_VERIFICATION: Log this decision using `use_mcp_tool` (`tool_name: 'log_decision'`, `summary: "Critical Bug [ErrorLogKey] fix failed verification. Looping back."`). Loop back to Phase CB.2 (Nova-LeadDeveloper for re-fix) or Phase CB.1 (Nova-LeadQA for deeper investigation if cause was misunderstood). Update `[CritBugProgressID]` status.
+        *   If FAILED_VERIFICATION: Log this decision using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Critical Bug [ErrorLogKey] fix failed verification. Looping back.\"}`). Loop back to Phase CB.2 (Nova-LeadDeveloper for re-fix) or Phase CB.1 (Nova-LeadQA for deeper investigation if cause was misunderstood). Update `[CritBugProgressID]` status.
 
 **Phase CB.4: Post-Resolution & Communication (Nova-Orchestrator)**
 
