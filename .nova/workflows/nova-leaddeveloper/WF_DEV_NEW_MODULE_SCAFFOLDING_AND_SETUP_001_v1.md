@@ -23,7 +23,7 @@
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Parse `Subtask Briefing Object` if from Nova-Orchestrator, or define scope internally based on architectural input.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Scaffold New Module: [ModuleName]". Let this be `[ScaffoldProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Scaffold New Module: [ModuleName]\"}`). Let this be `[ScaffoldProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[ScaffoldProgressID]_DeveloperPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Plan items:
             1.  Create Directory Structure & Basic Boilerplate Files (Delegate to FeatureImplementer).
             2.  Setup Initial Test Harness & Placeholder Test (Delegate to TestAutomator).
@@ -33,7 +33,7 @@
         *   Determine the root path for the new module (e.g., `src/modules/[module_name]/`, `services/[service_name]/`).
         *   Define basic subdirectory structure (e.g., `tests/`, `docs/`, `config/`, main source folders like `src/` within module).
         *   Identify core boilerplate files needed (e.g., `__init__.py` for Python, `main.go`, `package.json`, `Dockerfile`, basic config file like `config.yaml.example`, an entry point file like `app.py` or `server.js`).
-    *   **ConPort Action:** Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) for creating this module, its purpose, chosen root path, and primary language/framework. Link to `[ScaffoldProgressID]`.
+    *   **ConPort Action:** Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Decision to create new module: [ModuleName]\", \"rationale\": \"[Purpose of the module]\"}`) for creating this module. Link to `[ScaffoldProgressID]`.
     *   **Output:** Module structure and boilerplate file list defined. `[ScaffoldProgressID]` known.
 
 2.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Create Directory Structure & Boilerplate Files**
@@ -46,7 +46,7 @@
           "Overall_Developer_Phase_Goal": "Scaffold New Module: [ModuleName].",
           "Specialist_Subtask_Goal": "Create directory structure and boilerplate files for [ModuleName].",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[ScaffoldProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[ScaffoldProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Create directory structure and boilerplate files for [ModuleName]\", \"parent_id\": [ScaffoldProgressID_as_integer]} `).",
             "Module Name: [ModuleName].",
             "Target Root Path for Module: [path/to/module_root_from_LeadDeveloper].",
             "Required Subdirectories within Module Root: [List: e.g., 'src', 'tests', 'docs', 'config']. Create these using `execute_command` (`mkdir -p ...`).",
@@ -55,12 +55,10 @@
             "  - `[path/to/module_root]/tests/test_basic.[ext]` (e.g., a single passing placeholder unit test).",
             "  - `[path/to/module_root]/README.md` (Title: Module [ModuleName], Purpose: [From LeadDeveloper]).",
             "  - `[path/to/module_root]/config/default.yaml.example` (Empty or with placeholder keys).",
-            "  - (Optional, if briefed by LeadDeveloper) `[path/to/module_root]/Dockerfile` (basic, if it's a service).",
-            "  - (Optional, if briefed by LeadDeveloper) `[path/to/module_root]/package.json` or `requirements.txt` (minimal).",
-            "(Optional) If LeadDeveloper specified a template path in `.nova/templates/[template_name]/`, first check if it exists (`list_files`). If yes, copy its structure and files as a starting point (conceptually, or if a copy tool existed, use it; otherwise, replicate manually using `write_to_file` for each templated file). Then adapt as needed based on other instructions."
+            "(Optional) If LeadDeveloper specified a template path in `.nova/templates/[template_name]/`, first check if it exists (`list_files`). If yes, copy its structure and files as a starting point."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[ScaffoldProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[ScaffoldProgressID_as_integer]",
             "ModuleName": "[ModuleName]",
             "Target_Module_Root_Path_From_LeadDeveloper": "[...]",
             "List_Of_Subdirectories_To_Create": "['src', 'tests', 'docs', 'config']",
@@ -85,19 +83,19 @@
           "Overall_Developer_Phase_Goal": "Scaffold New Module: [ModuleName].",
           "Specialist_Subtask_Goal": "Setup initial test harness and confirm placeholder test runs for [ModuleName].",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[ScaffoldProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[ScaffoldProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
             "Module Path: [path/to/module_root_from_LeadDeveloper].",
-            "Testing Framework (from `ProjectConfig:ActiveConfig.testing_preferences.default_test_runner`): [e.g., Pytest, Jest].",
-            "Test Runner Command (from `ProjectConfig:ActiveConfig.testing_preferences.default_test_runner_command`): [e.g., 'pytest', 'npm test --'].",
+            "Testing Framework (from `ProjectConfig:ActiveConfig.testing.framework`): [e.g., Pytest, Jest].",
+            "Test Runner Command (from `ProjectConfig:ActiveConfig.testing.commands.run_all`): [e.g., 'pytest', 'npm test --'].",
             "1. If needed, create/update test configuration files (e.g., `pytest.ini`, `jest.config.js`) in the module's test directory (`[ModulePath]/tests/`).",
             "2. Ensure the placeholder test created by FeatureImplementer (e.g., `[ModulePath]/tests/test_basic.[ext]`) can be discovered and run by the test runner.",
             "3. Execute the test runner command (e.g., `pytest [ModulePath]/tests/` or `npm test -- [ModulePath]/tests/test_basic.js`) scoped to this new module to confirm the placeholder test passes. Use `execute_command`.",
             "Report the exact command used and its full output."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[ScaffoldProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[ScaffoldProgressID_as_integer]",
             "Module_Path": "[path/to/module_root_from_LeadDeveloper]",
-            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing_preferences"] },
+            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing"] },
             "Placeholder_Test_File_Path": "[path/to/module_root]/tests/test_basic.[ext]"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
@@ -118,7 +116,7 @@
           "Overall_Developer_Phase_Goal": "Scaffold New Module: [ModuleName].",
           "Specialist_Subtask_Goal": "Create initial README.md and documentation stubs for [ModuleName].",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[ScaffoldProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[ScaffoldProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
             "Module Path: [path/to/module_root_from_LeadDeveloper].",
             "Module Purpose: [Purpose_From_LeadDeveloper_Or_Decision].",
             "1. Update/Ensure `[ModulePath]/README.md` contains: Title (`# Module: [ModuleName]`), Purpose (`## Purpose\n[ModulePurpose]`), Basic Usage (placeholder: `## Basic Usage\nTODO`), Setup (placeholder: `## Setup\nTODO`). Use `apply_diff` or `write_to_file`.",
@@ -128,7 +126,7 @@
             "   - `configuration.md` (Content: `# Configuration for [ModuleName]\n\nTODO: Details on configuring the module...`)"
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[ScaffoldProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[ScaffoldProgressID_as_integer]",
             "Module_Path": "[...]", "Module_Name": "[...]", "Module_Purpose": "[...]"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": ["List of paths for all created/updated documentation files."]
@@ -151,7 +149,7 @@
             *   `dependencies_internal`: [] (Initially empty).
             *   `dependencies_external`: [] (Initially empty).
             *   `version`: "0.1.0-alpha" (or similar initial).
-        *   Link this new `SystemArchitecture` (key) entry to the main `Progress` item (`[ScaffoldProgressID]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type: 'describes_progress_of'`).
+        *   Link this new `SystemArchitecture` (key) entry to the main `Progress` item (`[ScaffoldProgressID]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`).
     *   **Output:** Module architecturally registered in ConPort.
 
 6.  **Nova-LeadDeveloper: Finalize Scaffolding**

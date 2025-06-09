@@ -15,14 +15,32 @@
 - A ConPort `CustomData ErrorLogs:[key]` entry exists or is immediately created for the critical bug, containing as much initial detail as possible. If not, Orchestrator delegates its creation to Nova-LeadQA (or its ConPortSteward via LeadArchitect).
 - User/Stakeholder confirms the criticality and the need for an expedited process.
 
+---
+
 **Phases & Steps (managed by Nova-Orchestrator):**
+
+**Phase CB.0: Pre-flight Checks by Nova-Orchestrator**
+
+1.  **Nova-Orchestrator: Verify Critical Bug is Ready for Triage**
+    *   **Actor:** Nova-Orchestrator
+    *   **Action:** Before delegating any investigation, perform this critical pre-flight check.
+    *   **Checks:**
+        1.  **Retrieve `ErrorLogs` Item:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the `CustomData ErrorLogs:[ErrorLogKey]` entry that triggered this workflow.
+        2.  **Check for Existence:**
+            - **Failure:** If the item is not found, report to user: "BLOCKER: The specified `ErrorLogs:[ErrorLogKey]` does not exist in ConPort. Cannot start critical resolution process without a valid bug report." Halt workflow.
+        3.  **Check for Correct Status/Severity:**
+            - Review the `status` and `severity` fields within the `value` of the retrieved `ErrorLogs` item.
+            - The `status` should ideally be 'OPEN' or 'REOPENED'.
+            - The `severity` MUST be 'CRITICAL' (or a similar high-priority designation defined in `ProjectConfig`).
+            - **Failure:** If the bug is already 'RESOLVED' or 'CLOSED', or if its severity is not 'CRITICAL', inform the user and halt this *expedited* workflow. "NOTICE: The bug `ErrorLogs:[ErrorLogKey]` is not marked as open and critical (current status: [status], severity: [severity]). Halting the *critical* resolution process. A standard bug triage can be initiated if needed."
+    *   **Output:** The critical bug is confirmed to exist and be in a valid state for expedited resolution.
 
 **Phase CB.1: Initial Triage & Investigation Delegation (Nova-Orchestrator -> Nova-LeadQA)**
 
-1.  **Nova-Orchestrator: Acknowledge Criticality & Delegate Investigation**
+2.  **Nova-Orchestrator: Acknowledge Criticality & Delegate Investigation**
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
-        *   Log/Update a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`): "CRITICAL BUG Resolution: [ErrorLogKey/Symptom]", Status: "TRIAGE_INVESTIGATION_PENDING". Let this be `[CritBugProgressID]`.
+        *   Log/Update a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"CRITICAL BUG Resolution: [ErrorLogKey/Symptom]\"}`). Let this be `[CritBugProgressID]`.
         *   Delegate to `Nova-LeadArchitect`: "Please have your ConPortSteward update `active_context.state_of_the_union` to reflect 'CRITICAL BUG [ErrorLogKey] under active investigation. Potential impact on current sprint goals.'." (This requires get/log).
     *   **Task:** "Delegate immediate and thorough investigation of critical `ErrorLogs:[ErrorLogKey]` to Nova-LeadQA."
     *   **`new_task` message for Nova-LeadQA:**
@@ -56,7 +74,7 @@
 
 **Phase CB.2: Fix Implementation (Nova-Orchestrator -> Nova-LeadDeveloper)**
 
-2.  **Nova-Orchestrator: Delegate Expedited Fix**
+3.  **Nova-Orchestrator: Delegate Expedited Fix**
     *   **DoR Check:** Nova-LeadQA has provided a clear root cause hypothesis or confirmed cause in `ErrorLogs:[ErrorLogKey]`. The issue is determined to be a code fix.
     *   **Action:** Update `[CritBugProgressID]` status to "FIX_IMPLEMENTATION_PENDING".
     *   **Task:** "Delegate the development of an expedited fix for `ErrorLogs:[ErrorLogKey]` to Nova-LeadDeveloper."
@@ -95,7 +113,7 @@
 
 **Phase CB.3: Fix Verification & Closure (Nova-Orchestrator -> Nova-LeadQA)**
 
-3.  **Nova-Orchestrator: Delegate Fix Verification**
+4.  **Nova-Orchestrator: Delegate Fix Verification**
     *   **DoR Check:** Nova-LeadDeveloper reports fix implemented and unit tested.
     *   **Action:** Update `[CritBugProgressID]` status to "FIX_VERIFICATION_PENDING".
     *   **Task:** "Delegate verification of the fix for `ErrorLogs:[ErrorLogKey]` to Nova-LeadQA."
@@ -128,11 +146,11 @@
         ```
     *   **Nova-Orchestrator Action after LeadQA's `attempt_completion`:**
         *   If RESOLVED: Proceed to Phase CB.4.
-        *   If FAILED_VERIFICATION: Log this decision using `use_mcp_tool` (`tool_name: 'log_decision'`, `summary: "Critical Bug [ErrorLogKey] fix failed verification. Looping back."`). Loop back to Phase CB.2 (Nova-LeadDeveloper for re-fix) or Phase CB.1 (Nova-LeadQA for deeper investigation if cause was misunderstood). Update `[CritBugProgressID]` status.
+        *   If FAILED_VERIFICATION: Log this decision using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Critical Bug [ErrorLogKey] fix failed verification. Looping back.\"}`). Loop back to Phase CB.2 (Nova-LeadDeveloper for re-fix) or Phase CB.1 (Nova-LeadQA for deeper investigation if cause was misunderstood). Update `[CritBugProgressID]` status.
 
 **Phase CB.4: Post-Resolution & Communication (Nova-Orchestrator)**
 
-4.  **Nova-Orchestrator: Finalize Critical Bug Resolution**
+5.  **Nova-Orchestrator: Finalize Critical Bug Resolution**
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
         *   Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) confirming critical bug `ErrorLogs:[ErrorLogKey]` resolution and any deployment/hotfix strategy.

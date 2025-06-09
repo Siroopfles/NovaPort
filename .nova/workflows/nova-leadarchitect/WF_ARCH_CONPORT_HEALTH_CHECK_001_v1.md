@@ -22,7 +22,7 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator (if applicable). Understand `Phase_Goal` and any specific areas of focus.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "ConPort Health Check Cycle - [Date]". Let this be `[HCProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"ConPort Health Check Cycle - [Date]\"}`). Let this be `[HCProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[HCProgressID]_ArchitectPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Example plan items:
             1.  Perform Health Scan & Generate Findings Report (Delegate to ConPortSteward).
             2.  Review Findings & Propose Actions (LeadArchitect).
@@ -40,8 +40,8 @@
           "Overall_Architect_Phase_Goal": "Complete ConPort Health Check Cycle - [Date].",
           "Specialist_Subtask_Goal": "Perform comprehensive ConPort health scan and generate a structured findings report.",
           "Specialist_Specific_Instructions": [
-            "Log your own detailed `Progress` (integer `id`) for this scan, parented to `[HCProgressID]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
-            "Using `use_mcp_tool` with appropriate ConPort getter/search tools (`get_decisions`, `get_progress`, `get_custom_data`, `get_linked_items`, `semantic_search_conport`, etc.) and `workspace_id: 'ACTUAL_WORKSPACE_ID'`:",
+            "Log your own detailed `Progress` (integer `id`) for this scan, parented to `[HCProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Perform ConPort health scan\", \"parent_id\": [HCProgressID_as_integer]} `).",
+            "Using `use_mcp_tool` with appropriate ConPort getter/search tools (`get_decisions`, `get_progress`, `get_custom_data`, `get_linked_items`, `search_decisions_fts`, `search_custom_data_value_fts`, etc.) and `workspace_id: 'ACTUAL_WORKSPACE_ID'`:",
             "1. **Decision Integrity:** Retrieve recent/all `Decisions` (integer `id`). Check for missing `rationale`/`implications` fields (DoD check). List deficient Decision IDs.",
             "2. **Progress Item Review:** Retrieve `Progress` (integer `id`) items that are BLOCKED or have been IN_PROGRESS for more than [X_days_threshold] (get threshold from `NovaSystemConfig:ActiveSettings` if available, or use a default like 30). Analyze context. List items needing follow-up.",
             "3. **Custom Data Audit:** Review a sample of `CustomData` (key) entries, especially those in non-standard or overly generic categories. Check for consistency in `value` structure for common categories like `APIEndpoints`, `SystemArchitecture`. Identify potentially orphaned or redundant entries. Suggest consolidations or re-categorizations.",
@@ -51,7 +51,7 @@
             "Compile a structured Markdown report of ALL findings, categorised by check type, including item IDs/keys and specific issues. Save this report to `.nova/reports/architect/ConPortHealthCheck_[YYYYMMDD].md` using the `write_to_file` tool."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[HCProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[HCProgressID_as_integer]",
             "NovaSystemConfig_Ref_For_Thresholds": { "type": "custom_data", "category": "NovaSystemConfig", "key": "ActiveSettings" },
             "Standard_ConPort_Categories_List": "[List from LeadArchitect, derived from Orchestrator/Architect prompts]",
             "Specific_Focus_Areas_From_LeadArchitect": "[Optional: e.g., 'Focus on Decision linkage for Project X components']"
@@ -84,15 +84,15 @@
           "Overall_Architect_Phase_Goal": "Complete ConPort Health Check Cycle - [Date].",
           "Specialist_Subtask_Goal": "Execute approved ConPort corrective actions and document changes.",
           "Specialist_Specific_Instructions": [
-            "Log your own detailed `Progress` (integer `id`) for these updates, parented to `[HCProgressID]`.",
+            "Log your own detailed `Progress` (integer `id`), parented to `[HCProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Execute ConPort corrective actions\", \"parent_id\": [HCProgressID_as_integer]} `).",
             "For each approved action (provided by LeadArchitect):",
-            "  - Action Example 1: To update `Decision` (integer `id`) [ID], use `use_mcp_tool` (`tool_name: 'update_decision'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'decision_id': [ID_as_string], 'rationale': '[New Rationale]'}`).",
-            "  - Action Example 2: To update `CustomData ErrorLogs:[key]`, first retrieve the current object with `use_mcp_tool` (`tool_name: 'get_custom_data'`), then use `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ErrorLogs', 'key': '[ErrorLogKey]', 'value': { /* entire_updated_R20_object_with_new_status */ }}`).",
-            "  - Action Example 3: Link `Decision` (integer `id`) [ID_A_as_string] to `Progress` (integer `id`) [ID_B_as_string] with relationship 'tracked_by' using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'source_item_type': 'decision', 'source_item_id': '[ID_A_as_string]', ...}`).",
+            "  - Action Example 1: To update `Decision` (integer `id`) [ID], use `use_mcp_tool` (`tool_name: 'update_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"decision_id\": [ID_as_integer], \"rationale\": \"[New Rationale]\"}`).",
+            "  - Action Example 2: To update `CustomData ErrorLogs:[key]`, first retrieve the current object with `use_mcp_tool` (`tool_name: 'get_custom_data'`), then use `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ErrorLogs\", \"key\": \"[ErrorLogKey]\", \"value\": { /* entire_updated_R20_object_with_new_status */ }}`).",
+            "  - Action Example 3: Link `Decision` (integer `id`) [ID_A] to `Progress` (integer `id`) [ID_B] with relationship 'tracked_by' using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"source_item_type\": \"decision\", \"source_item_id\": \"[ID_A_as_string]\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"[ID_B_as_string]\", \"relationship_type\": \"tracked_by\"}`).",
             "Document all specific changes made in your `Progress` item's description field."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[HCProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[HCProgressID_as_integer]",
             "List_Of_Approved_Actions_With_Details": "[Structured list from LeadArchitect, including item types, IDs/keys, new values, link details]"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
@@ -116,6 +116,22 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Report completion, summary of findings, actions taken, and path to the detailed report.
 
+---
+## Failure Scenarios / Error Handling
+
+*   **Scenario:** Specialist `use_mcp_tool` call fails (e.g., invalid ID, database lock).
+    *   **Lead Mode Action (Nova-LeadArchitect):**
+        1.  Analyze the specialist's `attempt_completion` which must contain the tool name, arguments, and error message.
+        2.  Log the specialist sub-task failure as a new `ErrorLogs` item (category `ProcessError`) via ConPortSteward.
+        3.  If it's a correctable input error (e.g., wrong ID), re-delegate the sub-task with corrected arguments.
+        4.  If it's a persistent system error, update main `Progress` to BLOCKED, and report the issue to Nova-Orchestrator, including the `ErrorLogs` key.
+
+*   **Scenario:** User/Orchestrator rejects the proposed corrective actions.
+    *   **Lead Mode Action (Nova-LeadArchitect):**
+        1.  Log a `Decision` item documenting the rejection and reason.
+        2.  Update the `Progress` item for the Health Check to 'DONE' but with a note indicating that findings were reported but no corrective action was approved.
+        3.  Report this outcome to Nova-Orchestrator in the final `attempt_completion`.
+---
 **Key ConPort Items Involved:**
 - Progress (integer `id`): For overall cycle, scan subtask, action subtask.
 - CustomData LeadPhaseExecutionPlan:[HCProgressID]_ArchitectPlan (key).
