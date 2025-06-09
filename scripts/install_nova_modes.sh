@@ -11,19 +11,23 @@ GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; RED='\033[0;31m'; NC
 
 # --- Functions ---
 show_banner() {
-    echo -e "${CYAN}==============================================${NC}"
-    echo -e "${CYAN}  Nova System Modes Installer for Roo Code  ${NC}"
-    echo -e "${YELLOW}  Downloading version: ${VERSION}${NC}"
-    echo -e "${CYAN}==============================================${NC}"
+    echo -e "${CYAN}=============================================="
+    echo -e "${CYAN}  Nova System Core Installer for Roo Code     "
+    echo -e "${CYAN}  Downloading from branch/tag: ${VERSION}${NC}"
+    echo -e "${CYAN}=============================================="
     echo
-    echo "This script will download Nova System files from GitHub and install them."
-    echo "It will skip versioned directories (like 'v1/', 'v2/', etc.)."
+    echo "This script will download and install the core Nova System files:"
+    echo "- The entire .nova/ directory"
+    echo "- The entire .roo/ directory"
+    echo "- .roomodes"
+    echo "- README.md"
+    echo "Other files like /examples, /scripts, LICENSE, etc., will be ignored."
     echo
 }
 
 check_deps() {
     if ! command -v curl &> /dev/null; then echo -e "${RED}Error: 'curl' is required but not installed.${NC}"; exit 1; fi
-    if ! command -v jq &> /dev/null; then echo -e "${RED}Error: 'jq' is required. Please install it (e.g., 'brew install jq').${NC}"; exit 1; fi
+    if ! command -v jq &> /dev/null; then echo -e "${RED}Error: 'jq' is required. Please install it (e.g., 'brew install jq' or 'sudo apt-get install jq').${NC}"; exit 1; fi
 }
 
 # --- Main Script ---
@@ -38,6 +42,7 @@ if [[ -z "$TARGET_DIR" ]]; then
     echo -e "${YELLOW}No path entered. Using current directory as target:${NC}"
     echo "$TARGET_DIR"
 else
+    # Expands tilde (~) to the home directory path
     TARGET_DIR="${TARGET_DIR/#\~/$HOME}"
 fi
 
@@ -52,14 +57,15 @@ if [ ! -d "$TARGET_DIR" ]; then
     fi
 fi
 
-echo -e "\n${YELLOW}Files will be installed into:${NC} $TARGET_DIR"
-read -p "Are you sure you want to proceed? This may overwrite existing files. [y/n] " -n 1 -r; echo
+echo -e "\n${YELLOW}Core system files will be installed into:${NC} $TARGET_DIR"
+read -p "Are you sure you want to proceed? This will overwrite existing files. [y/n] " -n 1 -r; echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then echo "Installation cancelled."; exit; fi
 
 echo -e "\n${CYAN}Starting installation...${NC}"
 
 echo "Fetching file list from GitHub for version '${VERSION}'..."
 API_RESPONSE=$(curl -sL "$API_URL")
+# Use jq to get a list of all file paths from the API response
 FILE_PATHS=$(echo "$API_RESPONSE" | jq -r '.tree[]? | select(.type == "blob") | .path')
 
 if [[ "$(echo "$API_RESPONSE" | jq -r '.message?')" == "Not Found" || -z "$FILE_PATHS" ]]; then
@@ -69,8 +75,8 @@ fi
 
 DOWNLOAD_COUNT=0
 for FILE_PATH in $FILE_PATHS; do
-    if [[ "$FILE_PATH" =~ ^v[0-9.]+/ ]]; then continue; fi
-
+    # --- This is the filter logic ---
+    # It uses a case statement to include a file only if its path matches one of these patterns.
     case "$FILE_PATH" in
         .roomodes|.nova/*|.roo/*|README.md)
             DEST_PATH="$TARGET_DIR/$FILE_PATH"
@@ -83,8 +89,8 @@ for FILE_PATH in $FILE_PATHS; do
 done
 
 echo
-echo -e "${GREEN}Installation complete! Downloaded $DOWNLOAD_COUNT files.${NC}"
-echo -e "${GREEN}The Nova System files (version '${VERSION}') have been successfully installed into:${NC}"
+echo -e "${GREEN}Installation complete! Downloaded $DOWNLOAD_COUNT core files.${NC}"
+echo -e "${GREEN}The Nova System core files (version '${VERSION}') have been successfully installed into:${NC}"
 echo "$TARGET_DIR"
 
 exit 0

@@ -1,5 +1,6 @@
-# PowerShell script to install Nova System modes by downloading them from the official GitHub repository.
-# It accepts an optional -Version parameter (e.g., -Version v0.1.0-beta). Defaults to 'main'.
+# PowerShell script to install the core Nova System files from the official GitHub repository.
+# It selectively downloads only the .nova and .roo directories, plus .roomodes and README.md.
+# It accepts an optional -Version parameter (e.g., -Version v0.2.0-beta). Defaults to 'main'.
 param(
     [string]$Version = "main"
 )
@@ -15,12 +16,16 @@ $Green = "Green"; $Yellow = "Yellow"; $Red = "Red"; $Cyan = "Cyan"
 # --- Functions ---
 function Show-Banner {
     Write-Host "==============================================" -ForegroundColor $Cyan
-    Write-Host "  Nova System Modes Installer for Roo Code  " -ForegroundColor $Cyan
-    Write-Host "  Downloading version: $Version" -ForegroundColor $Yellow
+    Write-Host "  Nova System Core Installer for Roo Code     " -ForegroundColor $Cyan
+    Write-Host "  Downloading from branch/tag: $Version" -ForegroundColor $Yellow
     Write-Host "==============================================" -ForegroundColor $Cyan
     Write-Host
-    Write-Host "This script will download Nova System files from GitHub and install them."
-    Write-Host "It will skip versioned directories (like 'v1/', 'v2/', etc.)."
+    Write-Host "This script will download and install the core Nova System files:"
+    Write-Host "- The entire .nova/ directory"
+    Write-Host "- The entire .roo/ directory"
+    Write-Host "- .roomodes"
+    Write-Host "- README.md"
+    Write-Host "Other files like /examples, /scripts, LICENSE, etc., will be ignored."
     Write-Host
 }
 
@@ -55,7 +60,7 @@ if (-not (Test-Path -Path $targetDir -PathType Container)) {
 }
 
 Write-Host
-Write-Host "Files will be downloaded and installed into:" -ForegroundColor $Yellow
+Write-Host "Core system files will be installed into:" -ForegroundColor $Yellow
 Write-Host "$targetDir"
 Write-Host
 $confirmChoice = Read-Host -Prompt "Are you sure you want to proceed? This may overwrite existing files. [y/n]"
@@ -73,15 +78,16 @@ try {
     $allFiles = ($response.Content | ConvertFrom-Json).tree
     if (-not $allFiles) { throw "Could not retrieve file list from GitHub API. Ensure version '$Version' exists." }
 
+    # --- This is the filter logic ---
+    # It includes a file only if its path matches one of these patterns.
     $filesToDownload = $allFiles | Where-Object {
         $isBlob = $_.type -eq 'blob'
         $path = $_.path
-        $isExcluded = $path -match '^v[0-9.]+'
         $isIncluded = ($path -eq '.roomodes' -or $path -eq 'README.md' -or $path -like '.nova/*' -or $path -like '.roo/*')
-        $isBlob -and $isIncluded -and -not $isExcluded
+        $isBlob -and $isIncluded
     }
 
-    Write-Host "Found $($filesToDownload.Count) files to download."
+    Write-Host "Found $($filesToDownload.Count) core files to download."
 
     foreach ($file in $filesToDownload) {
         $filePath = $file.path
@@ -96,7 +102,7 @@ try {
 
     Write-Host
     Write-Host "Installation complete!" -ForegroundColor $Green
-    Write-Host "The Nova System files (version '$Version') have been successfully installed into:" -ForegroundColor $Green
+    Write-Host "The Nova System core files (version '$Version') have been successfully installed into:" -ForegroundColor $Green
     Write-Host "$targetDir"
 
 } catch {
