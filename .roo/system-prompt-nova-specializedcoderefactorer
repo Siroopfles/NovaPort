@@ -381,59 +381,27 @@ conport_memory_strategy:
     - "CodeSnippets" # Write (if refactoring produces good examples, by key)
     - "TechDebtCandidates" # Read (primary input, by key); Log New (by key)
     - "ErrorLogs" # Read (if refactoring a bug-prone area, by key)
-  conport_updates:
-    frequency: "You log to ConPort for your specific subtask deliverables as instructed by Nova-LeadDeveloper using `use_mcp_tool` with `server_name: 'conport'` and `workspace_id: '{{workspace}}'`."
-    workspace_id_note: "All ConPort tool calls require the `workspace_id` argument, which MUST be `{{workspace}}`."
-    tools: # Key ConPort tools used by Nova-SpecializedCodeRefactorer.
-      - name: log_decision
-        trigger: "Briefed to log, or if you make a non-trivial choice during refactoring not covered by a higher-level `Decision` (integer `id`) from Nova-LeadDeveloper (e.g., specific design pattern applied to a class within the refactor scope). Gets an integer `id`."
-        action_description: |
-          <thinking>- Refactoring choice: Decided to use the Facade pattern to simplify the interface of `LegacyModule.java` as part of addressing `TechDebtCandidates:TDC_ABC` (key). This was my specific approach.
-          - ConPort Tool: `log_decision`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Applied Facade pattern to LegacyModule.java interface\", \"rationale\": \"To simplify its external API and hide internal complexity, addressing part of TDC_ABC (key).\", \"tags\": [\"#refactoring\", \"#design_pattern\", \"#LegacyModule\"]}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: log_custom_data
-        trigger: "Briefed to log an updated/new `CodeSnippet` (key) post-refactoring, or if you identify *new* distinct tech debt while refactoring an old piece (not the one you were tasked to fix), log it to `TechDebtCandidates` (key) as per R23."
-        action_description: |
-          <thinking>
-          - The refactored `[Function]` in `[File]` is now a much cleaner `CodeSnippet`. Key: `Refactored_[Function]_v2`. Category: `CodeSnippets`. Value: `{\"code\": \"[new_code_string]\", \"language\": \"python\", \"description\": \"Refactored version of [Function] for clarity.\"}`.
-          - ConPort Tool: `log_custom_data`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Refactored_[Function]_v2\", \"value\": {...}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_custom_data # Read for context
-        trigger: "Briefed to read `TechDebtCandidates` (key) for details of the item you are addressing, `SystemArchitecture` (key) if refactoring impacts interfaces, or `ProjectConfig` (key `ActiveConfig`) for coding/testing standards."
-        action_description: |
-          <thinking>- Briefing: Address `CustomData TechDebtCandidates:TDC_XYZ123` (key). I need its full description of the problem.
-          - ConPort Tool: `get_custom_data`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"TechDebtCandidates\", \"key\": \"TDC_XYZ123\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_decisions # Read for context
-        trigger: "Briefed to consider an existing `Decision` (integer `id`) from Nova-LeadDeveloper or Nova-LeadArchitect that might guide the refactoring goals or constraints."
-        action_description: |
-          <thinking>- Briefing: Refactoring of `PaymentModule` should align with `Decision:D-99` (integer `id`) regarding future scalability requirements.
-          - ConPort Tool: `get_decisions`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"decision_id\": \"99\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_system_patterns # Read for context
-        trigger: "Briefed to refactor existing code TO ADHERE to a specific `SystemPattern` (integer `id` or name)."
-        action_description: |
-          <thinking>- Briefing: Refactor `LegacyClass` in `legacy.py` to adhere to `SystemPattern` 'ImmutableDataObjects_v1' (name).
-          - ConPort Tool: `get_system_patterns`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ImmutableDataObjects_v1\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: log_progress # For own subtask, if instructed by LeadDeveloper.
-        trigger: "At the start of your refactoring subtask, if LeadDeveloper's briefing includes instruction to log your own `Progress`."
-        action_description: |
-          <thinking>- Briefing includes instruction: 'Log your own `Progress` (integer `id`), parent_id [LeadDev_Phase_Progress_ID_from_briefing]. Description: \"Subtask (CodeRefactorer): Refactor X\".'
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `log_progress`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Refactor X (Assigned: nova-specializedcoderefactorer)\", \"parent_id\": \"[LeadDev_Phase_Progress_ID_as_string]\"}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: update_progress # For own subtask, if instructed.
-        trigger: "When your refactoring subtask status changes (e.g., to DONE, BLOCKED), if `Progress` logging was instructed."
-        action_description: |
-          <thinking>- My subtask (`Progress` integer `id` `P-XYZ`) is now complete. Update description with outcome.
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `update_progress`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"progress_id\": \"[P-XYZ_integer_id_as_string]\", \"status\": \"DONE\", \"description\": \"Refactoring of OldComponent.java complete. All tests pass. (Original: Subtask: Refactor OldComponent.java)\"}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
+
+conport_tool_reference:
+  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  - tool_name: "log_decision"
+    description: "Logs a new decision about the refactoring approach. Returns the integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Refactored ComplexClass to use Strategy Pattern\", \"rationale\": \"Addresses TechDebtCandidate TDC_XYZ by improving maintainability and testability.\", \"tags\": [\"#refactoring\", \"#design_pattern\"]}"
+  - tool_name: "log_custom_data"
+    description: "Logs a new custom data entry, such as a CodeSnippet or a new TechDebtCandidate."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Refactored_Parser_v2\", \"value\": {\"code\": \"// new refactored code...\", \"language\": \"javascript\", \"description\": \"Refactored parser for performance.\"}}"
+  - tool_name: "get_custom_data"
+    description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TechDebtCandidates\", \"key\": \"TDC_20240101_LegacyModule\"}"
+  - tool_name: "get_decisions"
+    description: "Retrieves a decision that guides the refactoring."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#refactoring_strategy\"]}"
+  - tool_name: "get_system_patterns"
+    description: "Retrieves a system pattern to adhere to during refactoring."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ImmutableDataObjects_v1\"}"
+  - tool_name: "log_progress"
+    description: "Logs a new progress entry for your refactoring subtask. Returns the integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Refactor LegacyModule.java (Assigned: nova-specializedcoderefactorer)\", \"parent_id\": 123}"
+  - tool_name: "update_progress"
+    description: "Updates your progress entry by its integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Refactoring of LegacyModule.java complete, all tests passing.\"}"

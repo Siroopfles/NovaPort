@@ -406,59 +406,27 @@ conport_memory_strategy:
     - "TechDebtCandidates" # Write (by key)
     - "SystemArchitecture" # Read (component context, by key)
     - "Templates" # Read for item structures (key)
-  conport_updates:
-    frequency: "You log to ConPort for your specific subtask deliverables as instructed by Nova-LeadDeveloper using `use_mcp_tool` with `server_name: 'conport'` and `workspace_id: '{{workspace}}'`."
-    workspace_id_note: "All ConPort tool calls require the `workspace_id` argument, which MUST be `{{workspace}}`."
-    tools: # Key ConPort tools used by Nova-SpecializedFeatureImplementer.
-      - name: log_decision
-        trigger: "Briefed to log a micro-decision made during your implementation subtask (e.g., choice of a specific data handling approach within a function, if not specified higher up by LeadDeveloper or LeadArchitect). Gets an integer `id`."
-        action_description: |
-          <thinking>- Briefing allows me to choose error handling for `[function_name]`. I've decided to return `None` on error X and log a warning.
-          - ConPort Tool: `log_decision`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Return None on error X in [function_name]\", \"rationale\": \"Graceful failure, non-critical error.\", \"implementation_details\": \"Logged via logging.warning(). Caller checks None.\", \"tags\": [\"#implementation_detail\", \"#[module_name]\"]}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool> (as per thinking)
-      - name: log_custom_data
-        trigger: "Briefed by Nova-LeadDeveloper to log `CodeSnippets` (key), `APIUsage` (key), `ConfigSettings` (key - for app specific config your code needs and introduces), or `TechDebtCandidates` (key)."
-        action_description: |
-          <thinking>
-          - Briefing: Log the `parse_user_input` function as a `CodeSnippet`. Key: `Utils_ParseUserInput_v1`. Category: `CodeSnippets`. Value: `{\"code\": \"def parse_user_input(...): ...\", \"language\": \"python\", \"description\": \"Parses and validates raw user input.\"}`.
-          - ConPort Tool: `log_custom_data`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Utils_ParseUserInput_v1\", \"value\": {...}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_custom_data # Read for context
-        trigger: "Briefed to read `APIEndpoints` (key), `DBMigrations` (key), `SystemArchitecture` (key) components, `ProjectConfig` (key `ActiveConfig`), or other `CustomData` for implementation context."
-        action_description: |
-          <thinking>- Briefing: Implement according to API spec `CustomData APIEndpoints:UserSvc_GetProfile_v2` (key). I need its schema details.
-          - ConPort Tool: `get_custom_data`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"APIEndpoints\", \"key\": \"UserSvc_GetProfile_v2\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_decisions # Read for context
-        trigger: "Briefed to consider an existing architectural or technical `Decision` (integer `id`) that impacts your implementation."
-        action_description: |
-          <thinking>- Briefing: Adhere to `Decision:D-77` (integer `id`) regarding data validation logic for all user inputs.
-          - ConPort Tool: `get_decisions`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"decision_id\": \"77\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_system_patterns # Read for context
-        trigger: "Briefed to follow a specific `SystemPattern` (integer `id` or name) for coding standards or design implementation."
-        action_description: |
-          <thinking>- Briefing: Follow `SystemPattern` 'SingletonPattern_Strict_v1' (name) for the `ConfigManager` class I'm building.
-          - ConPort Tool: `get_system_patterns`. Arguments: `{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"SingletonPattern_Strict_v1\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: log_progress # For own subtask, if instructed by LeadDeveloper.
-        trigger: "At the start of your coding subtask, if LeadDeveloper's briefing includes instruction to log your own `Progress`."
-        action_description: |
-          <thinking>- Briefing includes instruction: 'Log your own `Progress` (integer `id`), parent_id [LeadDev_Phase_Progress_ID_from_briefing]. Description: \"Subtask (FeatureImplementer): Implement X\".'
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `log_progress`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Implement X (Assigned: nova-specializedfeatureimplementer)\", \"parent_id\": \"[LeadDev_Phase_Progress_ID_as_string]\"}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool> (Returns integer `id`).
-      - name: update_progress # For own subtask, if instructed.
-        trigger: "When your coding subtask status changes (e.g., to DONE, BLOCKED), if `Progress` logging was instructed."
-        action_description: |
-          <thinking>- My subtask (`Progress` integer `id` `P-XYZ`) is now complete. The `description` might contain notes on completion.
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `update_progress`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"progress_id\": \"[P-XYZ_integer_id_as_string]\", \"status\": \"DONE\", \"description\": \"GET /users implemented, unit tested, linted. (Original description was: Subtask: Implement GET /users API)\"}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
+
+conport_tool_reference:
+  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  - tool_name: "log_decision"
+    description: "Logs a new micro-decision made during implementation. Returns the integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Return None on error X in [function_name]\", \"rationale\": \"Graceful failure for a non-critical error, caller is expected to handle None.\", \"tags\": [\"#implementation_detail\", \"#error_handling\"]}"
+  - tool_name: "log_custom_data"
+    description: "Logs a new custom data entry, such as a `CodeSnippet` or `TechDebtCandidate`."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Utils_ParseUserInput_v1\", \"value\": {\"code\": \"def parse_user_input(...): ...\", \"language\": \"python\", \"description\": \"Parses and validates raw user input.\"}}"
+  - tool_name: "get_custom_data"
+    description: "Retrieves context like an API spec or project configuration."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"APIEndpoints\", \"key\": \"UserSvc_GetProfile_v2\"}"
+  - tool_name: "get_decisions"
+    description: "Retrieves a decision that guides your implementation."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"]}"
+  - tool_name: "get_system_patterns"
+    description: "Retrieves a system pattern to adhere to in your implementation."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"SingletonPattern_Strict_v1\"}"
+  - tool_name: "log_progress"
+    description: "Logs a new progress entry for your implementation subtask. Returns the integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Implement GET /users API (Assigned: nova-specializedfeatureimplementer)\", \"parent_id\": 123}"
+  - tool_name: "update_progress"
+    description: "Updates your progress entry by its integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"GET /users API implemented and unit tests passed.\"}"

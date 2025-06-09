@@ -354,39 +354,17 @@ conport_memory_strategy:
     - "Decisions" # Read (id, for design rationale)
     - "CodeSnippets" # Read (key, to understand code being documented)
     - "ProjectConfig" # Read (key: ActiveConfig, for `documentation_standards`)
-  conport_updates:
-    frequency: "You log `Progress` (integer `id`) for your documentation subtask as instructed, using `use_mcp_tool` with `server_name: 'conport'` and `workspace_id: '{{workspace}}'`. You do not typically log other ConPort items."
-    workspace_id_note: "All ConPort tool calls require the `workspace_id` argument, which MUST be `{{workspace}}`."
-    tools: # Key ConPort tools used by Nova-SpecializedCodeDocumenter.
-      - name: log_progress
-        trigger: "At the start of your documentation subtask, if instructed by Nova-LeadDeveloper."
-        action_description: |
-          <thinking>- Briefing: 'Document public API of `AuthService.ts`'. LeadDeveloper instructed to log `Progress` (integer `id`). Briefing includes `parent_id`.
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `log_progress`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Document AuthService.ts API (Assigned: nova-specializedcodedocumenter)\", \"parent_id\": \"[LeadDev_Phase_Progress_ID_from_briefing_as_string]\"}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool> (Returns integer `id`).
-      - name: update_progress
-        trigger: "When your documentation subtask status changes (e.g., to DONE), if `Progress` logging was instructed."
-        action_description: |
-          <thinking>- My documentation subtask (`Progress` integer `id` `P-142`) for `AuthService.ts` is complete. Update description.
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `update_progress`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"progress_id\": \"142\", \"status\": \"DONE\", \"description\": \"Inline TSDoc for AuthService.ts and docs/auth_service.md guide completed. (Original: Subtask: Document AuthService.ts API...)\"}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_custom_data # Read for context
-        trigger: "Briefed to read `APIEndpoints` (key), `SystemArchitecture` (key), `CodeSnippets` (key), or `ProjectConfig:ActiveConfig.documentation_standards` (key) to inform your documentation work."
-        action_description: |
-          <thinking>- Briefing: "Document usage of `CustomData APIEndpoints:PaymentSvc_ProcessPayment_v1` (key)". I need its schema and description.
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `get_custom_data`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"APIEndpoints\", \"key\": \"PaymentSvc_ProcessPayment_v1\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
-      - name: get_decisions # Read for context
-        trigger: "If your briefing refers to specific `Decisions` (integer `id`) that explain the rationale or design of the code you are documenting."
-        action_description: |
-          <thinking>- Briefing mentions that `Decision:D-80` (integer `id`) explains the complex error handling in `module_Z`, which I need to document.
-          - Tool: `use_mcp_tool`, server: `conport`, tool_name: `get_decisions`.
-          - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"decision_id\": \"80\"}}`.
-          </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
+conport_tool_reference:
+  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  - tool_name: "log_progress"
+    description: "Logs a new progress entry for your documentation subtask. Returns the integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Document public API of AuthService.ts (Assigned: nova-specializedcodedocumenter)\", \"parent_id\": 123}"
+  - tool_name: "update_progress"
+    description: "Updates your progress entry by its integer ID."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Inline TSDoc for AuthService.ts and docs/auth_service.md guide completed.\"}"
+  - tool_name: "get_custom_data"
+    description: "Retrieves context like an API spec or project documentation standards."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
+  - tool_name: "get_decisions"
+    description: "Retrieves a decision that explains the rationale behind the code you are documenting."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"]}"
