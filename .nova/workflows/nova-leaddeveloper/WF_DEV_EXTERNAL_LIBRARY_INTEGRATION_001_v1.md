@@ -15,11 +15,29 @@
 - Understanding of where in the codebase the library will be primarily used (e.g., which modules/services).
 - Access to the library's official documentation (URL often stored in the `Decision` or `ProjectConfig`).
 
+---
+
 **Phases & Steps (managed by Nova-LeadDeveloper within its single active task from Nova-Orchestrator, or as a self-contained sub-process):**
+
+**Phase ELI.0: Pre-flight Checks by Nova-LeadDeveloper**
+
+1.  **Nova-LeadDeveloper: Verify Readiness for Library Integration**
+    *   **Actor:** Nova-LeadDeveloper
+    *   **Action:** Before planning the integration, perform these critical pre-flight checks using `use_mcp_tool`.
+    *   **Checks:**
+        1.  **Check for Approval Decision:**
+            - Your briefing from the Orchestrator must reference a ConPort `Decision` item (by integer `id`) that approves the use of this library.
+            - Use `use_mcp_tool` (`tool_name: 'get_decisions'`) to retrieve this `Decision`.
+            - **Failure:** If the `Decision` item is not found or its status is not 'APPROVED', report to Nova-Orchestrator: "BLOCKER: The formal `Decision` to integrate library '[LibraryName]' is missing or not approved. Cannot proceed with integration without architectural approval." Halt this workflow.
+        2.  **Check for Dependency Management Configuration:**
+            - Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve `ProjectConfig:ActiveConfig`.
+            - Verify that the `dependency_management.commands` object exists and contains the necessary command for adding a new dependency (e.g., `add`).
+            - **Failure:** If the dependency management configuration is missing from `ProjectConfig:ActiveConfig`, report to Nova-Orchestrator: "BLOCKER: Dependency management commands are not defined in `ProjectConfig:ActiveConfig`. Cannot proceed with standardized library integration. Please coordinate with Nova-LeadArchitect to update the configuration." Halt this workflow.
+    *   **Output:** The decision to use the library is confirmed, and the project is configured for dependency management.
 
 **Phase ELI.1: Planning & Setup by Nova-LeadDeveloper & Specialists**
 
-1.  **Nova-LeadDeveloper: Define Integration Scope & Plan**
+2.  **Nova-LeadDeveloper: Define Integration Scope & Plan**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Parse `Subtask Briefing Object` or review `Decision` (integer `id`) regarding the library.
@@ -37,7 +55,7 @@
     *   **ConPort Action:** Ensure the `Decision` (integer `id`) to use this library (including version) is clear, detailed (rationale, alternatives considered), and linked to `[LibIntProgressID]`.
     *   **Output:** Integration plan ready. `[LibIntProgressID]` known.
 
-2.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Install Library & Configure**
+3.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Install Library & Configure**
     *   **Actor:** Nova-LeadDeveloper
     *   **Task:** "Install [LibraryName] v[Version] into the project and set up any initial configuration stubs or metadata."
     *   **`new_task` message for Nova-SpecializedFeatureImplementer:**
@@ -74,7 +92,7 @@
 
 **Phase ELI.2: Wrapper Development & Example Usage**
 
-3.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Develop Wrappers & Example**
+4.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Develop Wrappers & Example**
     *   **Actor:** Nova-LeadDeveloper
     *   **Task:** "Develop wrapper functions or utility classes for commonly used functionalities of [LibraryName] and create a simple usage example with unit tests."
     *   **`new_task` message for Nova-SpecializedFeatureImplementer:**
@@ -114,14 +132,14 @@
 
 **Phase ELI.3: Integration Testing & Documentation**
 
-4.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Test Integration Points**
+5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Test Integration Points**
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** Wrappers and basic unit tests are complete.
     *   **Task:** "Write and execute integration tests that specifically verify the [LibraryName]'s wrapped functionalities within a broader test context, interacting with other project components if applicable."
     *   **Briefing for TestAutomator:** Specify wrapped functions to test, expected behavior based on library docs and project use cases. Explain how to mock external calls if the library itself interacts with external services (if not already handled by wrappers). Focus on how the *project* uses the library via the wrappers.
     *   **Nova-LeadDeveloper Action:** Review test results. If issues, log `ErrorLogs` (key) or instruct TestAutomator to do so, then loop back to FeatureImplementer for fixes to wrappers or library usage. Update plan/progress.
 
-5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeDocumenter: Document Library Usage**
+6.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedCodeDocumenter: Document Library Usage**
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** Library integrated and integration tests for wrappers pass.
     *   **Task:** "Document how to use the [LibraryName] integration (wrappers, configuration) for other developers in the project."
@@ -159,7 +177,7 @@
 
 **Phase ELI.4: ConPort Logging & Finalization**
 
-6.  **Nova-LeadDeveloper: Log Final ConPort Entries**
+7.  **Nova-LeadDeveloper: Log Final ConPort Entries**
     *   **Actor:** Nova-LeadDeveloper (or delegate final logging to FeatureImplementer or CodeDocumenter as part of their last task)
     *   **Action:**
         *   Ensure a `CustomData APIUsage:[LibraryName]_IntegrationNotes_v1` (key) (or similar category like `ExternalServices` or `LibraryUsage`) entry is created in ConPort using `use_mcp_tool` (`tool_name: 'log_custom_data'`).
@@ -175,12 +193,12 @@
         *   Link this `APIUsage` (key) (or equivalent) entry to the original `Decision` (integer `id`) for adopting the library, and to `[LibIntProgressID]` using `use_mcp_tool` (`tool_name: 'link_conport_items'`).
     *   **Output:** Comprehensive ConPort record of the library integration.
 
-7.  **Nova-LeadDeveloper: Finalize Library Integration**
+8.  **Nova-LeadDeveloper: Finalize Library Integration**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:** Update main `Progress` (`[LibIntProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Library [LibraryName] v[Version] successfully integrated, tested, and documented. See `APIUsage:[LibraryName]_IntegrationNotes_v1`."
     *   **Output:** Library integration process documented and closed.
 
-8.  **Nova-LeadDeveloper: `attempt_completion` to Nova-Orchestrator**
+9.  **Nova-LeadDeveloper: `attempt_completion` to Nova-Orchestrator**
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:** Report completion, key ConPort `APIUsage` (key) (or equivalent) entry, and confirmation of successful integration testing and documentation.
 

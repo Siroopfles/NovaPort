@@ -14,11 +14,27 @@
 - A clear description of the "Proposed Change" is available (potentially as a `Decision` (integer `id`) with status 'Proposed' or a `CustomData FeatureScope:[key]`).
 - The scope/boundaries of the impact analysis are reasonably defined (e.g., "focus on backend services", "assess impact on public API consumers").
 
+---
+
 **Phases & Steps (managed by Nova-LeadArchitect within its single active task from Nova-Orchestrator):**
+
+**Phase IA.0: Pre-flight Checks by Nova-LeadArchitect**
+
+1.  **Nova-LeadArchitect: Verify Change Proposal is Ready for Analysis**
+    *   **Actor:** Nova-LeadArchitect
+    *   **Action:** Before planning the analysis, perform this critical pre-flight check.
+    *   **Checks:**
+        1.  **Retrieve Change Proposal Item:** Your briefing from the Orchestrator must contain a `Required_Input_Context` section with a reference to the ConPort item describing the proposed change (e.g., `Decision:[ID]` or `FeatureScope:[Key]`). Use the appropriate `use_mcp_tool` command (`get_decisions` or `get_custom_data`) to retrieve this item.
+        2.  **Check for Existence:**
+            - **Failure:** If the specified item is not found, report to Nova-Orchestrator in your `attempt_completion`: "BLOCKER: The ConPort item `[Item Type: ID/Key]` describing the proposed change for impact analysis does not exist. Cannot proceed." Halt this workflow.
+        3.  **Check for Clarity (Conceptual):**
+            - Review the content of the retrieved item. Does it clearly describe the proposed change? Is it unambiguous?
+            - **Failure:** If the description is too vague to perform a meaningful analysis, report to Nova-Orchestrator: "BLOCKER: The description in `[Item Type: ID/Key]` is too ambiguous for a meaningful impact analysis. Please coordinate with the author to add more detail." Halt this workflow.
+    *   **Output:** The change proposal is confirmed to exist and be clear enough for analysis.
 
 **Phase IA.1: Initial Planning & Information Gathering**
 
-1.  **Nova-LeadArchitect: Receive Task & Plan Analysis**
+2.  **Nova-LeadArchitect: Receive Task & Plan Analysis**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` ("Perform Impact Analysis for [ChangeDescriptionShort]") and `Required_Input_Context` (detailed description/ConPort ref of the proposed change, scope of analysis).
@@ -32,7 +48,7 @@
             6.  Compile & Log Report (Delegate to ConPortSteward).
     *   **Output:** Plan ready. Main `Progress` (integer `id`) created. `LeadPhaseExecutionPlan` (key) created.
 
-2.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Identify Affected ConPort Items**
+3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Identify Affected ConPort Items**
     *   **Actor:** Nova-LeadArchitect
     *   **Task:** "Search ConPort for all items potentially impacted by the Proposed Change: [DetailedProposedChange]."
     *   **`new_task` message for Nova-SpecializedConPortSteward:**
@@ -61,7 +77,7 @@
         ```
     *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review list. Update `[IAProgressID]_ArchitectPlan` and specialist `Progress` in ConPort.
 
-3.  **Nova-LeadArchitect (or delegate to Nova-SpecializedSystemDesigner): Identify Affected Code Areas**
+4.  **Nova-LeadArchitect (or delegate to Nova-SpecializedSystemDesigner): Identify Affected Code Areas**
     *   **Actor:** Nova-LeadArchitect (may delegate to SystemDesigner, or request assistance from LeadDeveloper via Orchestrator for deep code analysis)
     *   **Task:** "Identify source code modules, files, or specific functions/classes potentially impacted by the Proposed Change."
     *   **Action (if self-executing or guiding SystemDesigner):**
@@ -72,7 +88,7 @@
 
 **Phase IA.2: Risk Assessment & Mitigation Formulation**
 
-4.  **Nova-LeadArchitect: Assess Risks & Benefits, Estimate Effort, Formulate Recommendations**
+5.  **Nova-LeadArchitect: Assess Risks & Benefits, Estimate Effort, Formulate Recommendations**
     *   **Actor:** Nova-LeadArchitect
     *   **Action (Can be broken into further self-steps or minor specialist delegations for data gathering):**
         *   Based on affected ConPort items and code areas:
@@ -89,7 +105,7 @@
 
 **Phase IA.3: Documentation & Reporting**
 
-5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Compile & Log Impact Analysis Report**
+6.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Compile & Log Impact Analysis Report**
     *   **Actor:** Nova-LeadArchitect
     *   **Task:** "Compile all findings into a structured Impact Analysis Report and log it to ConPort."
     *   **`new_task` message for Nova-SpecializedConPortSteward:**
@@ -125,14 +141,14 @@
         ```
     *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review logged report. Update `[IAProgressID]_ArchitectPlan` and specialist `Progress` in ConPort.
 
-6.  **Nova-LeadArchitect: Finalize & Report to Nova-Orchestrator**
+7.  **Nova-LeadArchitect: Finalize & Report to Nova-Orchestrator**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Update main `Progress` (`[IAProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Impact analysis for [ChangeDescriptionShort] completed. Report: `ImpactAnalyses:[Key]`."
         *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Impact analysis completed and documented.
 
-7.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
+8.  **Nova-LeadArchitect: `attempt_completion` to Nova-Orchestrator**
     *   **Action:** Report completion, summary of the analysis (especially the recommendation), and the ConPort key of the full `ImpactAnalyses` report.
 
 **Key ConPort Items Involved:**

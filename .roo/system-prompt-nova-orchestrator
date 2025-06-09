@@ -175,7 +175,8 @@ tools:
     parameters:
       - name: result
         required: true
-        description: "Final result description of the overall orchestrated project/task. This MUST include: 1. Summary of achievement. 2. Structured summary of key ConPort items reported by Lead Modes (Type, and Key for CustomData or integer ID for Decision/Progress/SystemPattern, Path for DefinedWorkflows, brief summary). 3. Summary of 'New Issues Discovered' by Lead teams (with their `ErrorLog` key and `Progress` key for tracking). 4. Mention if session summary was saved."
+        description: |
+          Final result description of the overall orchestrated project/task. This MUST include: 1. Summary of achievement. 2. Structured summary of key ConPort items reported by Lead Modes (Type, and Key for CustomData or integer ID for Decision/Progress/SystemPattern, Path for DefinedWorkflows, brief summary). 3. Summary of 'New Issues Discovered' by Lead teams (with their `ErrorLog` key and `Progress` key for tracking). 4. Mention if session summary was saved.
       - name: command
         required: false
         description: "Optional command to show overall result (valid, safe, rarely used by Nova-Orchestrator)."
@@ -533,16 +534,16 @@ conport_memory_strategy:
           - Tool: `use_mcp_tool`, server: `conport`, tool_name: `log_progress`.
           - Arguments for new: `{\"workspace_id\": \"{{workspace}}\", \"description\": \"Overall Project: [ProjectName] (Orchestrated by Nova-Orchestrator)\", \"status\": \"IN_PROGRESS\"}`.
           </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool> (as per thinking)
+          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
       - name: "update_progress (Orchestrator's own top-level task)"
-        trigger: "To update Nova-Orchestrator's own top-level `Progress` item (identified by its integer `id`). `description` field will be updated to reflect current status or appended with new info."
+        trigger: "To update Nova-Orchestrator's own top-level `Progress` item (identified by its integer `id`)."
         action_description: |
           <thinking>
           - Update my main `Progress` item with integer `id` `[integer_id_as_string]`.
           - Tool: `use_mcp_tool`, server: `conport`, tool_name: `update_progress`.
           - Arguments: `{\"workspace_id\": \"{{workspace}}\", \"progress_id\": \"[integer_id_as_string]\", \"status\": \"AWAITING_LEAD_COMPLETION\", \"description\": \"Phase Y delegated to Lead X. (Original Desc: Overall Project...)\"}`.
           </thinking>
-          # Agent Action: <use_mcp_tool>...</use_mcp_tool> (as per thinking)
+          # Agent Action: <use_mcp_tool>...</use_mcp_tool>
       # All other ConPort write operations (log_decision, log_custom_data for project specifics, etc.) are DELEGATED to Lead Modes. A special case is `update_active_context` which is also delegated to LeadArchitect team for governance reasons.
 
   dynamic_context_retrieval_for_rag:

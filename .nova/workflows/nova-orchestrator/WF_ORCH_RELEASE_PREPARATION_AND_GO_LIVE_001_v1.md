@@ -15,11 +15,32 @@
 - User has provided a target `ReleaseVersion` string (e.g., "v2.1.0").
 - (Ideally) A ConPort `CustomData SprintGoals:[key]` or `CustomData ProjectFeatures:[key]` list exists outlining the scope of the release.
 
+---
+
 **Phases & Steps (managed by Nova-Orchestrator):**
+
+**Phase RP.0: Pre-flight Checks by Nova-Orchestrator**
+
+1.  **Nova-Orchestrator: Verify Readiness for Release Cycle**
+    *   **Actor:** Nova-Orchestrator
+    *   **Action:** Before delegating the first phase, perform these critical pre-flight checks using `use_mcp_tool`.
+    *   **Checks:**
+        1.  **Check for `ProjectConfig:ActiveConfig`:**
+            - Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `category: 'ProjectConfig'`, `key: 'ActiveConfig'`).
+            - **Failure:** If not found, report to user: "BLOCKER: `ProjectConfig:ActiveConfig` is not defined. Cannot proceed with release. Please run the project configuration setup first." Halt workflow.
+        2.  **Check for QA sign-off on major features:**
+            - Based on the user-provided release scope, identify the key `FeatureScope` keys or `Progress` IDs.
+            - For each, check linked `Progress` items for a status of `QA_COMPLETE` or `DONE`.
+            - **Failure:** If key features have not passed QA, report to user: "BLOCKER: Feature '[FeatureName]' has not completed the QA phase. Cannot proceed with release. Please ensure all features for this release are QA-approved." Halt workflow.
+        3.  **Check for Open Critical Bugs:**
+            - Use `use_mcp_tool` (`tool_name: 'get_active_context'`) to check `open_issues`.
+            - Filter for any issues with severity 'CRITICAL' or 'BLOCKER'.
+            - **Failure:** If open critical bugs exist that are not explicitly deferred for this release by a `Decision`, report to user: "BLOCKER: Found open critical bugs: [ErrorLog Keys]. Cannot proceed with release until these are resolved or formally deferred." Halt workflow.
+    *   **Output:** All pre-flight checks passed. Workflow can proceed.
 
 **Phase RP.1: Release Planning & Scope Finalization (Nova-Orchestrator -> Nova-LeadArchitect)**
 
-1.  **Nova-Orchestrator: Delegate Release Scope Definition & ConPort Setup**
+2.  **Nova-Orchestrator: Delegate Release Scope Definition & ConPort Setup**
     *   **Action:** Log/Update top-level `Progress` (integer `id`) using `use_mcp_tool`: "Release [ReleaseVersion] Preparation", Status: "PLANNING_SCOPE". Let this be `[ReleasePrepProgressID]`.
     *   **Task:** "Delegate to Nova-LeadArchitect to finalize the scope for release [ReleaseVersion], draft release notes, and set up initial release tracking in ConPort."
     *   **`new_task` message for Nova-LeadArchitect:**
@@ -53,7 +74,7 @@
 
 **Phase RP.2: Final QA & Regression Testing (Nova-Orchestrator -> Nova-LeadQA)**
 
-2.  **Nova-Orchestrator: Delegate Final Regression Testing**
+3.  **Nova-Orchestrator: Delegate Final Regression Testing**
     *   **DoR Check:** Release scope finalized (`Releases:[ReleaseVersion]` (key) exists). Codebase is feature-complete for the release.
     *   **Action:** Update `[ReleasePrepProgressID]` status to "FINAL_QA_PHASE".
     *   **Task:** "Delegate to Nova-LeadQA to perform final, full regression testing and sanity checks for release [ReleaseVersion]."
@@ -90,7 +111,7 @@
 
 **Phase RP.3: Documentation & Release Notes Finalization (Nova-Orchestrator -> Nova-LeadArchitect)**
 
-3.  **Nova-Orchestrator: Delegate Documentation Finalization**
+4.  **Nova-Orchestrator: Delegate Documentation Finalization**
     *   **DoR Check:** QA phase completed with 'GO' recommendation.
     *   **Action:** Update `[ReleasePrepProgressID]` status to "FINAL_DOCS_PHASE".
     *   **Task:** "Delegate to Nova-LeadArchitect to finalize all user-facing and technical documentation, and the official release notes for [ReleaseVersion]."
@@ -111,18 +132,14 @@
             "ConPort_Release_Draft_Notes_Key": "ReleaseNotesDraft:[ReleaseVersion]_Draft",
             "List_Of_Minor_Issues_From_QA": "[...]"
           },
-          "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
-            "Confirmation of documentation updates (paths or ConPort keys).",
-            "ConPort key of the `ReleaseNotesFinal:[ReleaseVersion]` entry.",
-            "Confirmation if `ProductContext` (key 'product_context') was updated."
-          ]
+          "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Confirmation of documentation updates", "Key of `ReleaseNotesFinal` entry"]
         }
         ```
     *   **Nova-Orchestrator Action after Lead's `attempt_completion`:** Verify deliverables. Update `[ReleasePrepProgressID]` status to "DOCS_FINALIZED_TAGGING_PENDING".
 
 **Phase RP.4: Conceptual Version Tagging & ConPort Update (Nova-Orchestrator -> Nova-LeadDeveloper & Nova-LeadArchitect)**
 
-4.  **Nova-Orchestrator: Delegate Conceptual Tagging & Final ConPort Status**
+5.  **Nova-Orchestrator: Delegate Conceptual Tagging & Final ConPort Status**
     *   **Task 1 (to Nova-LeadDeveloper):** "Conceptually prepare for version tagging of [ReleaseVersion]."
     *   **`new_task` message for Nova-LeadDeveloper:**
         ```json
@@ -173,7 +190,7 @@
 
 **Phase RP.5: Notify User (Nova-Orchestrator)**
 
-5.  **Nova-Orchestrator: `attempt_completion` to User**
+6.  **Nova-Orchestrator: `attempt_completion` to User**
     *   **Action:** Inform user that release [ReleaseVersion] preparation is complete, all checks passed, documentation is updated, and ConPort reflects the new release status. Summarize key ConPort items.
     *   Result should include ConPort key for `Releases:[ReleaseVersion]` and `ReleaseNotesFinal:[ReleaseVersion]`.
 
