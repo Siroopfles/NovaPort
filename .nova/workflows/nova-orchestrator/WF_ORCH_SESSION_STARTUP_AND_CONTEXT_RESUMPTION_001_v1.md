@@ -73,10 +73,10 @@
     *   **Action:** If status is `[CONPORT_ACTIVE]`, use `use_mcp_tool` (`server_name: 'conport'`, `arguments` incl. `workspace_id: 'ACTUAL_WORKSPACE_ID'`) for:
         *   `tool_name: 'get_product_context'`
         *   `tool_name: 'get_active_context'`
-        *   `tool_name: 'get_custom_data'`, `category: 'ProjectConfig'`, `key: 'ActiveConfig'`
-        *   `tool_name: 'get_custom_data'`, `category: 'NovaSystemConfig'`, `key: 'ActiveSettings'`
-        *   `tool_name: 'get_custom_data'`, `category: 'DefinedWorkflows'` (to get all)
-        *   `tool_name: 'get_recent_activity_summary'`, `hours_ago: 168`, `limit_per_type: 3`
+        *   `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`
+        *   `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"NovaSystemConfig\", \"key\": \"ActiveSettings\"}`
+        *   `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"DefinedWorkflows\"}`
+        *   `tool_name: 'get_recent_activity_summary'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"hours_ago\": 168, \"limit_per_type\": 3}`
     *   **Output:** Core ConPort data loaded into Nova-Orchestrator's current session understanding.
 
 5.  **Nova-Orchestrator: Verify/Delegate Missing Configurations (if CONPORT_ACTIVE)**

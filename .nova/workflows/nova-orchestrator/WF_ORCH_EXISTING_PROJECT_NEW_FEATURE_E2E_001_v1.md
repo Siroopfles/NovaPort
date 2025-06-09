@@ -149,7 +149,7 @@
         *   Log `Decision` (integer `id`) confirming successful integration of [FeatureName] using `use_mcp_tool` (`tool_name: 'log_decision'`).
         *   Update top-level `Progress` (integer `id`) for "Feature [FeatureName] Delivery" to "COMPLETED" using `use_mcp_tool` (`tool_name: 'update_progress'`).
         *   Update `active_context.state_of_the_union` to "Feature [FeatureName] successfully integrated into Project [ProjectName]" (coordinated via LeadArchitect).
-        *   Initiate `WF_ORCH_PROJECT_RETROSPECTIVE_001_v1.md` if defined, to capture `LessonsLearned`.
+        *   Initiate `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md` if defined, to capture `LessonsLearned`.
     *   **Output:** Feature cycle concluded.
 
 **Key ConPort Items Referenced/Updated by Nova-Orchestrator (overall for this feature):**

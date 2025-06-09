@@ -31,8 +31,8 @@
         *   List `Key ConPort Items` typically affected.
         *   Prepare the full Markdown content for the workflow file.
     *   **ConPort Action:**
-        *   Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) for creating this new workflow, including its rationale (e.g., "Standardize component setup for LeadDeveloper") and intended benefits.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Define New Workflow: [Workflow Filename]". Let this be `[NWDefProgressID]`.
+        *   Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Decision to create new workflow: [Workflow Filename]\", \"rationale\": \"[Rationale, e.g., 'Standardize component setup for LeadDeveloper']\", \"implications\": \"...\", \"tags\": [\"#workflow\", \"#process_improvement\"]}`).
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Define New Workflow: [Workflow Filename]\"}`). Let this be `[NWDefProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[NWDefProgressID]_ArchitectPlan` (key) using `use_mcp_tool`. Main step: Delegate file creation and ConPort registration to WorkflowManager.
     *   **Output:** Detailed specification and full Markdown content for the new workflow file. `[NWDefProgressID]` known.
 
@@ -48,22 +48,28 @@
           "Overall_Architect_Phase_Goal": "Define and register new workflow: [Workflow Filename].",
           "Specialist_Subtask_Goal": "Create workflow file '[WorkflowFileName]' in path '.nova/workflows/[TargetModeSlug]/' and log to ConPort DefinedWorkflows.",
           "Specialist_Specific_Instructions": [
-            "Target Path for file: `.nova/workflows/[TargetModeSlug_From_LeadArchitect]/[WorkflowFileName_From_LeadArchitect]`.",
-            "Workflow File Content (Markdown): [Full_Workflow_Markdown_Content_From_LeadArchitect].",
+            "Log your own `Progress` (integer `id`), parented to `[NWDefProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Create workflow file [WorkflowFileName]\", \"parent_id\": [NWDefProgressID_as_integer]} `).",
             "1. Use `write_to_file` to create the workflow file at the specified target path with the provided content.",
-            "2. After successful file creation, log its metadata to ConPort using `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', ...}`).",
-            "   - Category: `DefinedWorkflows`",
-            "   - Key: `[WorkflowFileBasenameWithoutExtension]_SumAndPath` (e.g., `WF_LEADDEV_NEW_COMPONENT_SETUP_001_v1_0_SumAndPath`)",
-            "   - Value (JSON Object): {",
+            "   `Target Path`: `.nova/workflows/[TargetModeSlug_From_LeadArchitect]/[WorkflowFileName_From_LeadArchitect]`.",
+            "   `Workflow File Content`: [Full_Workflow_Markdown_Content_From_LeadArchitect].",
+            "2. After successful file creation, log its metadata to ConPort using `use_mcp_tool`. The arguments for this call must be:",
+            "   `tool_name`: 'log_custom_data'",
+            "   `arguments`: {",
+            "     \"workspace_id\": \"ACTUAL_WORKSPACE_ID\",",
+            "     \"category\": \"DefinedWorkflows\",",
+            "     \"key\": \"[WorkflowFileBasenameWithoutExtension]_SumAndPath\",",
+            "     \"value\": {",
             "       \"description\": \"[Brief_Description_From_LeadArchitect]\",",
             "       \"path\": \".nova/workflows/[TargetModeSlug_From_LeadArchitect]/[WorkflowFileName_From_LeadArchitect]\",",
             "       \"version\": \"[Version_From_Filename_e.g., 1.0]\",",
             "       \"primary_mode_owner\": \"[TargetModeSlug_From_LeadArchitect]\",",
-            "       \"tags\": [\"#[tag1]\", \"#[tag2]\"]", // Optional relevant tags from LeadArchitect
+            "       \"tags\": [\"#[tag1]\", \"#[tag2]\"]",
             "     }",
+            "   }",
             "Ensure the ConPort entry is complete and accurate."
           ],
           "Required_Input_Context_For_Specialist": {
+            "Parent_Progress_ID_as_integer": "[NWDefProgressID_as_integer]",
             "TargetModeSlug_From_LeadArchitect": "[e.g., nova-leaddeveloper]",
             "WorkflowFileName_From_LeadArchitect": "[e.g., WF_DEV_LIB_UPGRADE_001_v1.0.md]",
             "Full_Workflow_Markdown_Content_From_LeadArchitect": "[Full Markdown text]",
@@ -85,7 +91,7 @@
     *   **Action:**
         *   Review the created workflow file and ConPort entry for accuracy and completeness.
         *   (Optional) If this workflow is intended for another Lead Mode (e.g., Nova-LeadDeveloper), inform Nova-Orchestrator so it can notify that Lead Mode of the new available workflow.
-        *   Update main `Progress` (`[NWDefProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "New workflow '[Workflow Filename]' defined and registered in ConPort: `DefinedWorkflows:[Key]`."
+        *   Update main `Progress` (`[NWDefProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"progress_id\": [NWDefProgressID_as_integer], \"status\": \"DONE\", \"description\": \"New workflow '[Workflow Filename]' defined and registered in ConPort: `DefinedWorkflows:[Key]`.\"}`).
         *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** New workflow defined, documented, and registered.
 

@@ -40,7 +40,7 @@
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Implement User Authentication Feature"), `Required_Input_Context` (refs to specs, designs, configs using correct ConPort ID/key types), and `Expected_Deliverables_In_Attempt_Completion_From_Lead`.
-        *   Log main `Progress` (integer `id`) item for this "Feature Implementation Phase: [FeatureName]" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[DevPhaseProgressID]`.
+        *   Log main `Progress` (integer `id`) item for this "Feature Implementation Phase: [FeatureName]" using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Feature Implementation Phase: [FeatureName]\"}`). Let this be `[DevPhaseProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[DevPhaseProgressID]_DeveloperPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). This plan is a **sequence of small, focused specialist subtasks**. Example subtasks:
             1.  Implement Backend API Endpoint X (Delegate to FeatureImplementer).
             2.  Write Unit Tests for Endpoint X (Delegate to TestAutomator or instruct FeatureImplementer).
@@ -70,20 +70,20 @@
           "Overall_Developer_Phase_Goal": "Implement Feature [FeatureName].",
           "Specialist_Subtask_Goal": "Implement [Component/API endpoint Name].",
           "Specialist_Specific_Instructions": [
+            "Log your own `Progress` (integer `id`), parented to `[DevPhaseProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Implement [Component/API endpoint Name]\", \"parent_id\": [DevPhaseProgressID_as_integer]} `).",
             "Refer to specification: `CustomData APIEndpoints:[APIEndpointKey]` or `CustomData SystemArchitecture:[ComponentArchKey]` (key).",
             "Implement in [language/framework from ProjectConfig:ActiveConfig].",
             "Adhere to coding standards: `SystemPatterns:[CodingStandardPatternID_or_Name]` (integer `id` or name).",
             "Write necessary unit tests for your new code using [testing_framework from ProjectConfig]. Ensure they cover critical paths and edge cases.",
             "Run linter ([linter_command from ProjectConfig]) on your changes and fix all issues.",
             "Log any micro-decisions as a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`). Log useful `CodeSnippets` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'CodeSnippets'`).",
-            "If you identify significant out-of-scope tech debt, log it to `CustomData TechDebtCandidates:[key]` (R23 compliant, including impact/effort scores) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'TechDebtCandidates'`).",
-            "Log your `Progress` (integer `id`) for this subtask, parented to `[DevPhaseProgressID]`."
+            "If you identify significant out-of-scope tech debt, log it to `CustomData TechDebtCandidates:[key]` (R23 compliant, including impact/effort scores) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'TechDebtCandidates'`)."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Spec_ConPort_Ref": { "type": "custom_data", "category": "APIEndpoints", "key": "[APIEndpointKey]" }, // Or SystemArchitecture
+            "Parent_Progress_ID_as_integer": "[DevPhaseProgressID_as_integer]",
+            "Spec_ConPort_Ref": { "type": "custom_data", "category": "APIEndpoints", "key": "[APIEndpointKey]" },
             "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig" },
-            "Coding_Standard_Ref": { "type": "system_pattern", "id_or_name": "[ID or Name of pattern]" },
-            "Parent_Progress_ID_String": "[DevPhaseProgressID_as_string]"
+            "Coding_Standard_Ref": { "type": "system_pattern", "id_or_name": "[ID or Name of pattern]" }
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
             "Path to created/modified file(s).",
@@ -106,18 +106,18 @@
           "Overall_Developer_Phase_Goal": "Implement Feature [FeatureName].",
           "Specialist_Subtask_Goal": "Write and run integration tests for [ComponentA]-[ComponentB] interaction.",
           "Specialist_Specific_Instructions": [
+            "Log your own `Progress` (integer `id`), parented to `[DevPhaseProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Write and run integration tests for [ComponentA]-[ComponentB]\", \"parent_id\": [DevPhaseProgressID_as_integer]} `).",
             "Components involved: [ComponentA details/paths], [ComponentB details/paths].",
             "Test scenarios based on `CustomData AcceptanceCriteria:[FeatureName_AC_Key]` (key).",
-            "Use testing framework: [from ProjectConfig:ActiveConfig.testing_preferences.integration_test_framework or specific instruction].",
-            "Log `Progress` (integer `id`) for test creation and execution, parented to `[DevPhaseProgressID]`.",
-            "Report all test outcomes. If failures, log new, independent bugs as `CustomData ErrorLogs:[key]` (R20 compliant)."
+            "Use testing framework: [from ProjectConfig:ActiveConfig.testing.framework or specific instruction].",
+            "Report all test outcomes. If failures, log new, independent bugs as `CustomData ErrorLogs:[key]` (R20 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ErrorLogs\", ...}`)."
           ],
           "Required_Input_Context_For_Specialist": {
+            "Parent_Progress_ID_as_integer": "[DevPhaseProgressID_as_integer]",
             "Acceptance_Criteria_Ref": { "type": "custom_data", "category": "AcceptanceCriteria", "key": "[FeatureName_AC_Key]" },
             "ComponentA_Code_Ref": "[Path or ConPort CodeSnippet key]",
             "ComponentB_Code_Ref": "[Path or ConPort CodeSnippet key]",
-            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig" },
-            "Parent_Progress_ID_String": "[DevPhaseProgressID_as_string]"
+            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig" }
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
             "Test execution summary (pass/fail count).",
@@ -136,7 +136,7 @@
     *   **Actor:** Nova-LeadDeveloper
     *   **DoR Check:** All code implemented and tested (unit/integration).
     *   **Task:** "Ensure all new/modified code for [FeatureName] is adequately documented (inline and module-level technical docs)."
-    *   **Briefing for CodeDocumenter:** Point to all new/modified source files, relevant `APIEndpoints` (key), `SystemArchitecture` (key). Specify documentation standards from `ProjectConfig:ActiveConfig.documentation_standards`.
+    *   **Briefing for CodeDocumenter:** Point to all new/modified source files, relevant `APIEndpoints` (key), `SystemArchitecture` (key). Specify documentation standards from `ProjectConfig:ActiveConfig.documentation.docstring_format`.
     *   **Nova-LeadDeveloper Action:** Review documentation. Update plan/progress.
 
 6.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Final Linter & Full Feature Test Suite Run**

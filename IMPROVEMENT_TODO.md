@@ -14,7 +14,7 @@ These items directly address observed inconsistencies and potential sources of e
     *   **Rationale:** Building on 1.4, many other `use_mcp_tool` examples for various ConPort tools (`log_decision`, `log_custom_data`, `link_conport_items`, etc.) also use ambiguous placeholders. This leads to the LLM potentially omitting required fields or misformatting the `arguments` JSON, causing tool failures.
     *   **Action Item:** Systematically review all `system-prompt-nova-*.md` files. For every example of a `use_mcp_tool` call, ensure the `arguments` field contains a complete, illustrative, and syntactically correct JSON object based on the strict Pydantic model definitions for that specific ConPort tool. A new `conport_tool_reference` section has been added to all prompts for this purpose.
 
-- [ ] **1.6. Standardize `Subtask Briefing Object` Examples in Workflows**
+- [X] **1.6. Standardize `Subtask Briefing Object` Examples in Workflows**
     *   **Rationale:** While the system prompts are now standardized, the workflow files (`.nova/workflows/**/*.md`) contain many examples of `Subtask Briefing Object`s within `new_task` delegations. These examples may still contain outdated or vague instructions for ConPort interactions.
     *   **Action Item:** Systematically review all `WF_*.md` files in the `.nova/workflows/` subdirectories. For every `new_task` message example, ensure that the `Specialist_Specific_Instructions` for any ConPort operation align with the newly standardized `use_mcp_tool` calls. Replace vague instructions like "Log this to ConPort" with explicit instructions like "Log this as `CustomData SystemArchitecture:[key]` using `use_mcp_tool` with `tool_name: 'log_custom_data'` and a complete `arguments` object...".
 
@@ -94,4 +94,5 @@ Improving the human-computer interface and providing better insight into the sys
 
 - **1.4. Standardize `log_progress` and `update_progress` Examples:** Completed. All system prompts have been updated with explicit, standardized JSON examples for these tools, clarifying the expected parameters like `description`, `status`, and `parent_id`.
 - **1.5. Standardize All `use_mcp_tool` Examples Across All Prompts:** Completed. All system prompts now contain a `conport_tool_reference` section or updated examples in-line to provide clear, complete, and syntactically correct JSON templates for all relevant ConPort tool arguments.
+- **1.6. Standardize `Subtask Briefing Object` Examples in Workflows:** Completed. All workflow files have been reviewed and updated to include explicit, standardized JSON examples and instructions for `use_mcp_tool` calls, aligning them with the hardened system prompts.
 - **2.1. Introduce Proactive "Pre-flight Checks" in Critical Workflows:** Completed. A new `Phase 0: Pre-flight Checks` section was added to all identified critical workflows to validate prerequisites before execution.

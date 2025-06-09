@@ -20,7 +20,7 @@
 1.  **Nova-Orchestrator: Plan Digest Generation**
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
-        *   Log a `Progress` (integer `id`) item for this task: "Generate Project Digest - [Date]". Let this be `[DigestProgressID]`.
+        *   Log a `Progress` (integer `id`) item for this task: "Generate Project Digest - [Date]" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[DigestProgressID]`.
         *   Determine the time frame for the digest (e.g., last 7 days, since last release) based on the user's request or a default.
 
 2.  **Nova-Orchestrator -> Delegate to Nova-FlowAsk: Query & Summarize**
@@ -33,9 +33,9 @@
           "Subtask_Goal": "Generate a project digest report for the last [TimeFrame, e.g., 7 days] and save it to a file.",
           "Mode_Specific_Instructions": [
             "1. **Query ConPort:** Use `use_mcp_tool` with `server_name: 'conport'` and `workspace_id: 'ACTUAL_WORKSPACE_ID'` to execute the following queries:",
-            "   - `get_recent_activity_summary` with `hours_ago: 168` (or other timeframe from Orchestrator) to get recently created/updated items (Decisions, Progress, ErrorLogs, etc.).",
-            "   - `get_custom_data` for `category: 'ActiveContext'`, `key: 'active_context'` to get the current `state_of_the_union` and `open_issues`.",
-            "   - `get_custom_data` for `category: 'Dashboard'`, `key: 'ProjectStatus_v1'` if available.",
+            "   - `tool_name: 'get_recent_activity_summary'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"hours_ago\": 168}` (or other timeframe from Orchestrator).",
+            "   - `tool_name: 'get_active_context'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\"}` to get `state_of_the_union` and `open_issues`.",
+            "   - `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"Dashboard\", \"key\": \"ProjectStatus_v1\"}` if available.",
             "2. **Synthesize Digest:** Based on the query results, create a concise Markdown report with the following sections:",
             "   - `## Project Digest - [Date]`",
             "   - `### Overall Status`: Include the `state_of_the_union` and a summary of the `Dashboard` item.",

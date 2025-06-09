@@ -26,7 +26,7 @@
     *   **Action:** Before delegating the first phase, perform these critical pre-flight checks using `use_mcp_tool`.
     *   **Checks:**
         1.  **Check for `ProjectConfig:ActiveConfig`:**
-            - Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `category: 'ProjectConfig'`, `key: 'ActiveConfig'`).
+            - Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`).
             - **Failure:** If not found, report to user: "BLOCKER: `ProjectConfig:ActiveConfig` is not defined. Cannot proceed with release. Please run the project configuration setup first." Halt workflow.
         2.  **Check for QA sign-off on major features:**
             - Based on the user-provided release scope, identify the key `FeatureScope` keys or `Progress` IDs.
@@ -41,7 +41,7 @@
 **Phase RP.1: Release Planning & Scope Finalization (Nova-Orchestrator -> Nova-LeadArchitect)**
 
 2.  **Nova-Orchestrator: Delegate Release Scope Definition & ConPort Setup**
-    *   **Action:** Log/Update top-level `Progress` (integer `id`) using `use_mcp_tool`: "Release [ReleaseVersion] Preparation", Status: "PLANNING_SCOPE". Let this be `[ReleasePrepProgressID]`.
+    *   **Action:** Log/Update top-level `Progress` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Release [ReleaseVersion] Preparation\"}`). Let this be `[ReleasePrepProgressID]`.
     *   **Task:** "Delegate to Nova-LeadArchitect to finalize the scope for release [ReleaseVersion], draft release notes, and set up initial release tracking in ConPort."
     *   **`new_task` message for Nova-LeadArchitect:**
         ```json
@@ -87,7 +87,7 @@
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion] (Ref: ConPort `CustomData Releases:[ReleaseVersion]` (key)).",
             "Scope: Features/fixes listed in `CustomData ReleaseNotesDraft:[ReleaseVersion]_Draft` (key).",
-            "1. Your TestExecutor should execute the full regression test suite (command from `ProjectConfig:ActiveConfig.testing_preferences.full_regression_command` or as defined in a QA workflow like `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md`).",
+            "1. Your TestExecutor should execute the full regression test suite (command from `ProjectConfig:ActiveConfig.testing.commands.run_regression` or as defined in a QA workflow like `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md`).",
             "2. Perform sanity checks on all key features/areas included in this release.",
             "3. If critical/high severity issues found: Log detailed `CustomData ErrorLogs:[key]` (R20 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Coordinate with me (Nova-Orchestrator) to update `active_context.open_issues`. Report these immediately in your `attempt_completion` as BLOCKERS.",
             "4. If only minor issues, or all tests pass: Document results."
@@ -95,7 +95,7 @@
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",
             "ConPort_Release_Scope_Ref_Key": "ReleaseNotesDraft:[ReleaseVersion]_Draft",
-            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing_preferences.full_regression_command"] }
+            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing"] }
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
             "Overall test execution summary (pass/fail, number of tests).",
@@ -150,7 +150,7 @@
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion].",
             "1. Identify the current commit hash in the main/release branch that represents this release state (this might require user input if no direct VCS tool access).",
-            "2. Log a `Decision` (integer `id`) in ConPort using `use_mcp_tool` (`tool_name: 'log_decision'`): 'Decision: Commit `[commit_hash]` is designated for release `[ReleaseVersion]`. All tests passed, documentation finalized.' Rationale: 'Formal marker for release state.' Add tag #[ReleaseVersion].",
+            "2. Log a `Decision` (integer `id`) in ConPort using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Commit [hash] designated for release [ReleaseVersion]. All tests passed, docs final.\", \"rationale\": \"Formal marker for release state.\", \"tags\": [\"#[ReleaseVersion]\"]}`).",
             "3. (User will be instructed to perform actual git tag command separately based on this decision)."
           ],
           "Required_Input_Context": {

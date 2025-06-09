@@ -21,7 +21,7 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` ("Setup/Update ProjectConfig & NovaSystemConfig").
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Setup/Update Project & Nova Configurations - [Date]". Let this be `[CfgSetupProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Setup/Update Project & Nova Configurations - [Date]\"}`). Let this be `[CfgSetupProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[CfgSetupProgressID]_ArchitectPlan` (key) using `use_mcp_tool`. Plan items:
             1.  Retrieve Existing Configs (if any) (ConPortSteward).
             2.  Prepare Default/Proposed Config Values (LeadArchitect).
@@ -52,17 +52,17 @@
           "Overall_Architect_Phase_Goal": "Setup/Update Project & Nova Configurations.",
           "Specialist_Subtask_Goal": "Log/Update ProjectConfig:ActiveConfig and NovaSystemConfig:ActiveSettings to ConPort.",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`) for this subtask, parented to `[CfgSetupProgressID]`.",
-            "1. For `ProjectConfig:ActiveConfig` (key):",
-            "   - Value: [Final JSON object for ProjectConfig provided by LeadArchitect].",
-            "   - Use `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ProjectConfig', 'key': 'ActiveConfig', 'value': { /* ProjectConfig_JSON */ }}`). This will create or overwrite the entry.",
-            "2. For `NovaSystemConfig:ActiveSettings` (key):",
-            "   - Value: [Final JSON object for NovaSystemConfig provided by LeadArchitect].",
-            "   - Use `use_mcp_tool` (`server_name: 'conport'`, `tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'NovaSystemConfig', 'key': 'ActiveSettings', 'value': { /* NovaSystemConfig_JSON */ }}`). This will create or overwrite the entry.",
-            "Ensure both entries are complete, correctly structured, and meet Definition of Done."
+            "Log your own `Progress` (integer `id`), parented to `[CfgSetupProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Log Project and Nova configurations\", \"parent_id\": [CfgSetupProgressID_as_integer]} `).",
+            "1. Use `use_mcp_tool` to log `ProjectConfig:ActiveConfig`. The arguments for the tool call MUST be:",
+            "   `tool_name`: 'log_custom_data'",
+            "   `arguments`: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": { /* The full ProjectConfig_JSON from context */ }}",
+            "2. Use `use_mcp_tool` to log `NovaSystemConfig:ActiveSettings`. The arguments for the tool call MUST be:",
+            "   `tool_name`: 'log_custom_data'",
+            "   `arguments`: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"NovaSystemConfig\", \"key\": \"ActiveSettings\", \"value\": { /* The full NovaSystemConfig_JSON from context */ }}",
+            "These operations will create or overwrite the entries."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[CfgSetupProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[CfgSetupProgressID_as_integer]",
             "Final_ProjectConfig_JSON": "{/* JSON from LeadArchitect */}",
             "Final_NovaSystemConfig_JSON": "{/* JSON from LeadArchitect */}"
           },
@@ -79,7 +79,7 @@
 3.  **Nova-LeadArchitect: Consolidate & Finalize**
     *   **Actor:** Nova-LeadArchitect
     *   **Action:** Once configurations are logged by ConPortSteward:
-        *   Update main `Progress` (`[CfgSetupProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "ProjectConfig:ActiveConfig and NovaSystemConfig:ActiveSettings established/updated."
+        *   Update main `Progress` (`[CfgSetupProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"progress_id\": [CfgSetupProgressID_as_integer], \"status\": \"DONE\", \"description\": \"ProjectConfig:ActiveConfig and NovaSystemConfig:ActiveSettings established/updated.\"}`).
         *   If this phase was part of a larger Orchestrator-delegated task, prepare the `attempt_completion` for Orchestrator.
     *   **Output:** Configurations established/updated in ConPort.
 

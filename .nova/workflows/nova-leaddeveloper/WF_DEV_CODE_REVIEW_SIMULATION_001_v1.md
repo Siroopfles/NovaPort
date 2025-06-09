@@ -22,7 +22,7 @@
     *   **Actor:** Nova-LeadDeveloper
     *   **Action:**
         *   Identify specific file(s) and code sections for review (e.g., `src/auth/service.py`, lines 50-150).
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Code Review Simulation: [ComponentName/File]". Let this be `[ReviewProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Code Review Simulation: [ComponentName/File]\"}`). Let this be `[ReviewProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[ReviewProgressID]_DeveloperPlan` (key) using `use_mcp_tool`. Plan items:
             1.  Brief Nova-FlowAsk with code & review focus areas.
             2.  Nova-FlowAsk performs analysis and returns feedback.
@@ -64,7 +64,7 @@
                 "FeatureScope_Ref": { "type": "custom_data", "category": "FeatureScope", "key": "[Optional_Key]" },
                 "APIEndpoint_Spec_Ref": { "type": "custom_data", "category": "APIEndpoints", "key": "[Optional_Key]" },
                 "CodingStandard_Pattern_Ref": { "type": "system_pattern", "id_or_name": "[ID or Name of relevant SystemPattern]" },
-                "Guiding_Decision_Refs": [{ "type": "decision", "id": "[Optional_Integer_ID_as_string]" }, ...]
+                "Guiding_Decision_Refs": [{ "type": "decision", "id": "[Optional_integer_id_as_string]" }, ...]
               }
           },
           "Expected_Deliverables_In_Attempt_Completion": [
@@ -85,7 +85,7 @@
     *   **Action:**
         *   Based on Nova-FlowAsk's feedback, decide on necessary actions.
         *   If significant issues are found that require code changes:
-            *   Log a `Decision` (integer `id`) using `use_mcp_tool` summarizing the review outcome and mandating changes.
+            *   Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Mandate code changes based on review of [File]\", \"rationale\": \"[Summary of review findings]\"}`) summarizing the review outcome and mandating changes.
             *   Delegate a new subtask to the original `Nova-SpecializedFeatureImplementer` or `Nova-SpecializedCodeRefactorer`:
                 *   **Briefing for Implementer/Refactorer (schematic):**
                     ```json
@@ -96,10 +96,10 @@
                       "Specialist_Specific_Instructions": [
                         "Code File: [path/to/code].",
                         "Review Feedback to Address: [Specific actionable points from Nova-FlowAsk's report, filtered/prioritized by LeadDeveloper].",
-                        "Refer to `Decision:[ReviewDecisionID]` for mandated changes.",
+                        "Refer to `Decision:[ReviewDecisionID_as_integer]` for mandated changes.",
                         "Update code as required. Update/add unit tests. Re-run linters and all relevant tests until they pass."
                       ],
-                      "Required_Input_Context_For_Specialist": { "Code_File_Path": "[...]", "Review_Feedback_Details": "[...]", "Review_Decision_ID_String": "[Integer_id_as_string]" },
+                      "Required_Input_Context_For_Specialist": { "Code_File_Path": "[...]", "Review_Feedback_Details": "[...]", "Review_Decision_ID_as_integer": "[Integer_id_as_integer]" },
                       "Expected_Deliverables_In_Attempt_Completion_From_Specialist": ["Confirmation of changes, test/lint pass status, paths to modified files."]
                     }
                     ```
@@ -118,22 +118,26 @@
           "Overall_Developer_Phase_Goal": "Ensure code quality for [ComponentName/File].",
           "Specialist_Subtask_Goal": "Log code review summary for [ComponentName/File] to ConPort `CodeReviewSummaries` category.",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[ReviewProgressID]`.",
-            "Create a `CustomData` entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'CodeReviewSummaries', ...}`).",
-            "  - Key: `CR_[FilePath_SafeKey]_[YYYYMMDD]` (e.g., `CR_src_auth_service_py_20240115`).",
-            "  - Value (JSON Object): {",
-            "      \"file_path\": \"[path/to/reviewed/code]\",",
-            "      \"version_reviewed_hint\": \"[Commit SHA or version if available from LeadDeveloper context]\",",
-            "      \"reviewer_mode\": \"Nova-FlowAsk (instructed by Nova-LeadDeveloper)\",",
-            "      \"review_date\": \"[Current YYYY-MM-DD]\",",
-            "      \"key_feedback_points_summary\": \"[Concise summary of FlowAsk's feedback from LeadDeveloper]\",",
-            "      \"actions_taken_decision_ref\": \"Decision:[Decision_ID_for_changes_if_any_as_string]\",",
-            "      \"overall_assessment_after_actions\": \"[e.g., All Major Issues Addressed, Minor Suggestions Noted]\"",
-            "    }",
-            "Link this `CodeReviewSummaries` (key) entry to the main `Progress` item for this review (`[ReviewProgressID]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type: 'summarizes_review_for_progress'`)."
+            "Log your own `Progress` (integer `id`), parented to `[ReviewProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Log code review summary for [File]\", \"parent_id\": [ReviewProgressID_as_integer]} `).",
+            "Use `use_mcp_tool` (`tool_name: 'log_custom_data'`) to create a `CustomData` entry. The arguments for the call MUST be:",
+            "`arguments`: {",
+            "  \"workspace_id\": \"ACTUAL_WORKSPACE_ID\",",
+            "  \"category\": \"CodeReviewSummaries\",",
+            "  \"key\": \"CR_[FilePath_SafeKey]_[YYYYMMDD]\",",
+            "  \"value\": {",
+            "    \"file_path\": \"[path/to/reviewed/code]\",",
+            "    \"version_reviewed_hint\": \"[Commit SHA or version if available from LeadDeveloper context]\",",
+            "    \"reviewer_mode\": \"Nova-FlowAsk (instructed by Nova-LeadDeveloper)\",",
+            "    \"review_date\": \"[Current YYYY-MM-DD]\",",
+            "    \"key_feedback_points_summary\": \"[Concise summary of FlowAsk's feedback from LeadDeveloper]\",",
+            "    \"actions_taken_decision_ref\": \"Decision:[Decision_ID_for_changes_if_any_as_string]\",",
+            "    \"overall_assessment_after_actions\": \"[e.g., All Major Issues Addressed, Minor Suggestions Noted]\"",
+            "  }",
+            "}",
+            "After logging, link this `CodeReviewSummaries` entry to the main `Progress` item (`[ReviewProgressID_as_integer]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"CodeReviewSummaries:CR_[FilePath_SafeKey]_[YYYYMMDD]\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"[ReviewProgressID_as_string]\", \"relationship_type\": \"summarizes_review_for_progress\"}`)."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[ReviewProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[ReviewProgressID_as_integer]",
             "File_Path_Reviewed": "[...]",
             "Version_Hint": "[...]",
             "Review_Feedback_Summary_For_Log": "[...]",
@@ -148,7 +152,7 @@
 
 5.  **Nova-LeadDeveloper: Finalize Code Review Cycle**
     *   **Actor:** Nova-LeadDeveloper
-    *   **Action:** Update main `Progress` (`[ReviewProgressID]`) for "Code Review Simulation" to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`).
+    *   **Action:** Update main `Progress` (`[ReviewProgressID]`) for "Code Review Simulation" to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"progress_id\": [ReviewProgressID_as_integer], \"status\": \"DONE\"}`).
     *   **Output:** Code review process documented and completed for this component.
 
 **Key ConPort Items Involved:**

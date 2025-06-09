@@ -22,13 +22,13 @@
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator if applicable.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Test Strategy & Plan Creation: [ScopeName]". Let this be `[TestPlanProgressID]`.
-        *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[TestPlanProgressID]_QAPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Plan items:
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Test Strategy & Plan Creation: [ScopeName]\"}`). Let this be `[TestPlanProgressID]`.
+        *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[TestPlanProgressID]_QAPlan` (key) using `use_mcp_tool`. Plan items:
             1.  Define Test Objectives & Scope.
             2.  Identify Test Types & Levels (Unit, Integration, System, E2E, Performance, Security, Usability, etc.).
-            3.  Define Test Environments (referencing `ProjectConfig:ActiveConfig.testing_preferences`).
+            3.  Define Test Environments (referencing `ProjectConfig:ActiveConfig.testing`).
             4.  Define Test Data Management Strategy.
-            5.  Identify Tools & Resources (referencing `ProjectConfig:ActiveConfig.testing_preferences.tools`).
+            5.  Identify Tools & Resources (referencing `ProjectConfig:ActiveConfig.testing.commands`).
             6.  Define Entry/Exit Criteria for major testing phases.
             7.  Perform Risk-Based Prioritization of Test Areas.
             8.  Draft Detailed Test Plan Document/ConPort Entry (potentially delegate parts to TestExecutor for scenario drafting).
@@ -38,9 +38,9 @@
         *   Based on `ProductContext` (key 'product_context'), `ProjectConfig:ActiveConfig` (key), `NovaSystemConfig:ActiveSettings` (key), and project risks (`CustomData RiskAssessment:[key]` if available):
             *   What are the main quality goals for [ScopeName]?
             *   What types of testing are critical (e.g., functional, performance, security, usability)?
-            *   What is the balance between manual and automated testing for this scope? (Refer to `ProjectConfig:ActiveConfig.testing_preferences.automation_emphasis_level`).
+            *   What is the balance between manual and automated testing for this scope? (Refer to `ProjectConfig:ActiveConfig.testing.automation_emphasis_level`).
             *   What are the key responsibilities for testing across different teams/modes?
-    *   **ConPort Action:** Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) for the overall Test Strategy approach (e.g., "Decision: Adopt risk-based testing strategy for [ScopeName] with emphasis on E2E automation for critical user paths."). Link to `[TestPlanProgressID]`.
+    *   **ConPort Action:** Log a `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Adopt risk-based testing strategy for [ScopeName]\", \"rationale\": \"Focus QA effort on most critical areas.\"}`) for the overall Test Strategy approach. Link to `[TestPlanProgressID]`.
     *   **Output:** High-level test strategy defined. Detailed plan outline ready in `LeadPhaseExecutionPlan`.
 
 **Phase TSP.2: Detailed Test Plan Development**
@@ -67,9 +67,9 @@
 4.  **Nova-LeadQA: Define Test Environment, Data, Tools, Entry/Exit Criteria**
     *   **Actor:** Nova-LeadQA
     *   **Action:**
-        *   Specify test environments needed (referencing `CustomData ProjectConfig:ActiveConfig.testing_preferences.test_env_details`, e.g., `dev_env_url`, `staging_env_url`, `performance_env_url`).
+        *   Specify test environments needed (referencing `CustomData ProjectConfig:ActiveConfig.testing.environments`, e.g., `regression_env_url`, `performance_env_url`).
         *   Define requirements for test data: generation methods, refresh strategy, data privacy/masking considerations, specific datasets needed.
-        *   List testing tools to be used (from `ProjectConfig:ActiveConfig.testing_preferences.tools` like Selenium, JMeter, Postman, or project-specific scripts).
+        *   List testing tools to be used (from `ProjectConfig:ActiveConfig.security.tools` like Bandit, or project-specific scripts).
         *   Define clear entry criteria (e.g., "Feature X development complete, unit tests passed, build X.Y.Z deployed to Staging") and exit criteria (e.g., "95% of planned test cases passed, 0 open CRITICAL bugs, <3 open HIGH severity bugs for Release Z") for major testing phases covered by this plan.
     *   **Output:** These sections are drafted for the test plan. Update `[TestPlanProgressID]_QAPlan`.
 
@@ -102,24 +102,28 @@
           "Specialist_Subtask_Goal": "Log the finalized Test Plan to ConPort `CustomData TestPlans:[ScopeName]_TestPlan_v[Version]` (key).",
           "Specialist_Specific_Instructions": [
             "Final Test Plan Content/Path: [Finalized content or path to .md file from LeadQA].",
-            "To log or update, use `use_mcp_tool` (`tool_name: 'log_custom_data'`). For an update, the new object overwrites the old one.",
-            "  - Key: `[ScopeName]_TestPlan_v[Version]` (e.g., `FeatureZ_TestPlan_v1.0`).",
-            "  - Value (JSON Object or Markdown string): { ",
-            "      \"title\": \"Test Plan for [ScopeName] v[Version]\",",
-            "      \"scope_summary\": \"[...Scope details...]\",",
-            "      \"objectives_summary\": [\"Objective 1...\"],",
-            "      \"strategy_decision_ref\": \"Decision:[TestStrategyDecisionID_as_string]\", ",
-            "      \"test_levels_covered\": [\"Unit\", \"Integration\", \"E2E\"],",
-            "      \"key_scenarios_link_or_summary\": \"[Summary or link to detailed test cases]\",",
-            "      \"status\": \"Approved\", \"version\": \"[Version]\"",
+            "To log or update, use `use_mcp_tool` (`tool_name: 'log_custom_data'`). The arguments for this call must be:",
+            "  `arguments`: {",
+            "    `\"workspace_id\"`: \"ACTUAL_WORKSPACE_ID\",",
+            "    `\"category\"`: \"TestPlans\",",
+            "    `\"key\"`: \"[ScopeName]_TestPlan_v[Version]\",",
+            "    `\"value\"`: { ",
+            "      `\"title\"`: \"Test Plan for [ScopeName] v[Version]\",",
+            "      `\"scope_summary\"`: \"[...Scope details...]\",",
+            "      `\"objectives_summary\"`: [\"Objective 1...\"],",
+            "      `\"strategy_decision_ref\"`: \"Decision:[TestStrategyDecisionID_as_string]\", ",
+            "      `\"test_levels_covered\"`: [\"Unit\", \"Integration\", \"E2E\"],",
+            "      `\"key_scenarios_link_or_summary\"`: \"[Summary or link to detailed test cases]\",",
+            "      `\"status\"`: \"Approved\", `\"version\"`: \"[Version]\"",
             "    }",
-            "Link this `TestPlans` (key) entry to the main `Progress` item (`[TestPlanProgressID]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type': 'defines_testing_for'`)."
+            "  }",
+            "Link this `TestPlans` (key) entry to the main `Progress` item (`[TestPlanProgressID_as_integer]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"TestPlans:[ScopeName]_TestPlan_v[Version]\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"[TestPlanProgressID_as_string]\", \"relationship_type\": \"defines_testing_for\"}`)."
           ],
           "Required_Input_Context_For_Specialist": {
             "Final_Test_Plan_Content_Or_Path": "[...]",
             "ScopeName_For_Key": "[ScopeName]",
             "Version_For_Key_And_Content": "[Version]",
-            "Main_Planning_Progress_ID_String": "[TestPlanProgressID_as_string]",
+            "Main_Planning_Progress_ID_as_integer": "[TestPlanProgressID_as_integer]",
             "Test_Strategy_Decision_ID_String": "[TestStrategyDecisionID_as_string]"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [

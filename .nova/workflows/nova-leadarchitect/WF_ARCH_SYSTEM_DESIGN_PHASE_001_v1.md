@@ -39,7 +39,7 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` (e.g., "Define system architecture for Project Alpha"), `Required_Input_Context` (e.g., user requirements summary, `ProjectConfig:ActiveConfig` (key) JSON string), and `Expected_Deliverables_In_Attempt_Completion_From_Lead`.
-        *   Log a main `Progress` (integer `id`) item for this entire "System Design Phase: [Project/Feature Name]" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[DesignPhaseProgressID]`.
+        *   Log a main `Progress` (integer `id`) item for this entire "System Design Phase: [Project/Feature Name]" using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"System Design Phase: [Project/Feature Name]\"}`). Let this be `[DesignPhaseProgressID]`.
         *   Create an internal plan (sequence of specialist subtasks). Log this plan to `CustomData LeadPhaseExecutionPlan:[DesignPhaseProgressID]_ArchitectPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Example plan items:
             1.  Define High-Level Architecture & Key Technologies (Delegate to SystemDesigner, review and log Decisions).
             2.  Detail Component A (Delegate to SystemDesigner).
@@ -64,13 +64,15 @@
           "Overall_Architect_Phase_Goal": "Define system architecture for Project [ProjectName].",
           "Specialist_Subtask_Goal": "Draft high-level system architecture and propose key technology choices for Project [ProjectName].",
           "Specialist_Specific_Instructions": [
+            "Log your own `Progress` (integer `id`), parented to `[DesignPhaseProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Draft high-level system architecture\", \"parent_id\": [DesignPhaseProgressID_as_integer]} `).",
             "Based on requirements (e.g., `FeatureScope:[ProjectName_Scope_Key]`), identify major system components (e.g., Web Frontend, API Gateway, User Service, Product Service, Database).",
             "Create a textual or PlantUML/MermaidJS representation of component interactions and high-level data flows.",
             "Propose choices for key technologies (e.g., primary backend language/framework, database type, messaging queue if needed) based on `ProjectConfig:ActiveConfig` hints and project needs. Justify proposals.",
-            "Log this as a new `CustomData SystemArchitecture:[ProjectName]_HighLevelArch_v1` (key) entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Include description, diagram source, and technology proposals.",
+            "Log this as a new `CustomData SystemArchitecture:[ProjectName]_HighLevelArch_v1` (key) entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"SystemArchitecture\", \"key\": \"[ProjectName]_HighLevelArch_v1\", \"value\": { /* JSON object with description, diagram source, and technology proposals */ }}`).",
             "Identify 2-3 critical architectural decisions that need final approval from LeadArchitect (e.g., Monolith vs. Microservices, specific DB product choice) and list them in your `attempt_completion` or in the `SystemArchitecture` notes."
           ],
           "Required_Input_Context_For_Specialist": {
+            "Parent_Progress_ID_as_integer": "[DesignPhaseProgressID_as_integer]",
             "Feature_Scope_Ref": { "type": "custom_data", "category": "FeatureScope", "key": "[ProjectName_Scope_Key]" },
             "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig" }
           },
@@ -93,8 +95,8 @@
           "Specialist_Subtask_Goal": "Define detailed design for [UserService] and its API endpoints.",
           "Specialist_Specific_Instructions": [
             "Refer to `SystemArchitecture:[ProjectName_HighLevelArch_v1]` (key) and relevant `Decisions` (integer `id`s like `[DecisionID_for_API_Style]`).",
-            "Detail internal structure of [UserService], its responsibilities, and interactions with other components. Log as `CustomData SystemArchitecture:[ProjectName_UserService_Detail_v1]` (key).",
-            "Define all necessary API endpoints for [UserService] (e.g., CRUD for users, authentication). For each, specify: HTTP method, path, request/response schemas, error responses. Log each as `CustomData APIEndpoints:[UserService_EndpointName_v1]` (key)."
+            "Detail internal structure of [UserService], its responsibilities, and interactions with other components. Log as `CustomData SystemArchitecture:[ProjectName_UserService_Detail_v1]` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"SystemArchitecture\", \"key\": \"[ProjectName_UserService_Detail_v1]\", \"value\": { /* ... */ }}`).",
+            "Define all necessary API endpoints for [UserService] (e.g., CRUD for users, authentication). For each, specify: HTTP method, path, request/response schemas, error responses. Log each as a separate `CustomData APIEndpoints:[UserService_EndpointName_v1]` (key) entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"APIEndpoints\", \"key\": \"[UserService_EndpointName_v1]\", \"value\": { /* OpenAPI spec snippet */ }}`)."
           ],
           "Required_Input_Context_For_Specialist": {
             "HighLevelArch_Ref": { "type": "custom_data", "category": "SystemArchitecture", "key": "[ProjectName_HighLevelArch_v1]" },
@@ -111,7 +113,7 @@
 5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedSystemDesigner: Define Database Schema(s)**
     *   **Actor:** Nova-LeadArchitect
     *   **Task:** "Define and document the database schema(s) required for [ProjectName / Specific Service]."
-    *   **Briefing for SystemDesigner:** Refer to component designs, API data models, and `Decision` (integer `id`) on DB technology. Instruct to define tables, columns, types, relationships, and indexes. Log as `CustomData DBMigrations:[ProjectName_SchemaName_v1]` (key), with `value` containing DDL or structured schema description.
+    *   **Briefing for SystemDesigner:** Refer to component designs, API data models, and `Decision` (integer `id`) on DB technology. Instruct to define tables, columns, types, relationships, and indexes. Log as `CustomData DBMigrations:[ProjectName_SchemaName_v1]` (key), with `value` containing DDL or structured schema description, using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: { ... }`).
     *   **Nova-LeadArchitect Action:** Review. Update plan/progress.
 
 6.  **Nova-LeadArchitect (or delegate to Nova-SpecializedConPortSteward): Log Consolidated Key Architectural Decisions**
@@ -126,7 +128,7 @@
     *   **Action:** Once all specialist subtasks in `LeadPhaseExecutionPlan` (key) are DONE:
         *   Review all created ConPort items (`SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key), `Decisions` (integer `id`)) for consistency, completeness (DoD), and correctness.
         *   To update a main `CustomData SystemArchitecture:[ProjectName]_OverallArch_v1` (key) document, first `get_custom_data`, modify the value to link to all artifacts, then `log_custom_data` to overwrite.
-        *   Update main phase `Progress` (`[DesignPhaseProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "System design for [ProjectName] complete. Key artifacts: SystemArchitecture:[ProjectName]_OverallArch_v1, APIEndpoints tagged #[ProjectName]_APIs_v1."
+        *   Update main phase `Progress` (`[DesignPhaseProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"progress_id\": [DesignPhaseProgressID_as_integer], \"status\": \"DONE\", \"description\": \"System design for [ProjectName] complete.\"}`).
         *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Design phase completed. All relevant artifacts logged and interlinked in ConPort. `active_context.state_of_the_union` updated.
 

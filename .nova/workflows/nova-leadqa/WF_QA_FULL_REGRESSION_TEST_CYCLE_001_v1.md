@@ -11,8 +11,8 @@
 - Scheduled periodic regression run as per `CustomData NovaSystemConfig:ActiveSettings.mode_behavior.nova-leadqa.regression_run_schedule`.
 
 **Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or ConPort):**
-- A stable, deployed build is available in the designated test environment (URL/access from `CustomData ProjectConfig:ActiveConfig.testing_preferences.full_regression_env` (key)).
-- The full regression test suite (automated scripts) is available and executable (path and command from `ProjectConfig:ActiveConfig.testing_preferences.full_regression_command` and `.regression_suite_path`).
+- A stable, deployed build is available in the designated test environment (URL/access from `CustomData ProjectConfig:ActiveConfig.testing.regression_env_url`).
+- The full regression test suite (automated scripts) is available and executable (path and command from `ProjectConfig:ActiveConfig.testing.commands.run_regression` and `.testing.paths.regression_suite_root`).
 - (Ideally) A baseline of expected results or previous run's `ErrorLogs` (key) for comparison (from `CustomData TestExecutionReports:[PreviousRunKey]` (key)).
 
 **Phases & Steps (managed by Nova-LeadQA within its single active task from Nova-Orchestrator):**
@@ -23,13 +23,13 @@
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Identify Target Build/Release Version.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Full Regression Test Cycle - [Date/ReleaseVersion]". Let this be `[RegressProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Full Regression Test Cycle - [Date/ReleaseVersion]\"}`). Let this be `[RegressProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[RegressProgressID]_QAPlan` (key) using `use_mcp_tool`. Plan items:
             1.  Verify Environment & Test Data Setup (Delegate to TestExecutor).
             2.  Execute Full Regression Suite (Delegate to TestExecutor).
             3.  Analyze Results & Log New/Reopened Defects (LeadQA, with TestExecutor input).
             4.  Compile Regression Report (Delegate report drafting to TestExecutor or ConPortSteward).
-    *   **ConPort Action:** Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) to start regression cycle, noting scope/version and referencing the `ProjectConfig` (key) to be used for test commands. Link to `[RegressProgressID]`.
+    *   **ConPort Action:** Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Start regression cycle for [Version]\", \"rationale\": \"Ensure stability before release/after major change.\"}`) to start regression cycle. Link to `[RegressProgressID]`.
     *   **Output:** Plan ready. `[RegressProgressID]` known.
 
 2.  **Nova-LeadQA -> Delegate to Nova-SpecializedTestExecutor: Setup & Execute Suite**
@@ -42,19 +42,19 @@
           "Overall_QA_Phase_Goal": "Full Regression Test Cycle for [ReleaseVersion/TargetBuild].",
           "Specialist_Subtask_Goal": "Execute the full automated regression test suite against [Target Build/Release].",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[RegressProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[RegressProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Execute full regression suite\", \"parent_id\": [RegressProgressID_as_integer]} `).",
             "Target Build/Release: [Version_From_LeadQA]. Deployed to Env: [Regression_Env_URL_From_ProjectConfig].",
             "1. Verify correct build [Version_From_LeadQA] is deployed and environment ([Regression_Env_URL_From_ProjectConfig]) is stable and accessible.",
-            "2. Prepare/reset test data as per regression suite requirements (scripts might be in `ProjectConfig:ActiveConfig.testing_preferences.test_data_setup_scripts`). Execute data setup if needed.",
-            "3. Execute the full regression suite using the command: [`ProjectConfig:ActiveConfig.testing_preferences.full_regression_command`] in CWD: [`ProjectConfig:ActiveConfig.testing_preferences.regression_suite_path`]. Use `execute_command`.",
+            "2. Prepare/reset test data as per regression suite requirements (scripts might be in `ProjectConfig:ActiveConfig.testing.test_data_setup_scripts`). Execute data setup if needed.",
+            "3. Execute the full regression suite using the command from `ProjectConfig:ActiveConfig.testing.commands.run_regression` in the CWD from `ProjectConfig:ActiveConfig.testing.paths.regression_suite_root`. Use `execute_command`.",
             "4. Capture all output, including console logs and any generated test reports (e.g., HTML, XML).",
             "5. If test execution itself fails catastrophically (e.g., suite cannot start, environment down), report this immediately with relevant error messages.",
             "6. If instructed by LeadQA to save detailed raw logs/reports, use `write_to_file` to path like `.nova/reports/qa/FullRegression_[Date/Version]_[timestamp]/`."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[RegressProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[RegressProgressID_as_integer]",
             "Target_Build_Or_Release_Version": "[...]",
-            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing_preferences.full_regression_env", "testing_preferences.full_regression_command", "testing_preferences.regression_suite_path", "testing_preferences.test_data_setup_scripts"] }
+            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing"] }
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
             "Confirmation of suite execution (or report of catastrophic failure).",

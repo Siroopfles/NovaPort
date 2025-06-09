@@ -20,8 +20,8 @@
 1.  **Nova-Orchestrator: Identify Missing Configs & Delegate Setup**
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
-        *   Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'ProjectConfig', 'key': 'ActiveConfig'}`) to check for `ProjectConfig:ActiveConfig` (key).
-        *   Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'NovaSystemConfig', 'key': 'ActiveSettings'}`) to check for `NovaSystemConfig:ActiveSettings` (key).
+        *   Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`) to check for `ProjectConfig:ActiveConfig` (key).
+        *   Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"NovaSystemConfig\", \"key\": \"ActiveSettings\"}`) to check for `NovaSystemConfig:ActiveSettings` (key).
         *   If either or both are missing, or if user explicitly requested setup:
             *   Log a `Progress` (integer `id`) item for this overall orchestration task: "Setup Project/Nova Configurations (Orchestrated)" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[OrchCfgProgressID]`.
     *   **Task:** "Delegate the definition and logging of `ProjectConfig:ActiveConfig` and/or `NovaSystemConfig:ActiveSettings` to Nova-LeadArchitect."
@@ -36,7 +36,7 @@
             "The following configurations need to be established/reviewed in ConPort: [List missing, e.g., 'ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings'].",
             "1. Execute the workflow detailed in `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`.",
             "   This workflow will guide your team (Nova-SpecializedConPortSteward) to:",
-            "   a. Prepare default values for all fields within `ProjectConfig:ActiveConfig` (e.g., `project_type_hint`, `primary_programming_language`, `testing_preferences`, etc.).",
+            "   a. Prepare default values for all fields within `ProjectConfig:ActiveConfig` (e.g., `project_type_hint`, `primary_language`, `testing`, etc.).",
             "   b. Prepare default values for all fields within `NovaSystemConfig:ActiveSettings` (e.g., `mode_behavior` overrides, `conport_integration` settings).",
             "   c. Guide the user (simulated by you, LeadArchitect, asking me, Orchestrator, to relay `ask_followup_question` to user) through each key setting, presenting the default and allowing them to confirm or provide a project-specific value.",
             "   d. Your Nova-SpecializedConPortSteward will then log the finalized JSON objects to `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) respectively, using `use_mcp_tool` (`tool_name: 'log_custom_data'`)."
