@@ -18,14 +18,30 @@
     - (Optional) `CustomData APIEndpoints:[APIKey]` (key) if APIs are part of the scope.
 - The overall test strategy (e.g., risk areas, types of testing needed) is understood by LeadQA.
 
+---
+
 **Phases & Steps (managed by Nova-LeadQA within its single active task from Nova-Orchestrator, or as a self-contained sub-process):**
+
+**Phase TCD.0: Pre-flight Checks by Nova-LeadQA**
+
+1.  **Nova-LeadQA: Verify Specifications are Ready for Test Design**
+    *   **Actor:** Nova-LeadQA
+    *   **Action:** Before planning the test case design, perform these critical pre-flight checks using `use_mcp_tool`.
+    *   **Checks:**
+        1.  **Retrieve All Prerequisite Specification Items:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the content of the `FeatureScope:[FeatureName_ScopeKey]` and `AcceptanceCriteria:[FeatureName_ACKey]` items referenced in your briefing.
+        2.  **Check for Existence:**
+            - **Failure:** If any required specification artifact is not found, report to Nova-Orchestrator: "BLOCKER: The required specification artifact `[Category:Key]` is missing from ConPort. Cannot design test cases without it." Halt this workflow.
+        3.  **Check for Correct Status:**
+            - Review the `status` field within the `value` of the retrieved items. The status should be 'APPROVED' or 'FINAL', not 'DRAFT' or 'UNDER_REVIEW'.
+            - **Failure:** If a critical specification is not in an approved state, report to Nova-Orchestrator: "BLOCKER: The specification `[Category:Key]` has a status of '[Status]' and is not approved for test design. Please coordinate with Nova-LeadArchitect to finalize the requirements." Halt this workflow.
+    *   **Output:** All required specifications are confirmed to exist and are in an approved state. Test case design can proceed.
 
 **Phase TCD.1: Analysis & Scenario Identification**
 
-1.  **Nova-LeadQA: Review Specifications & Identify Testable Requirements**
+2.  **Nova-LeadQA: Review Specifications & Identify Testable Requirements**
     *   **Actor:** Nova-LeadQA
     *   **Action:**
-        *   Log `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Test Case Design for [FeatureName/Scope]". Let this be `[TestCaseDesignProgressID]`.
+        *   Log `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Test Case Design for [FeatureName/Scope]\"}`). Let this be `[TestCaseDesignProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[TestCaseDesignProgressID]_QAPlan` (key) using `use_mcp_tool`. Plan items:
             1.  Analyze Specs & Decompose Requirements (LeadQA, potentially delegate parts to TestExecutor or FlowAsk for spec summarization).
             2.  Draft High-Level Test Scenarios/Categories (LeadQA).
@@ -34,11 +50,11 @@
             5.  Review & Consolidate Test Cases (LeadQA).
             6.  Log Test Cases to `TestPlans` or a test case management system concept (LeadQA or delegate to ConPortSteward/TestExecutor).
     *   **ConPort Action:**
-        *   Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve `FeatureScope:[FeatureName_ScopeKey]`, `AcceptanceCriteria:[FeatureName_ACKey]`, and any relevant `SystemArchitecture` or `APIEndpoints` items.
-        *   Analyze these documents to identify specific functional requirements, user stories, acceptance criteria, business rules, and technical constraints that need to be tested.
+        *   Analyze the `FeatureScope`, `AcceptanceCriteria`, and any relevant `SystemArchitecture` or `APIEndpoints` items (which were successfully retrieved in the pre-flight check).
+        *   Identify specific functional requirements, user stories, acceptance criteria, business rules, and technical constraints that need to be tested.
     *   **Output:** List of testable requirements/criteria. `[TestCaseDesignProgressID]` known.
 
-2.  **Nova-LeadQA: Draft High-Level Test Scenarios & Categories**
+3.  **Nova-LeadQA: Draft High-Level Test Scenarios & Categories**
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Based on the decomposed requirements, group them into logical test scenarios or categories.
@@ -49,7 +65,7 @@
 
 **Phase TCD.2: Detailed Test Case Elaboration (Potentially Delegated)**
 
-3.  **Nova-LeadQA -> Delegate to Nova-SpecializedTestExecutor: Detail Test Cases for Specific Scenarios**
+4.  **Nova-LeadQA -> Delegate to Nova-SpecializedTestExecutor: Detail Test Cases for Specific Scenarios**
     *   **Actor:** Nova-LeadQA
     *   **Task:** "For Test Scenario '[ScenarioName]', elaborate detailed test cases including steps, expected results, and pre-conditions."
     *   **`new_task` message for Nova-SpecializedTestExecutor (schematic):**
@@ -59,7 +75,7 @@
           "Overall_QA_Phase_Goal": "Design Test Cases for [FeatureName/Scope].",
           "Specialist_Subtask_Goal": "Elaborate detailed test cases for scenario: '[ScenarioName]'.",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[TestCaseDesignProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[TestCaseDesignProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
             "Scenario Objective: [Objective_From_LeadQA].",
             "Relevant Specs: `FeatureScope:[FS_Key]`, `AcceptanceCriteria:[AC_Key]`, (any other relevant component/API keys).",
             "For this scenario, design detailed test cases. Each test case should ideally include:",
@@ -76,7 +92,7 @@
             "Document these test cases in a structured format (e.g., Markdown table, list of objects for later import into a Test Plan)."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[TestCaseDesignProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[TestCaseDesignProgressID_as_integer]",
             "Scenario_Name_And_Objective": "[...]",
             "Relevant_Specification_ConPort_Refs": [{ "type": "custom_data", "category": "FeatureScope", "key": "[FS_Key]" }, ...]
           },
@@ -87,7 +103,7 @@
 
 **Phase TCD.3: Review, Consolidation & Logging**
 
-4.  **Nova-LeadQA: Review & Consolidate All Test Cases**
+5.  **Nova-LeadQA: Review & Consolidate All Test Cases**
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Collect all detailed test cases drafted by TestExecutor(s) or self.
@@ -96,29 +112,30 @@
         *   Remove duplicates, refine steps, and ensure traceability to requirements/ACs.
     *   **Output:** A consolidated and reviewed set of test cases for [FeatureName/Scope].
 
-5.  **Nova-LeadQA (or delegate to Nova-SpecializedConPortSteward via LeadArchitect): Log Test Plan / Test Cases**
+6.  **Nova-LeadQA (or delegate to Nova-SpecializedConPortSteward via LeadArchitect): Log Test Plan / Test Cases**
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   The consolidated test cases now form the core of the detailed test plan for this scope.
-        *   Log this test plan to ConPort. This might involve:
-            *   Creating/updating a `CustomData TestPlans:[ScopeName]_TestPlan_vX.Y` (key) entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`).
-            *   The `value` of this `TestPlans` entry could be a JSON object containing:
-                *   `title`, `scope_summary`, `version`.
-                *   A list of test scenarios, each with a list of detailed test case objects (ID, title, steps, expected results, etc.).
-                *   Or, if very extensive, the `value` might contain a summary and a link to a detailed test case document stored in `.nova/reports/qa/testcases_[ScopeName]_vX.Y.md` (or a CSV/XML if preferred for tool import).
+        *   Log this test plan to ConPort using `use_mcp_tool` (`tool_name: 'log_custom_data'`). The arguments for this call must be:
+            `arguments`: {
+              `"workspace_id"`: "ACTUAL_WORKSPACE_ID",
+              `"category"`: "TestPlans",
+              `"key"`: "[ScopeName]_TestPlan_vX.Y",
+              `"value"`: { /* JSON object containing title, scope, scenarios, and test cases */ }
+            }
         *   Link this `TestPlans` (key) entry to relevant `FeatureScope` (key), `AcceptanceCriteria` (key), and the `[TestCaseDesignProgressID]` `Progress` item using `use_mcp_tool` (`tool_name: 'link_conport_items'`).
     *   **Output:** Test cases/plan logged in ConPort.
 
-6.  **Nova-LeadQA: Finalize Test Case Design Phase**
+7.  **Nova-LeadQA: Finalize Test Case Design Phase**
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Update main `Progress` (`[TestCaseDesignProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Test case design for [FeatureName/Scope] complete. Logged as `TestPlans:[TestPlanKey]`."
         *   If this was part of a larger QA planning effort, this output feeds into the overall `TestStrategyAndPlan`.
     *   **Output:** Test case design phase completed.
 
-7.  **Nova-LeadQA: `attempt_completion` to Nova-Orchestrator (if this was a top-level delegated phase)**
+8.  **Nova-LeadQA: `attempt_completion` to Nova-Orchestrator (if this was a top-level delegated phase)**
     *   **Actor:** Nova-LeadQA
-    *   **Action:** Report completion, providing the ConPort key of the `TestPlans` entry (or main test plan document) and a summary of test coverage achieved by the designed cases.
+    *   **Action:** Report completion, providing the ConPort key of the `TestPlans` entry and a summary of test coverage achieved by the designed cases.
 
 **Key ConPort Items Involved:**
 - Progress (integer `id`): Overall phase, specialist subtasks.

@@ -23,7 +23,7 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Understand `Phase_Goal` ("Perform Risk Assessment for [Scope]") and `Required_Input_Context`.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Risk Assessment: [Scope] - [Date]". Let this be `[RAProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Risk Assessment: [Scope] - [Date]\"}`). Let this be `[RAProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[RAProgressID]_ArchitectPlan` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Plan items:
             1.  Gather Context & Brainstorm Potential Risks (LeadArchitect, delegate data gathering to ConPortSteward/FlowAsk).
             2.  Analyze & Evaluate Risks (Likelihood/Impact) (LeadArchitect).
@@ -42,11 +42,11 @@
               "Overall_Architect_Phase_Goal": "Risk Assessment for [Scope].",
               "Specialist_Subtask_Goal": "Retrieve ConPort data relevant to identifying risks for [Scope].",
               "Specialist_Specific_Instructions": [
-                "Log your own `Progress` (integer `id`), parented to `[RAProgressID]`.",
+                "Log your own `Progress` (integer `id`), parented to `[RAProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Gather context for risk assessment\", \"parent_id\": [RAProgressID_as_integer]} `).",
                 "Use `use_mcp_tool` (`server_name: 'conport'`, `workspace_id: 'ACTUAL_WORKSPACE_ID'`) with tools like `get_custom_data`, `get_decisions`, `semantic_search_conport` to find information related to [Scope] in categories: `SystemArchitecture`, `ProjectRoadmap`, `ImpactAnalyses`, existing `RiskAssessment`, `LessonsLearned`, `ErrorLogs` (critical/recurring), `TechDebtCandidates`, `ProjectConfig` (external dependencies), `ExternalServices`.",
                 "Compile a summary of findings or list of relevant item IDs/Keys."
               ],
-              "Required_Input_Context_For_Specialist": { "Scope_Description": "[...]", "Parent_Progress_ID_String": "[RAProgressID_as_string]" },
+              "Required_Input_Context_For_Specialist": { "Scope_Description": "[...]", "Parent_Progress_ID_as_integer": "[RAProgressID_as_integer]" },
               "Expected_Deliverables_In_Attempt_Completion_From_Specialist": ["Summary of relevant ConPort data/items found."]
             }
             ```
@@ -74,7 +74,7 @@
         *   Brainstorm and define **Mitigation Actions:** Specific steps to reduce likelihood or impact.
         *   Brainstorm and define **Contingency Plans:** Actions to take if the risk materializes.
         *   Assign a conceptual owner or responsible Lead mode for mitigation actions/monitoring.
-    *   **ConPort Action:** Log key mitigation strategies or risk acceptance decisions as formal `Decisions` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`).
+    *   **ConPort Action:** Log key mitigation strategies or risk acceptance decisions as formal `Decisions` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"[Summary of mitigation strategy]\", \"rationale\": \"...\"}`).
 
 **Phase RA.3: Documentation & Reporting**
 
@@ -88,29 +88,32 @@
           "Overall_Architect_Phase_Goal": "Risk Assessment for [Scope].",
           "Specialist_Subtask_Goal": "Log all identified risks and mitigation plans to ConPort `RiskAssessment` category.",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[RAProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[RAProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Log risk assessment items\", \"parent_id\": [RAProgressID_as_integer]} `).",
             "For each risk provided by LeadArchitect (structure will be a list of objects):",
-            "  - Log a new `CustomData` entry using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `arguments: {'workspace_id': 'ACTUAL_WORKSPACE_ID', 'category': 'RiskAssessment', ...}`).",
-            "  - Key: `RA_[YYYYMMDD]_[ScopeAbbrev]_[RiskNum]` (e.g., `RA_20240115_ProjX_R001_TechStackObsolescence`).",
-            "  - Value (JSON Object): ",
-            "    {",
-            "      \"risk_id_human\": \"[e.g., ProjX-R001]\",",
-            "      \"risk_description\": \"[Detailed description from LeadArchitect]\",",
-            "      \"risk_category\": \"[e.g., Technical, Schedule, Security from LeadArchitect]\",",
-            "      \"likelihood\": \"High|Medium|Low|Very Low|Very High\",",
-            "      \"impact_severity\": \"Severe|Significant|Moderate|Minor|Negligible\",",
-            "      \"risk_level_calculated\": \"[e.g., Severe, High, Medium, Low]\",",
-            "      \"mitigation_actions_planned\": [{\"action_description\": \"...\", \"owner_hint\": \"Nova-LeadDeveloper\", \"status\": \"TODO\"}, ...],",
-            "      \"contingency_plan_summary\": \"If risk occurs, do X...\",",
-            "      \"status\": \"Identified\", // Other statuses: Mitigating, Monitoring, Realized, Closed_Mitigated, Closed_Accepted",
-            "      \"date_identified\": \"[YYYY-MM-DD]\",",
-            "      \"last_reviewed_date\": \"[YYYY-MM-DD]\",",
-            "      \"related_conport_items\": [ {\"type\": \"decision\", \"id\": \"123\"}, {\"type\": \"custom_data\", \"id_or_key\": \"ImpactAnalyses:SomeReportKey\"} ]",
+            "  - Use `use_mcp_tool` (`tool_name: 'log_custom_data'`) to log a new `CustomData` entry. The arguments object for the tool call MUST be:",
+            "    `arguments`: {",
+            "      \"workspace_id\": \"ACTUAL_WORKSPACE_ID\",",
+            "      \"category\": \"RiskAssessment\",",
+            "      \"key\": \"RA_[YYYYMMDD]_[ScopeAbbrev]_[RiskNum]\",",
+            "      \"value\": {",
+            "        \"risk_id_human\": \"[e.g., ProjX-R001]\",",
+            "        \"risk_description\": \"[Detailed description from LeadArchitect]\",",
+            "        \"risk_category\": \"[e.g., Technical, Schedule, Security from LeadArchitect]\",",
+            "        \"likelihood\": \"High|Medium|Low|Very Low|Very High\",",
+            "        \"impact_severity\": \"Severe|Significant|Moderate|Minor|Negligible\",",
+            "        \"risk_level_calculated\": \"[e.g., Severe, High, Medium, Low]\",",
+            "        \"mitigation_actions_planned\": [{\"action_description\": \"...\", \"owner_hint\": \"Nova-LeadDeveloper\", \"status\": \"TODO\"}, ...],",
+            "        \"contingency_plan_summary\": \"If risk occurs, do X...\",",
+            "        \"status\": \"Identified\",",
+            "        \"date_identified\": \"[YYYY-MM-DD]\",",
+            "        \"last_reviewed_date\": \"[YYYY-MM-DD]\",",
+            "        \"related_conport_items\": [ {\"type\": \"decision\", \"id_or_key\": \"123\"}, {\"type\": \"custom_data\", \"id_or_key\": \"ImpactAnalyses:SomeReportKey\"} ]",
+            "      }",
             "    }",
-            "  - Link this new `RiskAssessment` (key) entry to the main `Progress` item (`[RAProgressID]`) for this Risk Assessment phase using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `relationship_type: 'identified_by_progress'`)."
+            "  - After logging, link this new `RiskAssessment` entry to the main `Progress` item (`[RAProgressID_as_integer]`) using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"RiskAssessment:RA_[YYYYMMDD]_[...]\_Key\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"[RAProgressID_as_string]\", \"relationship_type\": \"identified_by_progress\"}`)."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[RAProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[RAProgressID_as_integer]",
             "List_Of_Risks_With_Structured_Details": "[List of JSON objects from LeadArchitect, matching the value structure above]"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
@@ -125,7 +128,7 @@
     *   **Actor:** Nova-LeadArchitect
     *   **Action:**
         *   Create a summary of the risk assessment (e.g., top 3-5 risks, overall risk posture, key mitigation decisions). This could be a new `CustomData` entry (e.g., `RiskAssessment:[Scope]_SummaryReport_[Date]` (key)) logged via ConPortSteward, or directly included in the `attempt_completion` to Nova-Orchestrator.
-        *   Update main `Progress` (`[RAProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description: "Risk assessment for [Scope] completed. See `RiskAssessment` category, key `[SummaryReportKey]` if applicable."
+        *   Update main `Progress` (`[RAProgressID]`) to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"progress_id\": [RAProgressID_as_integer], \"status\": \"DONE\", \"description\": \"Risk assessment for [Scope] completed.\"}`).
         *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
     *   **Output:** Risk assessment documented.
 

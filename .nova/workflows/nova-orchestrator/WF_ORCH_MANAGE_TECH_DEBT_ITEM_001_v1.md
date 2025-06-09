@@ -22,8 +22,8 @@
 1.  **Nova-Orchestrator: Retrieve Tech Debt Details & Assess Architectural Impact**
     *   **Actor:** Nova-Orchestrator
     *   **Action:**
-        *   Log a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Manage Tech Debt: [TechDebtKey]". Let this be `[TechDebtProgressID]`.
-        *   Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `category: 'TechDebtCandidates'`, `key: '[TechDebtKey_From_User]'`) to retrieve the full details of the tech debt item.
+        *   Log a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Manage Tech Debt: [TechDebtKey]\"}`). Let this be `[TechDebtProgressID]`.
+        *   Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"TechDebtCandidates\", \"key\": \"[TechDebtKey_From_User]\"}`) to retrieve the full details of the tech debt item.
     *   **Condition:** If the tech debt description suggests significant architectural impact or requires design changes before refactoring:
         *   **Delegate to Nova-LeadArchitect:**
             *   **Task:** "Analyze `TechDebtCandidates:[TechDebtKey]` for architectural impact and propose design changes or refactoring approach."
@@ -97,7 +97,7 @@
             "1. Your TestExecutor should run targeted regression tests on areas affected by the refactoring.",
             "2. If performance was a goal, execute relevant performance tests (`WF_QA_PERFORMANCE_TEST_EXECUTION_001_v1.md` for guidance).",
             "3. If complexity reduction was a goal, review code (or delegate to FlowAsk for metrics if possible) for clarity improvements.",
-            "4. Log any new `ErrorLogs` (key) if regressions are found.",
+            "4. Log any new `ErrorLogs` (key) if regressions are found using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
             "Report on whether the refactoring goals (from `TechDebtCandidates` item or `RefactorCriteria`) were met and if system stability is maintained."
           ],
           "Required_Input_Context": {
@@ -114,7 +114,7 @@
     *   **DoR Check:** LeadQA confirms successful verification.
     *   **Action:**
         *   Delegate to `Nova-LeadArchitect` (ConPortSteward) to update the `CustomData TechDebtCandidates:[TechDebtKey]` (key) entry. Briefing: "Update TD item `[TechDebtKey]`. First `get_custom_data`, then modify the `value` to set status to 'RESOLVED' and add resolution date and summary of outcome (from LeadDeveloper/LeadQA reports). Then use `log_custom_data` to save the updated object."
-        *   Update `[TechDebtProgressID]` to "COMPLETED_RESOLVED" using `use_mcp_tool`.
+        *   Update `[TechDebtProgressID]` to "COMPLETED_RESOLVED" using `use_mcp_tool` (`tool_name: 'update_progress'`).
         *   Update `active_context.state_of_the_union` if the resolution was significant.
         *   Inform user of resolution.
     *   **Output:** Tech debt item formally closed.

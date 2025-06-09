@@ -11,8 +11,8 @@
 - Post-release monitoring or `CustomData NovaSystemConfig:ActiveSettings.mode_behavior.nova-leadqa.performance_check_schedule` triggers periodic performance health checks.
 
 **Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or ConPort):**
-- Application build is deployed to a dedicated performance testing environment (details in `CustomData ProjectConfig:ActiveConfig.testing_preferences.performance_test_env` (key)).
-- Performance test scripts/tools are available and configured (e.g., JMeter, k6, Locust scripts; paths/commands potentially in `ProjectConfig:ActiveConfig.testing_preferences.performance_tools.[tool_name]_command`).
+- Application build is deployed to a dedicated performance testing environment (details in `CustomData ProjectConfig:ActiveConfig.testing.performance_env_url`).
+- Performance test scripts/tools are available and configured (e.g., JMeter, k6, Locust scripts; paths/commands potentially in `ProjectConfig:ActiveConfig.testing.commands.performance_load_test`).
 - Clear performance targets/KPIs are defined (e.g., in `AcceptanceCriteria` (key) or a `CustomData PerformanceTargets:[Component]_Targets_vX` (key) entry).
 
 **Phases & Steps (managed by Nova-LeadQA within its single active task from Nova-Orchestrator):**
@@ -23,7 +23,7 @@
     *   **Actor:** Nova-LeadQA
     *   **Action:**
         *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Identify Target Component/Scenario and Build/Version.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`): "Performance Test: [Component/Scenario] - [Date]". Let this be `[PerfTestProgressID]`.
+        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Performance Test: [Component/Scenario] - [Date]\"}`). Let this be `[PerfTestProgressID]`.
         *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[PerfTestProgressID]_QAPlan` (key) using `use_mcp_tool`. Plan items:
             1.  Verify Test Environment & Baseline Metrics (Delegate to TestExecutor).
             2.  Execute Performance Test Scenario A (Delegate to TestExecutor).
@@ -33,7 +33,7 @@
     *   **ConPort Action:**
         *   Retrieve `CustomData PerformanceTargets:[Component]_Targets_vX` (key) or relevant `AcceptanceCriteria` (key) using `use_mcp_tool` (`tool_name: 'get_custom_data'`).
         *   Retrieve `CustomData ProjectConfig:ActiveConfig` (key) for environment and tool command details.
-        *   Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) to start performance tests, noting scope, target KPIs, and tools. Link to `[PerfTestProgressID]`.
+        *   Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Start performance test for [Component]\", \"rationale\": \"Verify non-functional requirement for performance.\"}`) to start performance tests. Link to `[PerfTestProgressID]`.
     *   **Output:** Plan ready. `[PerfTestProgressID]` known.
 
 **Phase PT.2: Test Execution & Analysis by Nova-SpecializedTestExecutor (Sequentially Managed)**
@@ -48,20 +48,20 @@
           "Overall_QA_Phase_Goal": "Performance Test Cycle for [Component/Scenario].",
           "Specialist_Subtask_Goal": "Execute performance test for [ScenarioName] using [ScriptName_or_Tool].",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[PerfTestProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[PerfTestProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
             "Performance Test Scenario: [ScenarioName_From_LeadQA]. Script/Tool: [ScriptName_From_LeadQA].",
             "Target Environment: [Perf_Env_URL_From_ProjectConfig]. Build: [Target_Build_From_LeadQA].",
             "1. Connect to performance test environment. Verify correct build is deployed and environment is stable.",
             "2. (If applicable and tools available) Capture baseline server metrics (CPU, memory, network I/O, DB connections) before test execution.",
-            "3. Execute performance test script/tool using command: [`ProjectConfig:ActiveConfig.testing_preferences.performance_tools.[tool_name]_command [script_path] [load_parameters]` - LeadQA to provide specific command and parameters]. Use `execute_command`.",
+            "3. Execute performance test script/tool using command: [`ProjectConfig:ActiveConfig.testing.commands.performance_load_test`] (LeadQA to provide specific command if different). Use `execute_command`.",
             "4. Monitor server metrics during the test, if possible.",
             "5. Collect all raw output from the test tool (e.g., summary statistics table, transaction times per request, error rates, detailed logs/CSVs).",
             "6. Save raw results to `.nova/reports/qa/performance/[ScenarioName]_[Date]/[specific_file.csv_or_log]` using `write_to_file` if output is large or structured."
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[PerfTestProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[PerfTestProgressID_as_integer]",
             "Scenario_Name_And_Script_Tool_Details": "[...]",
-            "Performance_Test_Environment_Details_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing_preferences.performance_test_env", "testing_preferences.performance_tools"] },
+            "Performance_Test_Environment_Details_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing"] },
             "Target_Build_Information": "[...]",
             "Performance_KPI_Targets_Ref_For_Context": { "type": "custom_data", "category": "PerformanceTargets", "key": "[Component]_Targets_vX" }
           },
@@ -95,28 +95,30 @@
         ```json
         {
           "Context_Path": "[ProjectName] (PerfTest_[Component/Scenario]) -> CompileReportAndLogNotes (TestExecutor/ConPortSteward)",
-          // ... Overall Goal, Specialist Goal ...
+          "Overall_QA_Phase_Goal": "Performance Test Cycle for [Component/Scenario].",
+          "Specialist_Subtask_Goal": "Compile an overall performance test report and log key findings.",
           "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[PerfTestProgressID]`.",
+            "Log your own `Progress` (integer `id`), parented to `[PerfTestProgressID_as_integer]`, using `use_mcp_tool`.",
             "1. Consolidate analysis from all executed performance test scenarios (provided by LeadQA).",
-            "2. Create a summary Markdown report in `.nova/reports/qa/performance/OverallPerformanceReport_[Component]_[Date].md` using `write_to_file`. Include:",
-            "   - Test scope, environment details, tools used.",
-            "   - For each scenario: Target KPIs vs. actual observed metrics, pass/fail status.",
-            "   - Summary of identified bottlenecks, resource contention issues, or significant performance deviations.",
-            "   - Graphs/charts if generated by tools and easily includable or linkable from the raw reports path.",
-            "3. For each significant finding (e.g., a KPI miss, a major bottleneck, resource exhaustion): Log a `CustomData PerformanceNotes:[Component]_[FindingType]_[Date]` (key) entry in ConPort using `use_mcp_tool` (`tool_name: 'log_custom_data'`). The `value` (JSON object) should include fields like:",
-            "   { ",
-            "     \"component_scenario\": \"[Component/ScenarioName]\",",
-            "     \"metric_observed\": \"e.g., P95 Response Time for /api/resource\",",
-            "     \"target_kpi_value\": \"<200ms under 100 RPS\",",
-            "     \"actual_value_observed\": \"550ms at 80 RPS\",",
-            "     \"finding_description\": \"API /api/resource shows high latency and fails to meet throughput target.\",",
-            "     \"potential_cause_hypothesis\": \"Possible DB query inefficiency or thread contention in service X.\",",
-            "     \"raw_data_report_reference\": \".nova/reports/qa/performance/[ScenarioName]_[Date]/details.csv\"",
+            "2. Create a summary Markdown report in `.nova/reports/qa/performance/OverallPerformanceReport_[Component]_[Date].md` using `write_to_file`. Include test scope, environment details, tools used, KPI targets vs. actuals, and a summary of identified bottlenecks.",
+            "3. For each significant finding (e.g., a KPI miss, a major bottleneck), use `use_mcp_tool` (`tool_name: 'log_custom_data'`) to log a `CustomData PerformanceNotes:[Component]_[FindingType]_[Date]` (key) entry. The arguments MUST be:",
+            "   `arguments`: {",
+            "     \"workspace_id\": \"ACTUAL_WORKSPACE_ID\",",
+            "     \"category\": \"PerformanceNotes\",",
+            "     \"key\": \"[Component]_[FindingType]_[Date]\",",
+            "     \"value\": { ",
+            "       \"component_scenario\": \"[Component/ScenarioName]\",",
+            "       \"metric_observed\": \"e.g., P95 Response Time for /api/resource\",",
+            "       \"target_kpi_value\": \"<200ms under 100 RPS\",",
+            "       \"actual_value_observed\": \"550ms at 80 RPS\",",
+            "       \"finding_description\": \"API /api/resource shows high latency and fails to meet throughput target.\",",
+            "       \"potential_cause_hypothesis\": \"Possible DB query inefficiency or thread contention in service X.\",",
+            "       \"raw_data_report_reference\": \".nova/reports/qa/performance/[ScenarioName]_[Date]/details.csv\"",
+            "     }",
             "   }"
           ],
           "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_String": "[PerfTestProgressID_as_string]",
+            "Parent_Progress_ID_as_integer": "[PerfTestProgressID_as_integer]",
             "List_Of_Executed_Scenarios_And_Analysis_Summaries_From_LeadQA": "[...]",
             "Performance_KPI_Targets_Ref_Key_For_Context": "PerformanceTargets:[Component]_Targets_vX"
           },
