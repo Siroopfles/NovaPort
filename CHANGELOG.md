@@ -5,33 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
-## [0.2.0-beta] - 2024-05-17
+## [0.2.1-beta] - 2024-05-18
 
-This is a major hardening and feature-enhancement release focused on improving system reliability, standardization, and adding new core capabilities. The changes address the core items from the `IMPROVEMENT_TODO.md` v2 list.
-
-### ✨ New Features & Capabilities
-
--   **ConPort Data Standards:** Introduced a formal `conport_standards.md` document in `.nova/docs/`. This document defines standard JSON schemas for critical `CustomData` categories like `ErrorLogs` (R20), `LessonsLearned` (R21), and `ProjectStandards` (DoD), enhancing data consistency and quality.
--   **System Prompt Management Workflow:** Added `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL_001_v1.md`, a new workflow enabling `Nova-LeadArchitect` to formally manage changes to `.roo/` system prompts, including an approval process.
--   **Module Template Workflow:** Added `WF_ARCH_CREATE_MODULE_TEMPLATE_001_v1.md` to automate the design and creation of standardized, reusable module and service templates.
--   **Dependency Management Workflow:** Added `WF_DEV_DEPENDENCY_UPDATE_AND_AUDIT_001_v1.md` to systematically check project dependencies for outdated versions and known vulnerabilities.
--   **Project Digest Workflow:** Added `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md` to have `Nova-FlowAsk` generate a high-level project summary report.
+This is a comprehensive hardening and process-improvement release. The primary focus is on increasing system robustness by formalizing agent interaction protocols, introducing proactive quality gates (DoD/DoR), and enhancing the intelligence and autonomy of the agents within their defined roles. This release implements the core strategic recommendations from the v2 system audit.
 
 ### 🚀 Improvements & Hardening
 
--   **Prompt & Tooling Hygiene:**
-    -   **Standardized `use_mcp_tool` Calls:** All `use_mcp_tool` examples in all `system-prompt-*.md` files have been updated with complete, syntactically correct, and illustrative JSON `arguments`. This eliminates ambiguity for the LLM and reduces the likelihood of tool errors.
-    -   **`conport_tool_reference` Section:** A new, explicit reference list for ConPort tools has been added to agent prompts, serving as a direct 'cheatsheet' for correct tool calls.
-    -   **Clarified `item_id` Usage:** Prompts now include explicit notes on the correct format of `item_id` (integer ID as string vs. `category:key` string) based on `item_type`, addressing a common source of errors.
+-   **Hardened Delegation Protocol:** The `new_task` tool across all delegating prompts (`Orchestrator`, `Leads`) has been re-engineered. The `message` parameter now MANDATES a structured YAML/JSON `Subtask Briefing Object`, drastically reducing ambiguity and improving the reliability of the entire delegation chain.
+-   **Proactive "Definition of Ready" (DoR) Gating:** All Lead Mode prompts now include a mandatory, tool-based "Definition of Ready" check in their `task_execution_protocol`. They must verify that all prerequisites for their assigned phase exist and are in the correct state in ConPort *before* starting their planning. This prevents entire work cycles from being wasted on unready tasks.
+-   **Enforced "Definition of Done" (DoD) Checks:** The `attempt_completion` instructions for all Lead Modes have been updated to require a final "Definition of Done" verification on their phase's deliverables before reporting completion to the Orchestrator, formalizing a final quality gate.
+-   **Robust Failure Handling & Retry Logic:** The failure recovery rules (`R14`) in all Lead Mode prompts have been enhanced. They now include explicit instructions for logging non-transient failures as `ErrorLogs` in ConPort, updating their internal execution plan, and a "retry-once" policy for potentially transient errors to increase system resilience.
 
--   **Workflow Hardening:**
-    -   **Standardized Briefings:** All `Subtask Briefing Object` examples within `.nova/workflows/**/*.md` files have been updated to reflect the new, standardized `use_mcp_tool` calls, making instructions for specialists clearer and more reliable.
-    -   **Proactive "Pre-flight Checks":** Critical workflows (such as `WF_ARCH_IMPACT_ANALYSIS`, `WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE`, and `WF_QA_RELEASE_CANDIDATE_VALIDATION`) now include a `Phase 0: Pre-flight Checks` section. This instructs Lead modes to verify prerequisites (like the existence and status of required ConPort items) *before* execution, proactively preventing errors.
+### ✨ New Features & Capabilities
 
-### 📖 Documentation
+-   **Bounded Autonomy for Trivial Fixes:** Relevant specialist prompts (`Nova-SpecializedFeatureImplementer`, `Nova-SpecializedCodeRefactorer`) now include a rule granting them bounded autonomy to fix trivial, in-scope issues, provided they log the action as a `Decision`. This improves efficiency by reducing unnecessary failure/re-delegation loops.
+-   **Proactive Tech Debt Identification (R23):** The prompts for developer-side specialists now include an explicit instruction to identify and log new, out-of-scope technical debt to ConPort as a `TechDebtCandidates` item, improving long-term code health.
+-   **Enhanced System Observability & DX:** The `nova-orchestrator` prompt has been updated with capabilities to initiate new "Developer Experience" workflows for knowledge graph visualization and new developer onboarding, making the system's state more transparent to the user.
 
--   **README Update:** The `README.md` has been updated for clarity, featuring a revised "Dependencies & Setup" section and a more accurate "Quick Start" guide aligned with the VS Code Roo extension.
--   **Roadmap Visibility:** Added `IMPROVEMENT_TODO.md` to the repository to make planned and completed improvements to the Nova system transparent.
+### 📖 Documentation & Prompts
+
+-   **System-Wide Prompt Re-engineering:** All system prompts (`system-prompt-nova-*.md`) have been updated with the new, hardened protocols (DoR, DoD, Structured Briefings, Failure Handling).
+-   **README Enhancement:** The main `README.md` has been updated to reflect the newly formalized concepts of Structured Delegation, DoD/DoR, and the improved system architecture.
+-   **Contributing Guide Update:** The `CONTRIBUTING.md` has been updated to align with the more mature, structured nature of the project.
+-   **Finalized `IMPROVEMENT_TODO.md`:** The v2 TODO list has been fully updated, marking the completion of the core prompt and process logic hardening tasks.
+
+## [0.2.0-beta] - 2024-05-17
+
+This was a major feature-enhancement release focused on adding new core capabilities and standardizing data structures.
+
+### ✨ New Features & Capabilities
+
+-   **ConPort Data Standards:** Introduced a formal `conport_standards.md` document in `.nova/docs/`.
+-   **System Prompt Management Workflow:** Added `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL_001_v1.md`.
+-   **Module Template Workflow:** Added `WF_ARCH_CREATE_MODULE_TEMPLATE_001_v1.md`.
+-   **Dependency Management Workflow:** Added `WF_DEV_DEPENDENCY_UPDATE_AND_AUDIT_001_v1.md`.
+-   **Project Digest Workflow:** Added `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md`.
+-   **System Retrospective Workflow:** Added `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md`.
+
+### 🚀 Improvements & Hardening
+
+-   **Prompt & Tooling Hygiene:** Standardized all `use_mcp_tool` examples and `Subtask Briefing Object` examples across all prompts and workflows.
+-   **Workflow Hardening:** Introduced `Phase 0: Pre-flight Checks` to critical workflows.
 
 ## [0.1.1-beta] - Previous Release
 
