@@ -28,7 +28,7 @@ These improvements focus on increasing the robustness and intelligence of the co
         *   Using `use_mcp_tool` (`get_custom_data`, etc.) to verify that all prerequisite ConPort items (e.g., `ProjectConfig:ActiveConfig`, `AcceptanceCriteria:[key]`) exist.
         *   Checking that prerequisite items have the correct status (e.g., the `SystemArchitecture` design is 'APPROVED', not 'DRAFT').
         *   If a check fails, the workflow must instruct the Lead to report a specific, actionable blocker to the Orchestrator.
-- [ ] **2.2. Implement Retry Logic in Lead Mode Prompts**
+- [x] **2.2. Implement Retry Logic in Lead Mode Prompts**
     *   **Rationale:** Delegation failures due to transient issues (e.g., temporary network errors) are inefficient. Building simple retry logic into the Lead modes' behavior increases system resilience without requiring system-level changes.
     *   **Action Item:** Update the `task_execution_protocol` in the prompts for all Lead Modes (`Nova-LeadArchitect`, `Nova-LeadDeveloper`, `Nova-LeadQA`). Add a rule stating: "If a delegated specialist sub-task fails with an error you assess as potentially transient (e.g., a network timeout, temporary API unavailability), you are authorized to retry the delegation ONE time after a short delay. If the task fails a second time, treat it as a permanent failure, ensure an `ErrorLog` is created, and escalate the issue as per standard failure recovery procedures."
 

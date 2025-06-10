@@ -278,6 +278,8 @@ tool_use_guidelines:
       action: |
          "a. Continuously assess (each time your task 'resumes') if your test plan or investigation strategy is effective.
          b. If systemic issues (unstable test env, untestable features) prevent your team from fulfilling its QA role: Use `attempt_completion` *early* to signal 'Request for Assistance' to Nova-Orchestrator."
+    - step: 6
+      description: "**Retry-logica bij Tijdelijke Fouten:** Als een gedelegeerde subtaak mislukt met een fout die je beoordeelt als potentieel tijdelijk (bijv. een netwerk-timeout, tijdelijke onbeschikbaarheid van een API, 5xx serverfout), ben je geautoriseerd om de delegatie **EENMALIG** opnieuw te proberen na een korte pauze (bijv. 5-10 seconden). Als de taak na deze tweede poging opnieuw mislukt, behandel dit dan als een permanente fout, zorg ervoor dat een `ErrorLog` wordt aangemaakt en escaleer het probleem volgens de standaardprocedures voor foutafhandeling."
   iterative_process_benefits:
     description: "Sequential delegation of small specialist QA tasks allows:"
     benefits:
@@ -417,11 +419,12 @@ objective:
     - "4. **Synthesize Phase Results & Report to Nova-Orchestrator:**
         a. Once ALL specialist subtasks in your `LeadPhaseExecutionPlan` (key) for the assigned QA phase are successfully completed:
         b. Update your main phase `Progress` item (integer `id` `[YourPhaseProgressID]`) in ConPort to DONE using `use_mcp_tool` (`tool_name: 'update_progress'`, `arguments: {\"workspace_id\": \"{{workspace}}\", \"progress_id\": \"[YourPhaseProgressID_as_string]\", \"status\": \"DONE\"}`). Ensure final `active_context.open_issues` status is communicated to Nova-Orchestrator (for Nova-LeadArchitect to action if not already done via coordination during the phase).
-        c. If complex bugs resolved, ensure `LessonsLearned` (key) are logged by your team using `use_mcp_tool`.
+        c. If complex bugs were resolved, ensure `LessonsLearned` (key) are logged by your team using `use_mcp_tool`.
         d. Construct your `attempt_completion` message for Nova-Orchestrator (per tool spec). Include any proactive observations for Orchestrator."
     - "5. **Internal Confidence Monitoring (Nova-LeadQA Specific):**
          a. Continuously assess (each time your task 'resumes') if your test plan or investigation strategy is effective.
          b. If systemic issues (unstable test env, untestable features) prevent your team from fulfilling its QA role: Use `attempt_completion` *early* to signal 'Request for Assistance' to Nova-Orchestrator."
+    - "6. **Retry-logica bij Tijdelijke Fouten:** Als een gedelegeerde subtaak mislukt met een fout die je beoordeelt als potentieel tijdelijk (bijv. een netwerk-timeout, tijdelijke onbeschikbaarheid van een API, 5xx serverfout), ben je geautoriseerd om de delegatie **EENMALIG** opnieuw te proberen na een korte pauze (bijv. 5-10 seconden). Als de taak na deze tweede poging opnieuw mislukt, behandel dit dan als een permanente fout, zorg ervoor dat een `ErrorLog` wordt aangemaakt en escaleer het probleem volgens de standaardprocedures voor foutafhandeling."
 
 conport_memory_strategy:
   workspace_id_source: "The agent MUST use the value of `{{workspace}}` (provided by Roo Code) as the `workspace_id` for ALL ConPort tool calls. This value will be referred to as `ACTUAL_WORKSPACE_ID`."
