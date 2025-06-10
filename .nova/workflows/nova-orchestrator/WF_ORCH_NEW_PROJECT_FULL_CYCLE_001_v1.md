@@ -89,10 +89,49 @@
         *   Verify key deliverables.
         *   Update top-level `Progress` (integer `id`) to "Design Complete, Development Pending".
 
+**Phase 2.5: Definition of Ready (DoR) Check for Development Phase**
+
+3.  **Nova-Orchestrator: Verify DoR for Development**
+    *   **Trigger:** Activated before delegating the Development phase.
+    *   **Step 1: Get DoR Criteria**
+        *   **Action:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve `CustomData ProjectStandards:DefaultDoR`. If not found, use a default list: ["Approved Architecture Document", "Finalized API Specifications"].
+        *   **Output:** `DoR_Criteria_List`.
+    *   **Step 2: Verify Criteria**
+        *   **Action:** For each criterion in `DoR_Criteria_List`:
+            *   If criterion is "Approved Architecture Document": Use `use_mcp_tool` (`get_custom_data`) to get `SystemArchitecture:[ProjectName]_Overall_v1` (or similar key from Phase 2 output) and verify its `status` field is "APPROVED".
+            *   If criterion is "Finalized API Specifications": Use `use_mcp_tool` (`get_custom_data`) to get a sample of `APIEndpoints:[...]_v1` items (from Phase 2 output) and verify their `status` is "FINAL".
+        *   **Output:** `Verification_Results` (list of pass/fail for each criterion).
+    *   **Step 3: Conditional Gateway**
+        *   **Condition:** Are all criteria in `Verification_Results` marked as 'pass'?
+        *   **Path A (YES - Success):**
+            *   **Action:** Log a `Decision`: "DoR check for Development Phase passed."
+            *   **Next Step:** Proceed to Phase 3.
+        *   **Path B (NO - Failure):**
+            *   **Action:** Pause this workflow. Identify and list the `Failed_Criteria`.
+            *   **Action:** Delegate a new preparatory subtask to `Nova-LeadArchitect`.
+            *   **`new_task` message for Nova-LeadArchitect:**
+                ```json
+                {
+                  "Context_Path": "Project [ProjectName] (Orchestrator) -> DoR Remediation for Development (LeadArchitect)",
+                  "Phase_Goal": "Remediate failing DoR criteria for the Development Phase.",
+                  "Lead_Mode_Specific_Instructions": [
+                    "The 'Definition of Ready' for the Development Phase has failed. The following criteria are not met: [List of Failed_Criteria].",
+                    "Example Task: 'The status of `SystemArchitecture:XYZ` is DRAFT, not APPROVED'.",
+                    "Your team must take action to meet these criteria. This may involve finalizing designs, securing approvals (simulated via user interaction if needed), or updating ConPort statuses.",
+                    "Report back via `attempt_completion` when all listed criteria are met."
+                  ],
+                  "Required_Input_Context": { "Failed_Criteria_List": "[...]" },
+                  "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Confirmation that all failed DoR criteria are now met."]
+                }
+                ```
+            *   **Action:** Await `attempt_completion` from Nova-LeadArchitect.
+            *   **Next Step:** Upon completion, loop back to the beginning of this Phase 2.5 to re-run the DoR check.
+
 **Phase 3: Development & Unit/Integration Testing (Nova-Orchestrator -> Nova-LeadDeveloper)**
 
-3.  **Nova-Orchestrator: Delegate Development Phase**
-    *   **DoR Check:** Key `SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key) are in ConPort with status "approved" or "final". User confirms readiness.
+4.  **Nova-Orchestrator: Delegate Development Phase**
+    *   **DoR Check:** DoR for Development (Phase 2.5) has passed. User confirms readiness.
+    *   **Action:** Update top-level `Progress` (integer `id`) to "DEVELOPMENT_PHASE".
     *   **Task:** "Delegate the full development phase, including coding, unit testing, and integration testing, to Nova-LeadDeveloper."
     *   **`new_task` message for Nova-LeadDeveloper:**
         ```json
@@ -126,10 +165,21 @@
         *   Verify deliverables. If critical test failures, may need to re-delegate to LeadDeveloper or involve LeadQA for deeper analysis before proceeding.
         *   Update top-level `Progress` (integer `id`) to "Development Complete, QA Pending".
 
+**Phase 3.5: Definition of Ready (DoR) Check for QA Phase**
+5.  **Nova-Orchestrator: Verify DoR for QA**
+    *   **Trigger:** Activated before delegating the QA phase.
+    *   **Step 1 & 2: Get & Verify DoR Criteria**
+        *   **Action:** Retrieve `CustomData ProjectStandards:DefaultDoR`. Check criteria like "Development Complete (All planned features implemented and unit/integration tested)", "Code merged to test branch", "Test Environment Ready".
+        *   Verify by checking `Progress` from development phase is "DONE", and `ProjectConfig` specifies a ready test environment.
+    *   **Step 3: Conditional Gateway**
+        *   **Path A (YES - Success):** Log success, proceed to Phase 4.
+        *   **Path B (NO - Failure):** Pause workflow. Delegate remediation task to `Nova-LeadDeveloper` (e.g., "Complete unfinished components", "Fix failing integration tests") or `Nova-LeadArchitect` (e.g., "Ensure test environment in `ProjectConfig` is correctly defined and available"). Await completion, then loop back to start of Phase 3.5.
+
 **Phase 4: Quality Assurance & Testing (Nova-Orchestrator -> Nova-LeadQA)**
 
-4.  **Nova-Orchestrator: Delegate QA Phase**
-    *   **DoR Check:** Development phase reported as complete. Code is in a testable state. Test environments (from `ProjectConfig:ActiveConfig`) are ready.
+6.  **Nova-Orchestrator: Delegate QA Phase**
+    *   **DoR Check:** DoR for QA (Phase 3.5) has passed.
+    *   **Action:** Update top-level `Progress` (integer `id`) to "QA_PHASE".
     *   **Task:** "Delegate the full Quality Assurance phase, including test plan execution, bug logging/tracking, and fix verification, to Nova-LeadQA."
     *   **`new_task` message for Nova-LeadQA:**
         ```json
@@ -167,42 +217,16 @@
 
 **Phase 5: Release Preparation (Nova-Orchestrator -> Nova-LeadArchitect / Nova-LeadDeveloper)**
 
-5.  **Nova-Orchestrator: Delegate Release Preparation**
+7.  **Nova-Orchestrator: Delegate Release Preparation**
     *   **DoR Check:** QA Lead recommends release readiness or all critical/high bugs are resolved/deferred by a `Decision` (integer `id`).
     *   **Task:** "Delegate final documentation, release notes, and conceptual tagging for release [TargetReleaseVersion] to appropriate Leads. This may involve executing parts of `WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md`."
-    *   **`new_task` message for Nova-LeadArchitect (Documentation & Release Notes):**
-        ```json
-        {
-          "Context_Path": "Project [UserProvided_ProjectName] (Orchestrator) -> ReleasePrep_Docs (LeadArchitect)",
-          "Overall_Project_Goal": "Prepare Project [UserProvided_ProjectName] for release [TargetReleaseVersion].",
-          "Phase_Goal": "Finalize all user-facing and technical documentation, and official release notes for [TargetReleaseVersion].",
-          "Lead_Mode_Specific_Instructions": [
-            "Ensure your ConPortSteward/WorkflowManager/SystemDesigner update all relevant documentation (`SystemArchitecture` (key), user docs, `APIEndpoints` (key)) and finalize release notes in `CustomData ReleaseNotesFinal:[TargetReleaseVersion]` (key)."
-          ],
-          "Required_Input_Context": { "TargetReleaseVersion": "[...]", "Release_Scope_Ref_Key": "Releases:[TargetReleaseVersion]" },
-          "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Confirmation of documentation updates", "Key of `ReleaseNotesFinal` entry"]
-        }
-        ```
-    *   **`new_task` message for Nova-LeadDeveloper (Conceptual Tagging):**
-        ```json
-        {
-          "Context_Path": "Project [UserProvided_ProjectName] (Orchestrator) -> ReleasePrep_Tagging (LeadDeveloper)",
-          "Overall_Project_Goal": "Prepare Project [UserProvided_ProjectName] for release [TargetReleaseVersion].",
-          "Phase_Goal": "Log conceptual version tagging for [TargetReleaseVersion] in ConPort.",
-          "Lead_Mode_Specific_Instructions": [
-            "Identify commit hash for [TargetReleaseVersion] (user to provide if needed).",
-            "Log a `Decision` (integer `id`): 'Commit [hash] designated for release [TargetReleaseVersion]. All tests passed, docs final.' Tag with #[TargetReleaseVersion]."
-          ],
-          "Required_Input_Context": { "TargetReleaseVersion": "[...]" },
-          "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Integer ID of the conceptual tagging `Decision`"]
-        }
-        ```
+    *   **`new_task` messages:** As per original workflow.
     *   **Nova-Orchestrator Action after Leads complete:** Inform user about physical git tagging. Delegate to Nova-LeadArchitect to update `CustomData Releases:[TargetReleaseVersion]` (key) status to 'Shipped' and update `active_context.state_of_the_union`.
     *   **Output:** Project is conceptually ready for deployment. `active_context.state_of_the_union` updated to "Release [Version] Prepared".
 
 **Phase 6: Post-Release & Iteration Planning (Nova-Orchestrator)**
 
-6.  **Nova-Orchestrator: Finalize & Plan Next Steps**
+8.  **Nova-Orchestrator: Finalize & Plan Next Steps**
     *   **Action:**
         *   Log final `Decision` (integer `id`) about project launch/release using `use_mcp_tool` (`tool_name: 'log_decision'`).
         *   Update top-level project `Progress` (integer `id`) to "COMPLETED" or "Version 1.0 Released" using `use_mcp_tool` (`tool_name: 'update_progress'`).
@@ -210,7 +234,7 @@
         *   Consult user for next steps: new feature cycle (using `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`), maintenance, or project closure.
     *   **Output:** Project cycle concluded.
 
-**Key ConPort Items Created/Referenced by Nova-Orchestrator (overall for this workflow):**
+**Key ConPort Items Involved:**
 - Top-level `Progress` (integer `id`) for the entire project.
 - Reads all types of ConPort items to inform DoR checks and delegation.
 - Ensures `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) are established.

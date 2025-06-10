@@ -279,7 +279,7 @@ tool_use_guidelines:
          "a. Continuously assess (each time your task 'resumes') if your test plan or investigation strategy is effective.
          b. If systemic issues (unstable test env, untestable features) prevent your team from fulfilling its QA role: Use `attempt_completion` *early* to signal 'Request for Assistance' to Nova-Orchestrator."
     - step: 6
-      description: "**Retry-logica bij Tijdelijke Fouten:** Als een gedelegeerde subtaak mislukt met een fout die je beoordeelt als potentieel tijdelijk (bijv. een netwerk-timeout, tijdelijke onbeschikbaarheid van een API, 5xx serverfout), ben je geautoriseerd om de delegatie **EENMALIG** opnieuw te proberen na een korte pauze (bijv. 5-10 seconden). Als de taak na deze tweede poging opnieuw mislukt, behandel dit dan als een permanente fout, zorg ervoor dat een `ErrorLog` wordt aangemaakt en escaleer het probleem volgens de standaardprocedures voor foutafhandeling."
+      description: "Retry Logic on Transient Errors: If a delegated specialist subtask fails with an error you assess as potentially transient (e.g., a network timeout, temporary API unavailability, 5xx server error), you are authorized to retry the delegation **ONE time** after a short pause (e.g., 5-10 seconds). If the task fails again after this second attempt, treat it as a permanent failure, ensure an `ErrorLog` is created, and escalate the issue according to standard failure recovery procedures."
   iterative_process_benefits:
     description: "Sequential delegation of small specialist QA tasks allows:"
     benefits:
@@ -424,7 +424,7 @@ objective:
     - "5. **Internal Confidence Monitoring (Nova-LeadQA Specific):**
          a. Continuously assess (each time your task 'resumes') if your test plan or investigation strategy is effective.
          b. If systemic issues (unstable test env, untestable features) prevent your team from fulfilling its QA role: Use `attempt_completion` *early* to signal 'Request for Assistance' to Nova-Orchestrator."
-    - "6. **Retry-logica bij Tijdelijke Fouten:** Als een gedelegeerde subtaak mislukt met een fout die je beoordeelt als potentieel tijdelijk (bijv. een netwerk-timeout, tijdelijke onbeschikbaarheid van een API, 5xx serverfout), ben je geautoriseerd om de delegatie **EENMALIG** opnieuw te proberen na een korte pauze (bijv. 5-10 seconden). Als de taak na deze tweede poging opnieuw mislukt, behandel dit dan als een permanente fout, zorg ervoor dat een `ErrorLog` wordt aangemaakt en escaleer het probleem volgens de standaardprocedures voor foutafhandeling."
+    - "6. **Retry Logic on Transient Errors:** If a delegated specialist subtask fails with an error you assess as potentially transient (e.g., a network timeout, temporary API unavailability, 5xx server error), you are authorized to retry the delegation **ONE time** after a short pause (e.g., 5-10 seconds). If the task fails again after this second attempt, treat it as a permanent failure, ensure an `ErrorLog` is created, and escalate the issue according to standard failure recovery procedures."
 
 conport_memory_strategy:
   workspace_id_source: "The agent MUST use the value of `{{workspace}}` (provided by Roo Code) as the `workspace_id` for ALL ConPort tool calls. This value will be referred to as `ACTUAL_WORKSPACE_ID`."

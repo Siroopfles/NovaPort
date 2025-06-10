@@ -56,10 +56,48 @@
         *   Verify key deliverables.
         *   Update top-level `Progress` (integer `id`) to "Specification & Design Complete, Development Pending".
 
+**Phase NF.1.5: Definition of Ready (DoR) Check for Development Phase**
+
+2.  **Nova-Orchestrator: Verify DoR for Development**
+    *   **Trigger:** Activated after Design Phase (NF.1) and before delegating the Development phase (NF.2).
+    *   **Step 1: Get DoR Criteria**
+        *   **Action:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve `CustomData ProjectStandards:DefaultDoR`. If not found, use a default list: ["Approved Architecture Document", "Finalized API Specifications", "Feature Scope Defined", "Acceptance Criteria Defined"].
+        *   **Output:** `DoR_Criteria_List`.
+    *   **Step 2: Verify Criteria**
+        *   **Action:** For each criterion in `DoR_Criteria_List`:
+            *   Verify `FeatureScope` and `AcceptanceCriteria` (from Phase NF.1 output) exist.
+            *   Verify key `SystemArchitecture` and `APIEndpoints` items (from NF.1 output) exist and have `status: "APPROVED"` or `status: "FINAL"`.
+        *   **Output:** `Verification_Results` (list of pass/fail for each criterion).
+    *   **Step 3: Conditional Gateway**
+        *   **Condition:** Are all criteria in `Verification_Results` marked as 'pass'?
+        *   **Path A (YES - Success):**
+            *   **Action:** Log a `Decision`: "DoR check for Development of Feature [FeatureName] passed."
+            *   **Next Step:** Proceed to Phase NF.2.
+        *   **Path B (NO - Failure):**
+            *   **Action:** Pause this workflow. Identify and list the `Failed_Criteria`.
+            *   **Action:** Delegate a new preparatory subtask to `Nova-LeadArchitect`.
+            *   **`new_task` message for Nova-LeadArchitect:**
+                ```json
+                {
+                  "Context_Path": "Feature [FeatureName] (Orchestrator) -> DoR Remediation for Development (LeadArchitect)",
+                  "Phase_Goal": "Remediate failing DoR criteria for the Development Phase of Feature [FeatureName].",
+                  "Lead_Mode_Specific_Instructions": [
+                    "The 'Definition of Ready' for the Development Phase has failed. The following criteria are not met: [List of Failed_Criteria].",
+                    "Your team must take action to meet these criteria. This may involve finalizing designs, securing approvals (simulated via user interaction if needed), or updating ConPort statuses.",
+                    "Report back via `attempt_completion` when all listed criteria are met."
+                  ],
+                  "Required_Input_Context": { "Failed_Criteria_List": "[...]" },
+                  "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Confirmation that all failed DoR criteria are now met."]
+                }
+                ```
+            *   **Action:** Await `attempt_completion` from Nova-LeadArchitect.
+            *   **Next Step:** Upon completion, loop back to the beginning of this Phase NF.1.5 to re-run the DoR check.
+
+
 **Phase NF.2: Feature Development & Unit/Integration Testing (Nova-Orchestrator -> Nova-LeadDeveloper)**
 
-2.  **Nova-Orchestrator: Delegate Feature Development**
-    *   **DoR Check:** `FeatureScope` (key), `AcceptanceCriteria` (key) for [FeatureName] are in ConPort. Any necessary architectural updates (`SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key)) are logged and approved. User confirms readiness.
+3.  **Nova-Orchestrator: Delegate Feature Development**
+    *   **DoR Check:** DoR for Development (Phase NF.1.5) has passed. User confirms readiness.
     *   **Action:** Update top-level `Progress` (integer `id`) to "DEVELOPMENT_PHASE".
     *   **Task:** "Delegate the development of [FeatureName] to Nova-LeadDeveloper."
     *   **`new_task` message for Nova-LeadDeveloper:**
@@ -96,10 +134,20 @@
         *   Verify deliverables.
         *   Update `Progress` (integer `id`) to "Development Complete, QA Pending".
 
+**Phase NF.2.5: Definition of Ready (DoR) Check for QA Phase**
+4.  **Nova-Orchestrator: Verify DoR for QA**
+    *   **Trigger:** Activated before delegating the QA phase.
+    *   **Step 1 & 2: Get & Verify DoR Criteria**
+        *   **Action:** Retrieve `CustomData ProjectStandards:DefaultDoR`. Check criteria like "Development Complete (All planned features implemented and unit/integration tested)", "Code merged to test branch", "Test Environment Ready".
+        *   Verify by checking `Progress` from development phase is "DONE", and `ProjectConfig` specifies a ready test environment.
+    *   **Step 3: Conditional Gateway**
+        *   **Path A (YES - Success):** Log success, proceed to Phase NF.3.
+        *   **Path B (NO - Failure):** Pause workflow. Delegate remediation task to `Nova-LeadDeveloper` (e.g., "Complete unfinished components", "Fix failing integration tests") or `Nova-LeadArchitect` (e.g., "Ensure test environment in `ProjectConfig` is correctly defined and available"). Await completion, then loop back to start of Phase NF.2.5.
+
 **Phase NF.3: Feature Quality Assurance & Testing (Nova-Orchestrator -> Nova-LeadQA)**
 
-3.  **Nova-Orchestrator: Delegate Feature QA**
-    *   **DoR Check:** Feature development reported as complete. Feature is in a testable state.
+5.  **Nova-Orchestrator: Delegate Feature QA**
+    *   **DoR Check:** DoR for QA (Phase NF.2.5) has passed.
     *   **Action:** Update top-level `Progress` (integer `id`) to "QA_PHASE".
     *   **Task:** "Delegate the QA and testing for the newly implemented [FeatureName] to Nova-LeadQA."
     *   **`new_task` message for Nova-LeadQA:**
@@ -137,14 +185,14 @@
 
 **Phase NF.4: Feature Integration & Documentation Update (Nova-Orchestrator -> relevant Leads)**
     *(This might be folded into the end of QA or become part of a broader release workflow like WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md)*
-4.  **Nova-Orchestrator: Coordinate Final Integration & Documentation**
+6.  **Nova-Orchestrator: Coordinate Final Integration & Documentation**
     *   **Action:**
         *   Delegate to Nova-LeadDeveloper: Briefing to ensure feature branch is merged to main (conceptual, no git tools directly), final build checks, and update any developer-facing documentation.
         *   Delegate to Nova-LeadArchitect: Briefing to ensure their team (CodeDocumenter via LeadDev or WorkflowManager/ConPortSteward via LeadArch) updates all project documentation (`SystemArchitecture` (key), user docs, `DefinedWorkflows` (key)) to include the new feature.
     *   **Output:** Feature fully integrated. All documentation updated.
 
 **Phase NF.5: Closure for Feature Cycle (Nova-Orchestrator)**
-5.  **Nova-Orchestrator: Finalize Feature Cycle**
+7.  **Nova-Orchestrator: Finalize Feature Cycle**
     *   **Action:**
         *   Log `Decision` (integer `id`) confirming successful integration of [FeatureName] using `use_mcp_tool` (`tool_name: 'log_decision'`).
         *   Update top-level `Progress` (integer `id`) for "Feature [FeatureName] Delivery" to "COMPLETED" using `use_mcp_tool` (`tool_name: 'update_progress'`).

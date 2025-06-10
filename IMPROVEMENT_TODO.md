@@ -28,11 +28,11 @@ These improvements focus on increasing the robustness and intelligence of the co
         *   Using `use_mcp_tool` (`get_custom_data`, etc.) to verify that all prerequisite ConPort items (e.g., `ProjectConfig:ActiveConfig`, `AcceptanceCriteria:[key]`) exist.
         *   Checking that prerequisite items have the correct status (e.g., the `SystemArchitecture` design is 'APPROVED', not 'DRAFT').
         *   If a check fails, the workflow must instruct the Lead to report a specific, actionable blocker to the Orchestrator.
-- [x] **2.2. Implement Retry Logic in Lead Mode Prompts**
+- [X] **2.2. Implement Retry Logic in Lead Mode Prompts**
     *   **Rationale:** Delegation failures due to transient issues (e.g., temporary network errors) are inefficient. Building simple retry logic into the Lead modes' behavior increases system resilience without requiring system-level changes.
     *   **Action Item:** Update the `task_execution_protocol` in the prompts for all Lead Modes (`Nova-LeadArchitect`, `Nova-LeadDeveloper`, `Nova-LeadQA`). Add a rule stating: "If a delegated specialist sub-task fails with an error you assess as potentially transient (e.g., a network timeout, temporary API unavailability), you are authorized to retry the delegation ONE time after a short delay. If the task fails a second time, treat it as a permanent failure, ensure an `ErrorLog` is created, and escalate the issue as per standard failure recovery procedures."
 
-- [ ] **2.3. Formalize "Definition of Ready" (DoR) Checks**
+- [X] **2.3. Formalize "Definition of Ready" (DoR) Checks**
     *   **Rationale:** "Definition of Ready" is a key agile principle that is currently only implicitly assumed. Formalizing it will prevent phases from starting with incomplete prerequisites, improving quality and reducing rework.
     *   **Action Item:** Modify the primary orchestration workflows (`WF_ORCH_NEW_PROJECT...`, `WF_ORCH_EXISTING_PROJECT...`). Before delegating a major phase (like 'Development' or 'QA'), the `Nova-Orchestrator` must now perform an explicit DoR check. This involves retrieving the `CustomData ProjectStandards:DefaultDoR` item and verifying that each criterion is met by checking other ConPort items. If the DoR fails, the Orchestrator must delegate a preparatory task (typically to `Nova-LeadArchitect`) to fulfill the missing criteria.
 
@@ -96,3 +96,5 @@ Improving the human-computer interface and providing better insight into the sys
 - **1.5. Standardize All `use_mcp_tool` Examples Across All Prompts:** Completed. All system prompts now contain a `conport_tool_reference` section or updated examples in-line to provide clear, complete, and syntactically correct JSON templates for all relevant ConPort tool arguments.
 - **1.6. Standardize `Subtask Briefing Object` Examples in Workflows:** Completed. All workflow files have been reviewed and updated to include explicit, standardized JSON examples and instructions for `use_mcp_tool` calls, aligning them with the hardened system prompts.
 - **2.1. Introduce Proactive "Pre-flight Checks" in Critical Workflows:** Completed. A new `Phase 0: Pre-flight Checks` section was added to all identified critical workflows to validate prerequisites before execution.
+- **2.2. Implement Retry Logic in Lead Mode Prompts:** Completed. A rule has been added to the `task_execution_protocol` in the prompts for Nova-LeadArchitect, Nova-LeadDeveloper, and Nova-LeadQA, authorizing a single retry for subtasks that fail with a potentially transient error.
+- **2.3. Formalize "Definition of Ready" (DoR) Checks:** Completed. The main orchestration workflows (`WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md`, `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`) have been updated to include explicit DoR verification blocks before delegating major project phases.
