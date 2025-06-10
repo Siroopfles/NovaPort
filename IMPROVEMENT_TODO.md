@@ -40,7 +40,7 @@ These improvements focus on increasing the robustness and intelligence of the co
 
 Making the agents smarter and more efficient within their strictly defined roles.
 
-- [x] **3.1. Bounded Autonomy for Trivial Fixes by Specialists**
+- [X] **3.1. Bounded Autonomy for Trivial Fixes by Specialists**
     *   **Rationale:** A specialist finding a trivial, directly related error (e.g., a typo in a comment, an obvious off-by-one error in code they just wrote) and having to fail their entire sub-task is inefficient. Granting bounded autonomy for such minor fixes streamlines the process.
     *   **Action Item:** Add a specific rule to the prompts of `Nova-SpecializedFeatureImplementer` and `Nova-SpecializedCodeRefactorer`: "If you find a trivial, directly related, and demonstrably correctable issue *in the code you are currently working on*, you are authorized to fix it, log a `Decision` item in ConPort with the rationale for the fix, and report both the original task completion and the trivial fix in your `attempt_completion`."
 
@@ -76,7 +76,7 @@ Improving the human-computer interface and providing better insight into the sys
         5.  A list of the 3 most critical open `ErrorLogs`.
         The output is a single, consolidated Markdown file saved to `.nova/reports/onboarding/` that gives a new developer a complete snapshot of the project's technical state and current priorities.
 
-- [ ] **4.4. Structured "Decision Support Briefings"**
+- [X] **4.4. Structured "Decision Support Briefings"**
     *   **Rationale:** Key strategic decisions are often presented to the user with a simple question. This can lack the necessary context for the user to make a well-informed choice quickly, slowing down the project.
     *   **Action Item:** Update the `ask_followup_question` usage instructions in all **Lead Mode** prompts. Add the following rule: "When a strategic choice must be made by the user, you MUST format your question as a 'Decision Support Briefing'. This includes a clear context, 2-3 distinct options, a summary of pros and cons for each, and your team's recommendation. This structured format helps the user make faster, better-informed decisions."
 
@@ -98,4 +98,6 @@ Improving the human-computer interface and providing better insight into the sys
 - **2.1. Introduce Proactive "Pre-flight Checks" in Critical Workflows:** Completed. A new `Phase 0: Pre-flight Checks` section was added to all identified critical workflows to validate prerequisites before execution.
 - **2.2. Implement Retry Logic in Lead Mode Prompts:** Completed. A rule has been added to the `task_execution_protocol` in the prompts for Nova-LeadArchitect, Nova-LeadDeveloper, and Nova-LeadQA, authorizing a single retry for subtasks that fail with a potentially transient error.
 - **2.3. Formalize "Definition of Ready" (DoR) Checks:** Completed. The main orchestration workflows (`WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md`, `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`) have been updated to include explicit DoR verification blocks before delegating major project phases.
+- **3.1. Bounded Autonomy for Trivial Fixes by Specialists:** Completed. A rule has been added to the prompts of `Nova-SpecializedFeatureImplementer` and `Nova-SpecializedCodeRefactorer` authorizing them to fix trivial, related issues within their current task scope, provided they log the action as a `Decision`.
 - **3.2. Implement a System Self-Improvement Cycle:** Completed. A new workflow `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md` was created. This allows the Orchestrator to delegate a process friction analysis to `Nova-FlowAsk`, which is guided by a new ConPort configuration item `NovaSystemConfig:ProcessFrictionHeuristics_v1`. Based on the analysis, `Nova-LeadArchitect` formulates a concrete improvement proposal for user approval. The bootstrap workflow `WF_PROJ_INIT_001_NewProjectBootstrap.md` was updated to create the new heuristics config item by default, and the `nova-orchestrator` prompt was updated to reflect this new capability.
+- **4.4. Structured "Decision Support Briefings":** Completed. The instruction to use a structured "Decision Support Briefing" format has been added to the `ask_followup_question` usage rules in all Lead Mode prompts to improve the quality and speed of user decision-making.
