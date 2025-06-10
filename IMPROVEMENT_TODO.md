@@ -40,7 +40,7 @@ These improvements focus on increasing the robustness and intelligence of the co
 
 Making the agents smarter and more efficient within their strictly defined roles.
 
-- [ ] **3.1. Bounded Autonomy for Trivial Fixes by Specialists**
+- [x] **3.1. Bounded Autonomy for Trivial Fixes by Specialists**
     *   **Rationale:** A specialist finding a trivial, directly related error (e.g., a typo in a comment, an obvious off-by-one error in code they just wrote) and having to fail their entire sub-task is inefficient. Granting bounded autonomy for such minor fixes streamlines the process.
     *   **Action Item:** Add a specific rule to the prompts of `Nova-SpecializedFeatureImplementer` and `Nova-SpecializedCodeRefactorer`: "If you find a trivial, directly related, and demonstrably correctable issue *in the code you are currently working on*, you are authorized to fix it, log a `Decision` item in ConPort with the rationale for the fix, and report both the original task completion and the trivial fix in your `attempt_completion`."
 
