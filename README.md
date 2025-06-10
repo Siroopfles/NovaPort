@@ -257,7 +257,7 @@ graph TD
 ConPort is the backbone of the Nova system. It is a workspace-specific SQLite database (typically `context_portal/context.db`) that stores all project-related information, from high-level goals and architectural decisions to code snippets, bug reports, and configuration settings. All Nova modes interact with ConPort via a standardized Model Context Protocol (MCP) server (based on [github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal)) and its tools (primarily `use_mcp_tool`), ensuring consistency, traceability, and a shared understanding of the project state.
 
 ### Nova Modes
-Nova modes are specialized AI agents, each with its own `system-prompt-mode-*.md` file defining its identity, responsibilities, tools, and behavioral rules. This configuration uses **custom system prompts**, an experimental feature of the [Roo Code](https://docs.roocode.com/) execution environment. There is a hierarchical structure:
+Nova modes are specialized AI agents, each with its own `system-prompt-nova-*.md` file defining its identity, responsibilities, tools, and behavioral rules. This configuration uses **custom system prompts**, an experimental feature of the [Roo Code](https://docs.roocode.com/) execution environment. There is a hierarchical structure:
 *   **Nova-Orchestrator:** The main project coordinator.
 *   **Lead Modes:** (Nova-LeadArchitect, Nova-LeadDeveloper, Nova-LeadQA) Receive phase-tasks from the Orchestrator and manage their own teams of Specialized Modes.
 *   **Specialized Modes:** Execute specific, focused sub-tasks under the direction of a Lead Mode.
@@ -269,9 +269,9 @@ Each mode operates sequentially; only one mode is active at any given time.
 Workflows are standardized, documented processes stored as Markdown files in the `.nova/workflows/` directory (with subdirectories per mode, e.g., `.nova/workflows/nova-orchestrator/`). They describe the steps, actors, triggers, ConPort interactions, and expected deliverables for executing complex tasks or project phases (e.g., setting up a new project, implementing a feature, resolving a bug). Modes (especially the Orchestrator and Leads) consult these workflows to guide their actions. The `DefinedWorkflows` category in ConPort stores metadata about these workflow files.
 
 ### Delegation and Communication
-Communication and task delegation within Nova are structured:
-*   **`new_task`:** The primary tool by which a higher-level mode (Orchestrator or Lead) delegates a task to a lower-level mode (Lead or Specialist). The `message` parameter contains a detailed `Subtask Briefing Object` (JSON/YAML-like) that defines the context, goals, instructions, and expected deliverables for the (sub)task.
-*   **`attempt_completion`:** The standard way a mode (Lead or Specialist) reports the completion of its assigned (phase)task back to its calling mode. The `result` parameter contains a summary of outcomes, references to ConPort items, and any new issues discovered.
+Communication and task delegation within Nova are structured to maximize clarity and reduce ambiguity.
+*   **`new_task`:** The primary tool by which a higher-level mode (Orchestrator or Lead) delegates a task to a lower-level mode (Lead or Specialist). To ensure reliability, the `message` parameter MUST be a structured **`Subtask Briefing Object`** (in YAML or JSON format). This object explicitly defines the context, goals, specific instructions, input references (e.g., ConPort item keys), and expected deliverables for the (sub)task. This structured approach is a core principle of the Nova system's robustness.
+*   **`attempt_completion`:** The standard way a mode (Lead or Specialist) reports the completion of its assigned (phase)task back to its calling mode. The `result` parameter contains a structured summary of outcomes, references to ConPort items created or modified, and any new issues discovered.
 
 ### Workspace
 Each Nova project operates within a specific workspace, identified by `ACTUAL_WORKSPACE_ID` (typically the absolute path to the project directory). All file operations and ConPort interactions are relative to this workspace. ConPort creates a separate database and vector store for each workspace, ensuring data isolation.
@@ -447,12 +447,12 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 > Users should proceed with a high degree of caution and be fully aware of the potential for instability and unexpected outcomes. A strong understanding of the Roo Code execution model and the nuanced implications of custom prompting is highly recommended before extensive use or modification of this system. This configuration is provided as an advanced example and may require significant tuning and adaptation for reliable operation in different scenarios.
 
 ## Key Operational Principles
-*   **Structured Delegation:** Tasks are delegated top-down with clear `Subtask Briefing Objects`.
-*   **Sequential Processing:** Only one AI mode is active at a time. Modes await `attempt_completion` before proceeding.
+*   **Structured Delegation:** Tasks are delegated top-down with clear, structured **`Subtask Briefing Objects`** to minimize ambiguity.
+*   **Sequential Processing:** Only one AI mode is active at a time. Modes await `attempt_completion` from subordinates before proceeding.
 *   **ConPort as Central Hub:** All significant information is logged to ConPort, serving as the collective memory.
-*   **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented.
+*   **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented in ConPort and `.nova/` files.
 *   **Specialization:** Modes have clearly defined roles and responsibilities.
-*   **Definition of Done (DoD) / Definition of Ready (DoR):** Implied or explicit principles used to ensure the quality of deliverables and readiness for subsequent phases.
+*   **Definition of Done (DoD) / Definition of Ready (DoR):** The system uses these agile principles as automated or explicit checks to ensure the quality of deliverables and readiness for subsequent phases, preventing work from starting on an unstable foundation.
 *   **Experimental Awareness:** Given the use of custom system prompts, users should be prepared for a higher degree of variability in mode behavior and may need to iterate on prompts or workflows more frequently.
 
 ## Session Management
