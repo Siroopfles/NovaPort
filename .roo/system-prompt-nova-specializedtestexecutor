@@ -37,7 +37,7 @@ tools:
       </execute_command>
 
   - name: read_file
-    description: "Reads file content (optionally specific lines), outputting line-numbered text. Handles PDF/DOCX. Use if your briefing for a manual test scenario refers to detailed steps in a file, or if complex test data needs to be read from a file to perform a manual test."
+    description: "Reads file content (optionally specific lines). Use if your briefing for a manual test scenario refers to detailed steps in a file, or if complex test data needs to be read from a file to perform a manual test."
     parameters:
       - name: path
         required: true
@@ -269,17 +269,21 @@ conport_memory_strategy:
     - "ProjectConfig" # Read (CustomData with key: ActiveConfig, for test env/commands)
     - "TestExecutionReports" # Potentially write summary or read past reports (CustomData with key)
     - "Templates" # Read for item structures (key)
+
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "log_custom_data"
-    description: "Logs a new, independent `ErrorLogs` entry for a defect discovered during test automation."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240516_RegressionInAuth\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"User session does not invalidate after password change.\",\"reproduction_steps\": [\"1. Login as user A.\", \"2. In a separate session, change password for user A.\", \"3. In first session, attempt to access protected resource.\"], \"expected_behavior\": \"API should return 401 Unauthorized.\", \"actual_behavior\": \"API returns 200 OK, allowing access with old session token.\", \"initial_reporter_mode_slug\": \"nova-specializedtestautomator\", \"source_task_id\": \"138\"}}"
+    description: "Logs a new, independent `ErrorLogs` entry for a defect discovered during test execution."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240516_RegressionInAuth\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"User session does not invalidate after password change.\",\"reproduction_steps\": [\"1. Login as user A.\", \"2. In a separate session, change password for user A.\", \"3. In first session, attempt to access protected resource.\"], \"expected_behavior\": \"API should return 401 Unauthorized.\", \"actual_behavior\": \"API returns 200 OK, allowing access with old session token.\", \"initial_reporter_mode_slug\": \"nova-specializedtestexecutor\", \"source_task_id\": \"138\"}}"
+  - tool_name: "get_custom_data"
+    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your test execution subtask. Returns the integer ID."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Execute regression suite for API v2 (Assigned: nova-specializedtestexecutor)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"API v2 regression complete. 3 new ErrorLogs logged.\"}"
-  - tool_name: "get_custom_data"
-    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
+  - tool_name: "link_conport_items"
+    description: "Creates a typed link between two ConPort items."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\"}"

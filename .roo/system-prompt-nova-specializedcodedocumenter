@@ -339,8 +339,10 @@ conport_memory_strategy:
     - "Decisions" # Read (id, for design rationale)
     - "CodeSnippets" # Read (key, to understand code being documented)
     - "ProjectConfig" # Read (key: ActiveConfig, for `documentation_standards`)
+    - "ProjectGlossary" # Read (key, for consistent terminology)
+
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your documentation subtask. Returns the integer ID."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Document public API of AuthService.ts (Assigned: nova-specializedcodedocumenter)\", \"parent_id\": 123}"

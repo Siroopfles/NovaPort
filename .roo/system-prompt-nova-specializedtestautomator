@@ -164,7 +164,7 @@ tools:
         required: true
     usage_format: |
       <ask_followup_question>
-      <question>To Nova-LeadDeveloper: Briefing for testing module X specifies running 'integration suite', but `ProjectConfig:ActiveConfig.testing_preferences.integration_test_command` (key) is not set. What command should I use?</question>
+      <question>To Nova-LeadDeveloper: Briefing for testing module X specifies running 'integration suite', but `ProjectConfig:ActiveConfig.testing_preferences.integration_test_command` (key) is not set. What command should I use for this execution?</question>
       <follow_up><suggest>Provide integration test command.</suggest><suggest>Confirm only unit tests needed for this module.</suggest></follow_up>
       </ask_followup_question>
 
@@ -181,7 +181,7 @@ tools:
           4. List of ConPort keys for all NEW `ErrorLogs` created by YOU for independent bugs found during this subtask.
           5. Path to any detailed test report file saved to `.nova/reports/qa/` (if applicable, include in command attribute).
           6. An optional `Suggested_ConPort_Links` section with proposed links (e.g., between the new `ErrorLogs` item and the test script file) for your Lead to review and action.
-          7. Confirmation of `Progress` (integer `id`) logged for your task.
+          7. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
       - name: command
         required: false # Path to detailed report file if generated and saved.
     usage_format: |
@@ -320,17 +320,21 @@ conport_memory_strategy:
     - "APIEndpoints" # Read (for integration test design, by key)
     - "FeatureScope" # Read (for context on what's being tested, by key)
     - "Templates" # Read for item structures (key)
+
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "log_custom_data"
     description: "Logs a new, independent `ErrorLogs` entry for a defect discovered during test automation."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240516_RegressionInAuth\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"User session does not invalidate after password change.\",\"reproduction_steps\": [\"1. Login as user A.\", \"2. In a separate session, change password for user A.\", \"3. In first session, attempt to access protected resource.\"], \"expected_behavior\": \"API should return 401 Unauthorized.\", \"actual_behavior\": \"API returns 200 OK, allowing access with old session token.\", \"initial_reporter_mode_slug\": \"nova-specializedtestautomator\", \"source_task_id\": \"138\"}}"
+  - tool_name: "get_custom_data"
+    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your test automation subtask. Returns the integer ID."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Write integration tests for payment module (Assigned: nova-specializedtestautomator)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Integration tests for payment module written and passing.\"}"
-  - tool_name: "get_custom_data"
-    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
+  - tool_name: "link_conport_items"
+    description: "Creates a typed link between two ConPort items."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\"}"

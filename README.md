@@ -52,7 +52,7 @@
 
 ## Installation
 
-You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.2.0-beta`). For most users, **installing a specific version is recommended for stability.**
+You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.2.5-beta`). For most users, **installing a specific version is recommended for stability.**
 
 The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
 
@@ -60,7 +60,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.2-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.5-beta`):
 1.  Download the installation script:
     ```bash
     curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
@@ -71,7 +71,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
     ```
 3.  Run the script, passing the desired version number as an argument:
     ```bash
-    ./install_nova_modes.sh v0.2.2-beta
+    ./install_nova_modes.sh v0.2.5-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -86,14 +86,14 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.2-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.5-beta`):
 1.  Download the installation script:
     ```powershell
     Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
     ```
 2.  Run the script, passing the desired version using the `-Version` parameter:
     ```powershell
-    .\install_nova_modes.ps1 -Version v0.2.2-beta
+    .\install_nova_modes.ps1 -Version v0.2.5-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):

@@ -2,7 +2,7 @@
 # It selectively downloads only the .nova and .roo directories, plus .roomodes and README.md.
 # It accepts an optional -Version parameter (e.g., -Version v0.2.0-beta). Defaults to 'main'.
 param(
-    [string]$Version = "main"
+    [string]$Version = "v0.2.5-beta"
 )
 
 # --- Configuration ---
