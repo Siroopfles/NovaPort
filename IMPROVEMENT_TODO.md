@@ -30,7 +30,7 @@ These improvements focus on increasing the robustness and intelligence of the co
         *   If a check fails, the workflow must instruct the Lead to report a specific, actionable blocker to the Orchestrator.
 - [X] **2.2. Implement Retry Logic in Lead Mode Prompts**
     *   **Rationale:** Delegation failures due to transient issues (e.g., temporary network errors) are inefficient. Building simple retry logic into the Lead modes' behavior increases system resilience without requiring system-level changes.
-    *   **Action Item:** Update the `task_execution_protocol` in the prompts for all Lead Modes (`Nova-LeadArchitect`, `Nova-LeadDeveloper`, `Nova-LeadQA`). Add a rule stating: "If a delegated specialist sub-task fails with an error you assess as potentially transient (e.g., a network timeout, temporary API unavailability), you are authorized to retry the delegation ONE time after a short delay. If the task fails a second time, treat it as a permanent failure, ensure an `ErrorLog` is created, and escalate the issue as per standard failure recovery procedures."
+    *   **Action Item:** Update the `task_execution_protocol` in the prompts for all Lead Modes (`Nova-LeadArchitect`, `Nova-LeadDeveloper`, `Nova-LeadQA`). Add a rule stating: "If a delegated specialist sub-task fails with an error you assess as potentially transient (e.g., a network timeout, temporary API unavailability), you are authorized to retry the delegation **ONE time** after a short delay. If the task fails a second time, you MUST treat it as a permanent failure, ensure an `ErrorLog` is created for it, and escalate the issue according to standard failure recovery procedures."
 
 - [X] **2.3. Formalize "Definition of Ready" (DoR) Checks**
     *   **Rationale:** "Definition of Ready" is a key agile principle that is currently only implicitly assumed. Formalizing it will prevent phases from starting with incomplete prerequisites, improving quality and reducing rework.
@@ -47,8 +47,9 @@ Making the agents smarter and more efficient within their strictly defined roles
 - [X] **3.2. Implement a System Self-Improvement Cycle**
     *   **Rationale:** The system should learn from its own operations. Currently, improvements are externally driven. A formal retrospective cycle will enable the system to identify and propose its own enhancements.
     *   **Action Item:** Create a new workflow: `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md`. This workflow will guide the `Nova-Orchestrator` to:
-        1.  Delegate a task to `Nova-FlowAsk` to analyze ConPort for patterns indicative of process friction (e.g., frequently failing workflows, sub-tasks with high retry counts, clusters of `ErrorLogs` in a specific domain).
-        2.  Based on this analysis, delegate a follow-up task to `Nova-LeadArchitect` to perform a formal `ImpactAnalysis` and log a `Decision` item. This decision will contain a concrete proposal for a system improvement (e.g., a prompt modification, a workflow optimization) for the user to approve.
+        1.  Delegate a task to `Nova-FlowAsk` to analyze ConPort for patterns indicative of process friction. This analysis **must be guided by a new ConPort item**: `CustomData NovaSystemConfig:ProcessFrictionHeuristics_v1`. This item will contain a structured JSON object defining specific `use_mcp_tool` queries for `FlowAsk` to run (e.g., "Find all `Progress` items with status 'BLOCKED'", "Count `ErrorLogs` with a 'REOPENED' status").
+        2.  Based on this data-driven analysis from `FlowAsk`, delegate a follow-up task to `Nova-LeadArchitect` to perform a formal `ImpactAnalysis` and log a `Decision` item. This decision will contain a concrete proposal for a system improvement (e.g., a prompt modification, a workflow optimization) for the user to approve.
+        3.  The `WF_PROJ_INIT_001_NewProjectBootstrap.md` workflow must be updated to create the `ProcessFrictionHeuristics_v1` configuration item by default, so this capability is available in all new projects.
 
 ## 4. Developer Experience & System Visibility
 

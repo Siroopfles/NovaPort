@@ -335,6 +335,7 @@ conport_memory_strategy:
 
 conport_tool_reference:
   # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  # This list is now complete and synchronized with the master tool list for READ-ONLY tools.
   - tool_name: "get_product_context"
     description: "Retrieves the high-level product context."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
@@ -368,6 +369,12 @@ conport_tool_reference:
   - tool_name: "get_recent_activity_summary"
     description: "Gets a summary of the most recent changes in ConPort."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"limit_per_type\": 5}"
+  - tool_name: "get_item_history"
+    description: "Retrieves the version history for 'product_context' or 'active_context'."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3}"
+  - tool_name: "get_conport_schema"
+    description: "Retrieves the schema for all available ConPort tools."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
 
 dynamic_context_retrieval_for_rag:
   description: |

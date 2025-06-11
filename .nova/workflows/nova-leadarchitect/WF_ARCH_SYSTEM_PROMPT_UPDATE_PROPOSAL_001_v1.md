@@ -37,7 +37,7 @@
         *   Use `ask_followup_question`:
             *   Question: "I propose an update to the system prompt for `[ModeSlug]` to address [problem]. The details and rationale are in `Decision:[DecisionID]`. Do you approve this change?"
             *   Suggestions: ["Yes, I approve the change.", "No, I reject the change.", "I have questions about the implications."]
-    *   **DoR Check for next step:** Await explicit user approval. If rejected, update the `Decision` (integer `id`) status to 'REJECTED' and close the `Progress` item.
+    *   **DoR Check for next step:** Await explicit user approval. If rejected, update the `Decision` (integer `id`) status to 'REJECTED' (using `log_decision` with the existing `decision_id`) and close the `Progress` item.
 
 **Phase SPU.2: Implementation**
 
@@ -72,7 +72,7 @@
         ```
     *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:**
         *   Verify the file change using `read_file`.
-        *   Update the `Decision:[DecisionID]` status to 'IMPLEMENTED' using `use_mcp_tool` (`tool_name: 'update_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"decision_id\": [DecisionID_as_integer], \"status\": \"Implemented\"}`).
+        *   Update the `Decision:[DecisionID]` status to 'IMPLEMENTED' using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"decision_id\": [DecisionID_as_integer], \"status\": \"IMPLEMENTED\"}`).
 
 **Phase SPU.3: Closure**
 

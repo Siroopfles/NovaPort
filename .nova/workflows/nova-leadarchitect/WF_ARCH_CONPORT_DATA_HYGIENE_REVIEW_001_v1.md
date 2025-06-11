@@ -35,8 +35,8 @@
           "Specialist_Specific_Instructions": [
             "Log your own detailed `Progress` (integer `id`), parented to `[HygieneProgressID_as_integer]`, using `use_mcp_tool`.",
             "1. **Retrieve Scan Parameters:** Get staleness criteria (e.g., `staleness_threshold_days: 180`) from `NovaSystemConfig:ActiveSettings.data_hygiene_policy` or use defaults provided by LeadArchitect.",
-            "2. **Scan `Decisions`:** Use `use_mcp_tool` (`tool_name: 'get_decisions'`) to retrieve decisions older than the threshold. For each stale decision, log a new `CustomData ArchivalCandidates` entry. The `key` should be `Decision_[ID]` and the `value` should be a JSON object: `{\"original_item_type\": \"decision\", \"original_item_id\": \"[ID]\", \"reason\": \"Decision logged over [X] days ago and has no recent links.\", \"status\": \"candidate\"}`.",
-            "3. **Scan `SystemArchitecture`:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `category`: 'SystemArchitecture') to get architecture items. Check their `last_updated_timestamp` (if available in value) against the threshold. For each stale item, log a corresponding `ArchivalCandidates` entry.",
+            "2. **Scan `Decisions`:** The `get_decisions` tool does not support date filtering. Therefore, you must use `use_mcp_tool` (`tool_name: 'get_decisions'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\"}`) to retrieve ALL decisions. Then, iterate through the results and filter them locally in your logic to identify decisions with a `timestamp` older than the threshold. For each stale decision, log a new `CustomData ArchivalCandidates` entry. The `key` should be `Decision_[ID]` and the `value` should be a JSON object: `{\"original_item_type\": \"decision\", \"original_item_id\": \"[ID]\", \"reason\": \"Decision logged over [X] days ago and has no recent links.\", \"status\": \"candidate\"}`. Use `use_mcp_tool` with `tool_name: 'log_custom_data'` to log this.",
+            "3. **Scan `SystemArchitecture`:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"SystemArchitecture\"}`) to get all architecture items. Check their `last_updated_timestamp` (if available in value) against the threshold. For each stale item, log a corresponding `ArchivalCandidates` entry.",
             "4. **Compile List:** Keep a list of all `ArchivalCandidates` keys you have created."
           ],
           "Required_Input_Context_For_Specialist": {
@@ -76,10 +76,10 @@
             "Log your own detailed `Progress` (integer `id`), parented to `[HygieneProgressID_as_integer]`, using `use_mcp_tool`.",
             "For each approved `ArchivalCandidates` key provided:",
             "  1. Retrieve the `ArchivalCandidates` item to get the original item's type and ID/key.",
-            "  2. **Retrieve the original item** (e.g., `get_decisions` for a decision, `get_custom_data` for a SystemArchitecture item).",
+            "  2. **Retrieve the original item** (e.g., using `get_decisions` for a decision, `get_custom_data` for a SystemArchitecture item).",
             "  3. **Modify the item's summary/description:** Prepend `[ARCHIVED ON YYYY-MM-DD]` to the existing summary or description text.",
-            "  4. **Update the original item** using the appropriate tool (`update_decision` or `log_custom_data` to overwrite).",
-            "  5. **Update the `ArchivalCandidates` item's status** to 'archived'."
+            "  4. **Update the original item** using the appropriate tool. For a Decision, use `log_decision`, providing the original `decision_id` and the updated summary. For CustomData, use `log_custom_data` to overwrite the key with the updated value object.",
+            "  5. **Update the `ArchivalCandidates` item's status** to 'archived' using `get_custom_data` followed by `log_custom_data`."
           ],
           "Required_Input_Context_For_Specialist": {
             "Parent_Progress_ID_as_integer": "[HygieneProgressID_as_integer]",
