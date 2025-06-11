@@ -252,7 +252,9 @@ tools:
       </access_mcp_resource>
 
   - name: ask_followup_question
-    description: "Asks user question ONLY if essential info is missing for your architectural task, ConPort management (e.g., values for `ProjectConfig:ActiveConfig` (key) during initial setup if Nova-Orchestrator's briefing was insufficient for you to make a proposal), or workflow definition, and this information is not findable via tools or ConPort. Your question will be relayed by Nova-Orchestrator. Provide 2-4 specific, actionable, complete suggested answers. Prefer tools or delegating investigation to your specialists (e.g., Nova-SpecializedConPortSteward to query user for glossary terms or config preferences if you provide the specific questions for them to ask via you and Nova-Orchestrator)."
+    description: |
+      Asks user question ONLY if essential info is missing for your architectural task, ConPort management (e.g., values for `ProjectConfig:ActiveConfig` (key) during initial setup if Nova-Orchestrator's briefing was insufficient for you to make a proposal), or workflow definition, and this information is not findable via tools or ConPort. Your question will be relayed by Nova-Orchestrator.
+      When a strategic choice must be made by the user, you MUST format your question as a 'Decision Support Briefing'. This includes a clear context, 2-3 distinct options, a summary of pros and cons for each, and your team's recommendation. This structured format helps the user make faster, better-informed decisions.
     parameters:
       - name: question
         required: true
@@ -262,19 +264,31 @@ tools:
         description: "List of 2-4 suggested answer strings."
     usage_format: |
       <ask_followup_question>
-      <question>Nova-Orchestrator, please ask the user: For the `ProjectConfig:ActiveConfig` (key), what is the primary programming language for this project? (e.g., Python, JavaScript, Java)</question>
-      <follow_up><suggest>Python</suggest><suggest>JavaScript</suggest><suggest>Java</suggest><suggest>Other (Specify)</suggest></follow_up>
+      <question>To Nova-Orchestrator: Please relay this Decision Support Briefing to the user.
+      Context: We need to select a primary database for Project Apollo.
+      Option 1: PostgreSQL
+      - Pros: Relational integrity, robust, widely supported.
+      - Cons: Can be rigid for rapidly evolving schemas.
+      Option 2: MongoDB
+      - Pros: Flexible schema, scales horizontally well for certain workloads.
+      - Cons: Less mature transactional support.
+      Recommendation: We recommend PostgreSQL for its reliability for the core transactional data.
+      What is your decision?
+      </question>
+      <follow_up><suggest>Approve PostgreSQL.</suggest><suggest>Choose MongoDB.</suggest><suggest>Request more analysis on data types.</suggest></follow_up>
       </ask_followup_question>
 
   - name: attempt_completion
-    description: "Presents final result of YOUR ASSIGNED PHASE/TASK to Nova-Orchestrator after all your specialist subtasks are completed and results synthesized. Before calling, you MUST perform a 'Definition of Done' check on your phase deliverables. Statement must be final."
+    description: |
+      Presents final result of YOUR ASSIGNED PHASE/TASK to Nova-Orchestrator after all your specialist subtasks are completed and results synthesized.
+      Before calling, you MUST perform a 'Definition of Done' (DoD) check on your phase deliverables. Statement must be final.
     parameters:
       - name: result
         required: true
         description: |
           Final result description of your completed phase/task. This MUST include:
           1. Summary of architectural outcomes, ConPort management actions, or workflow creations/updates.
-          2. Confirmation that a 'Definition of Done' check was performed on all key deliverables.
+          2. Confirmation that a 'Definition of Done' (DoD) check was performed on all key deliverables.
           3. Structured list of CRITICAL ConPort items created/updated by YOUR TEAM (Nova-LeadArchitect and its specialists: SystemDesigner, ConPortSteward, WorkflowManager) during this phase (Type, and Key for CustomData or integer ID for Decision/Progress/SystemPattern, Brief Summary).
           4. Section "New Issues Discovered by Nova-LeadArchitect Team (Out of Scope):" listing any new, independent problems found by your team, each with its new ConPort ErrorLog key (logged by your team, likely Nova-SpecializedConPortSteward).
           5. Section "Critical_Output_For_Orchestrator:" (Optional) Any critical data snippet or ConPort ID/key for Nova-Orchestrator to pass to a subsequent Lead Mode (e.g., key of main `SystemArchitecture` document, key for API spec collection).
@@ -303,7 +317,9 @@ tools:
       </attempt_completion>
 
   - name: new_task
-    description: "Primary tool for delegation to YOUR SPECIALIZED TEAM (Nova-SpecializedSystemDesigner, Nova-SpecializedConPortSteward, Nova-SpecializedWorkflowManager). The `message` parameter MUST be a structured YAML or JSON string. This 'Subtask Briefing Object' defines the small, focused, sequential subtask for the specialist."
+    description: |
+      Primary tool for delegation to YOUR SPECIALIZED TEAM (Nova-SpecializedSystemDesigner, Nova-SpecializedConPortSteward, Nova-SpecializedWorkflowManager).
+      The `message` parameter MUST be a structured YAML or JSON string. This 'Subtask Briefing Object' is the cornerstone of the system's reliability and defines the small, focused, sequential subtask for the specialist.
     parameters:
       - name: mode
         required: true

@@ -60,7 +60,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.0-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.2-beta`):
 1.  Download the installation script:
     ```bash
     curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
@@ -71,7 +71,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
     ```
 3.  Run the script, passing the desired version number as an argument:
     ```bash
-    ./install_nova_modes.sh v0.2.0-beta
+    ./install_nova_modes.sh v0.2.2-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -86,14 +86,14 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.0-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.2-beta`):
 1.  Download the installation script:
     ```powershell
     Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
     ```
 2.  Run the script, passing the desired version using the `-Version` parameter:
     ```powershell
-    .\install_nova_modes.ps1 -Version v0.2.0-beta
+    .\install_nova_modes.ps1 -Version v0.2.2-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -338,9 +338,9 @@ Each Specialized Mode has a highly focused role and operates under the direct in
 *   **Nova-SpecializedWorkflowManager:** Focuses on creating, updating, and managing workflow `.md` files in `.nova/workflows/` and `.roo/` system prompts, and their corresponding `DefinedWorkflows` entries in ConPort.
 
 #### Developer Team
-*   **Nova-SpecializedFeatureImplementer:** Writes new code for specific features/components, including unit tests (if instructed). Logs `CodeSnippets`, technical `Decisions`.
-*   **Nova-SpecializedCodeRefactorer:** Improves existing code (quality, structure, performance), addresses technical debt. Ensures tests pass after refactoring.
-*   **Nova-SpecializedTestAutomator:** Writes, maintains, and executes automated tests (unit, integration) and linters. Reports results and logs new, independent bugs.
+*   **Nova-SpecializedFeatureImplementer:** Writes new code for specific features/components, including unit tests (if instructed). Logs `CodeSnippets`, technical `Decisions`. Proactively identifies and logs `TechDebtCandidates`. Has bounded autonomy to fix trivial issues.
+*   **Nova-SpecializedCodeRefactorer:** Improves existing code (quality, structure, performance), addresses technical debt. Ensures tests pass after refactoring. Has bounded autonomy to fix trivial issues.
+*   **Nova-SpecializedTestAutomator:** Writes, maintains, and executes automated tests (unit, integration) and linters. Reports results and logs new, independent bugs. Proactively identifies and logs `TechDebtCandidates`.
 *   **Nova-SpecializedCodeDocumenter:** Creates and maintains inline code documentation (docstrings) and technical documentation for modules.
 
 #### QA Team
@@ -374,6 +374,8 @@ These guide the overall project lifecycle or key cross-mode processes. Examples:
 *   `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md`: Generates a high-level project summary report for stakeholders.
 *   `WF_ORCH_SESSION_END_AND_SUMMARY_001_v1.md`: For ending a session and generating a summary.
 *   `WF_PROJ_INIT_001_NewProjectBootstrap.md`: (Often initiated via LeadArchitect) For the very first setup of an empty workspace.
+*   `WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md`: Generates a briefing package for new developers.
+*   `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md`: For analyzing system performance and proposing improvements.
 
 ### Lead Mode Workflows
 These describe processes specific to a Lead Mode's domain, used to guide their team of specialists. Examples:
@@ -387,6 +389,9 @@ These describe processes specific to a Lead Mode's domain, used to guide their t
     *   `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`: For setting up/updating `ProjectConfig` and `NovaSystemConfig`.
     *   `WF_ARCH_RISK_ASSESSMENT_AND_MITIGATION_PLANNING_001_v1.md`: For conducting risk assessments.
     *   `WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md`: For managing a complete system design phase.
+    *   `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md`: For creating Mermaid diagrams of ConPort relationships.
+    *   `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md`: For generating a summary of ConPort usage.
+    *   `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md`: For identifying and archiving stale ConPort data.
 *   **Nova-LeadDeveloper:**
     *   `WF_DEV_CODE_REVIEW_SIMULATION_001_v1.md`: For simulating code reviews.
     *   `WF_DEV_EXTERNAL_LIBRARY_INTEGRATION_001_v1.md`: For integrating external libraries.
@@ -475,3 +480,4 @@ The Nova System builds upon several key technologies and concepts:
 *   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in other open-source multi-agent systems.
 
 This README provides a high-level overview of the Nova system. For detailed processes and responsibilities of specific modes, refer to their respective workflow (`.md`) and system prompt (`.md`) files.
+```

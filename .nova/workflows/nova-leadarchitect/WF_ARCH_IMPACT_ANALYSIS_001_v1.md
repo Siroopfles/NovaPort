@@ -75,7 +75,7 @@
           ]
         }
         ```
-    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review list. Update `[IAProgressID]_ArchitectPlan` and specialist `Progress` in ConPort.
+    *   **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Review list. Update `[IAProgressID]_ArchitectPlan`.
 
 4.  **Nova-LeadArchitect (or delegate to Nova-SpecializedSystemDesigner): Identify Affected Code Areas**
     *   **Actor:** Nova-LeadArchitect (may delegate to SystemDesigner, or request assistance from LeadDeveloper via Orchestrator for deep code analysis)

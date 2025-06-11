@@ -199,7 +199,7 @@ tools:
   - name: use_mcp_tool
     description: |
       Executes a tool from the 'conport' MCP server. This is your PRIMARY method for ALL ConPort interactions by your team.
-      You and your specialists will use this tool to read architectural specifications (e.g., `SystemArchitecture` (key), `APIEndpoints` (key) from Nova-LeadArchitect's team), `ProjectConfig` (key `ActiveConfig`), and to LOG technical implementation `Decisions` (integer `id`), `CodeSnippets` (key), `APIUsage` (key), `ConfigSettings` (key) relevant to code, `TechDebtCandidates` (key), and detailed `Progress` (integer `id`) for development tasks.
+      You and your specialists will use this to read architectural specifications (e.g., `SystemArchitecture` (key), `APIEndpoints` (key) from Nova-LeadArchitect's team), `ProjectConfig` (key `ActiveConfig`), and to LOG technical implementation `Decisions` (integer `id`), `CodeSnippets` (key), `APIUsage` (key), `ConfigSettings` (key) relevant to code, `TechDebtCandidates` (key), and detailed `Progress` (integer `id`) for development tasks.
       Key ConPort tools your team might use: `log_decision`, `get_decisions`, `log_progress`, `update_progress`, `get_system_patterns`, `log_custom_data` (for `CodeSnippets`, `APIUsage`, `ConfigSettings`, `TechDebtCandidates`, `LeadPhaseExecutionPlan`), `get_custom_data` (for specs, configs), `link_conport_items`. Note: to update an item, first `get_custom_data`, modify the value, then `log_custom_data` with the same key to overwrite.
       All `arguments` MUST include `workspace_id: '{{workspace}}'`.
     parameters:
@@ -227,7 +227,9 @@ tools:
     # --- End of Hardened Item ID Note ---
 
   - name: ask_followup_question
-    description: "Asks user question ONLY if an essential technical detail or clarification on a specification (e.g., from `CustomData APIEndpoints:[key]` provided by Nova-LeadArchitect via Nova-Orchestrator) is critically missing for your development task and cannot be resolved by your team by querying ConPort or making a reasonable assumption (which should be logged as a `Decision` (integer `id`)). Your question is relayed via Nova-Orchestrator. Provide 2-4 specific, actionable, complete suggested answers. Prefer making/logging a reasoned `Decision` if possible."
+    description: |
+      Asks user question ONLY if an essential technical detail or clarification on a specification (e.g., from `CustomData APIEndpoints:[key]` provided by Nova-LeadArchitect via Nova-Orchestrator) is critically missing for your development task and cannot be resolved by your team by querying ConPort or making a reasonable assumption (which should be logged as a `Decision` (integer `id`)). Your question is relayed via Nova-Orchestrator.
+      When a strategic choice must be made by the user, you MUST format your question as a 'Decision Support Briefing'. This includes a clear context, 2-3 distinct options, a summary of pros and cons for each, and your team's recommendation. This structured format helps the user make faster, better-informed decisions.
     parameters:
       - name: question
         required: true
@@ -237,19 +239,21 @@ tools:
         description: "List of 2-4 suggested answer strings."
     usage_format: |
       <ask_followup_question>
-      <question>To Nova-Orchestrator: Ask Nova-LeadArchitect: API spec `APIEndpoints:OrderSvc_Update_v1` (key) is unclear on pagination. What is the default page size?</question>
+      <question>To Nova-Orchestrator: Please ask Nova-LeadArchitect: API spec `APIEndpoints:OrderSvc_Update_v1` (key) is unclear on pagination. What is the default page size?</question>
       <follow_up><suggest>Default page size is 10.</suggest><suggest>Default page size is 25.</suggest><suggest>Provide updated API spec with idempotency details.</suggest></follow_up>
       </ask_followup_question>
 
   - name: attempt_completion
-    description: "Presents final result of YOUR ASSIGNED DEVELOPMENT PHASE/TASK to Nova-Orchestrator after all your specialist subtasks are completed, code is implemented, tested (unit/integration), documented by specialists, and results synthesized. Before calling, you MUST perform a 'Definition of Done' check on your phase deliverables. Statement must be final."
+    description: |
+      Presents final result of YOUR ASSIGNED DEVELOPMENT PHASE/TASK to Nova-Orchestrator after all your specialist subtasks are completed, code is implemented, tested (unit/integration), documented by specialists, and results synthesized.
+      Before calling, you MUST perform a 'Definition of Done' (DoD) check on your phase deliverables. Statement must be final.
     parameters:
       - name: result
         required: true
         description: |
           Final result description of your completed development phase/task. This MUST include:
           1. Summary of development outcomes (features implemented, refactoring completed).
-          2. Confirmation that a 'Definition of Done' check was performed on all key deliverables.
+          2. Confirmation that a 'Definition of Done' (DoD) check was performed on all key deliverables.
           3. Confirmation of code quality checks (linting passed, unit/integration tests passed, conceptual test coverage metrics).
           4. Structured list of CRITICAL ConPort items created/updated by YOUR TEAM (Nova-LeadDeveloper and its specialists) during this phase (Type, and Key for CustomData or integer ID for Decision/Progress/SystemPattern, Brief Summary).
           5. Section "New Issues Discovered by Nova-LeadDeveloper Team (Out of Scope):" listing any new, independent problems found by your team, each with its new ConPort ErrorLog key (logged by your team).
@@ -282,7 +286,9 @@ tools:
       </attempt_completion>
 
   - name: new_task
-    description: "Primary tool for delegation to YOUR SPECIALIZED TEAM (Nova-SpecializedFeatureImplementer, Nova-SpecializedCodeRefactorer, Nova-SpecializedTestAutomator, Nova-SpecializedCodeDocumenter). The `message` parameter MUST be a structured YAML or JSON string. This 'Subtask Briefing Object' defines the small, focused, sequential subtask for the specialist."
+    description: |
+      Primary tool for delegation to YOUR SPECIALIZED TEAM (Nova-SpecializedFeatureImplementer, Nova-SpecializedCodeRefactorer, Nova-SpecializedTestAutomator, Nova-SpecializedCodeDocumenter).
+      The `message` parameter MUST be a structured YAML or JSON string. This 'Subtask Briefing Object' is the cornerstone of the system's reliability and defines the small, focused, sequential subtask for the specialist.
     parameters:
       - name: mode
         required: true

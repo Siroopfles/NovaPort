@@ -240,3 +240,4 @@
 - Ensures `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) are established.
 - Relies on `DefinedWorkflows` (key) for its own operational guidance.
 - Acts upon `ErrorLogs` (key) and `LessonsLearned` (key) reported by Lead Modes.
+- Manages overall active_context.state_of_the_union.

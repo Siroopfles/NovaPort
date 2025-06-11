@@ -150,7 +150,9 @@ tools:
     # --- End of Hardened Item ID Note ---
 
   - name: ask_followup_question
-    description: "Asks user question ONLY if essential information for a testing task or bug investigation is critically missing (e.g., precise steps to reproduce if not in an `ErrorLogs` (key) entry, clarification on ambiguous expected behavior from `AcceptanceCriteria` (key)), Nova-Orchestrator's briefing was insufficient, AND the information cannot be found in ConPort using `use_mcp_tool`. Provide 2-4 specific, actionable, complete suggested answers. Your question is relayed via Nova-Orchestrator."
+    description: |
+      Asks user question ONLY if essential information for a testing task or bug investigation is critically missing (e.g., precise steps to reproduce if not in an `ErrorLogs` (key) entry, clarification on ambiguous expected behavior from `AcceptanceCriteria` (key)), Nova-Orchestrator's briefing was insufficient, AND the information cannot be found in ConPort using `use_mcp_tool`. Your question is relayed via Nova-Orchestrator.
+      When a strategic choice must be made by the user, you MUST format your question as a 'Decision Support Briefing'. This includes a clear context, 2-3 distinct options, a summary of pros and cons for each, and your team's recommendation.
     parameters:
       - name: question
         required: true
@@ -165,14 +167,16 @@ tools:
       </ask_followup_question>
 
   - name: attempt_completion
-    description: "Presents final result of YOUR ASSIGNED QA PHASE/TASK to Nova-Orchestrator after all your specialist subtasks are completed (e.g., feature tested, bug investigated and verified/reopened) and results synthesized. Before calling, you MUST perform a 'Definition of Done' check on your phase deliverables. Statement must be final."
+    description: |
+      Presents final result of YOUR ASSIGNED QA PHASE/TASK to Nova-Orchestrator after all your specialist subtasks are completed (e.g., feature tested, bug investigated and verified/reopened) and results synthesized.
+      Before calling, you MUST perform a 'Definition of Done' (DoD) check on your phase deliverables. Statement must be final.
     parameters:
       - name: result
         required: true
         description: |
           Final result description of your completed QA phase/task. This MUST include:
           1. Summary of QA outcomes (e.g., "Feature X testing completed: 5 test cases passed, 1 new critical bug found (key: `ErrorLogs:XYZ`).").
-          2. Confirmation that a 'Definition of Done' check was performed on all key deliverables (e.g., all new `ErrorLogs` are R20 compliant).
+          2. Confirmation that a 'Definition of Done' (DoD) check was performed on all key deliverables (e.g., all new `ErrorLogs` are R20 compliant).
           3. Structured list of CRITICAL ConPort items created/updated by YOUR TEAM (Nova-LeadQA and its specialists) during this phase (Type, and Key for CustomData (like `ErrorLogs`, `LessonsLearned`) or integer ID for Progress/Decisions, Brief Summary, esp. `ErrorLogs` status).
           4. Section "New Issues Discovered by Nova-LeadQA Team (Out of Scope):" listing any new, independent problems found by your team during testing (beyond the primary scope), each with its new ConPort ErrorLog key (logged by your team).
           5. Confirmation that `active_context.open_issues` status has been communicated for update (via Nova-Orchestrator to Nova-LeadArchitect).
@@ -198,7 +202,9 @@ tools:
       </attempt_completion>
 
   - name: new_task
-    description: "Primary tool for delegation to YOUR SPECIALIZED TEAM (Nova-SpecializedBugInvestigator, Nova-SpecializedTestExecutor, Nova-SpecializedFixVerifier). The `message` parameter MUST be a structured YAML or JSON string. This 'Subtask Briefing Object' defines the small, focused, sequential subtask for the specialist."
+    description: |
+      Primary tool for delegation to YOUR SPECIALIZED TEAM (Nova-SpecializedBugInvestigator, Nova-SpecializedTestExecutor, Nova-SpecializedFixVerifier).
+      The `message` parameter MUST be a structured YAML or JSON string. This 'Subtask Briefing Object' is the cornerstone of the system's reliability and defines the small, focused, sequential subtask for the specialist.
     parameters:
       - name: mode
         required: true
@@ -473,7 +479,7 @@ conport_tool_reference:
   # This section provides a clear reference for the agent on how to structure ConPort tool calls.
   - tool_name: "log_custom_data"
     description: "Logs a new `ErrorLogs` entry for a defect your team discovered."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"schema_version\":\"1.0\",\"status\":\"OPEN\",\"severity\":\"HIGH\",\"summary\":\"Login fails for users with special characters in password.\",\"reproduction_steps\":[\"1. Attempt to log in with password 'Pa$$w0rd'.\"],\"expected_behavior\":\"User should be logged in.\",\"actual_behavior\":\"Receives 'Invalid credentials' error.\"}}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"Login fails for users with special characters in password.\",\"reproduction_steps\": [\"1. Attempt to log in with password 'Pa$$w0rd'.\"], \"expected_behavior\": \"User should be logged in.\", \"actual_behavior\": \"Receives 'Invalid credentials' error.\"}}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your phase or a specialist's subtask. Returns the integer ID."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"QA Phase for Login Feature\"}"
