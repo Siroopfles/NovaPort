@@ -54,11 +54,11 @@ Making the agents smarter and more efficient within their strictly defined roles
 
 Improving the human-computer interface and providing better insight into the system's state.
 
-- [ ] **4.1. ConPort "Cheatsheet" Generation**
+- [X] **4.1. ConPort "Cheatsheet" Generation**
     *   **Rationale:** The growing number of ConPort categories and workflows can be difficult for a human user to track. An auto-generated "cheatsheet" would significantly improve usability and discoverability.
     *   **Action Item:** Create a new workflow: `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md`. This workflow guides `Nova-LeadArchitect` to task its `ConPortSteward` to scan ConPort (using `get_conport_schema` and `get_custom_data` on the `DefinedWorkflows` category) and generate a Markdown file at `.nova/docs/conport_cheatsheet.md`. This file will summarize all active `CustomData` categories, their purpose, and a list of the most important workflows with their descriptions.
 
-- [ ] **4.2. Knowledge Graph Visualization Workflow**
+- [X] **4.2. Knowledge Graph Visualization Workflow**
     *   **Rationale:** The value of the ConPort knowledge graph is primarily conceptual. A visual representation would make dependencies and relationships tangible, aiding in impact analysis and onboarding.
     *   **Action Item:** Create a new workflow: `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md`. This workflow will:
         1.  Take a central ConPort item (e.g., a `FeatureScope` key) as input.
@@ -66,7 +66,7 @@ Improving the human-computer interface and providing better insight into the sys
         3.  Generate a Mermaid.js `graph TD` diagram syntax representing the fetched items and their `relationship_type` links.
         4.  Save the resulting diagram source to a `.md` file in `.nova/reports/graph_visuals/` for easy rendering.
 
-- [ ] **4.3. New Developer Onboarding Workflow**
+- [X] **4.3. New Developer Onboarding Workflow**
     *   **Rationale:** Onboarding a new human developer onto a complex, AI-managed project is a critical challenge. A dedicated workflow can automate the generation of a personalized briefing package.
     *   **Action Item:** Create a new workflow: `WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md`. This workflow instructs `Nova-FlowAsk` to generate a comprehensive onboarding guide by querying ConPort for:
         1.  The overall `SystemArchitecture` summary.
@@ -80,7 +80,7 @@ Improving the human-computer interface and providing better insight into the sys
     *   **Rationale:** Key strategic decisions are often presented to the user with a simple question. This can lack the necessary context for the user to make a well-informed choice quickly, slowing down the project.
     *   **Action Item:** Update the `ask_followup_question` usage instructions in all **Lead Mode** prompts. Add the following rule: "When a strategic choice must be made by the user, you MUST format your question as a 'Decision Support Briefing'. This includes a clear context, 2-3 distinct options, a summary of pros and cons for each, and your team's recommendation. This structured format helps the user make faster, better-informed decisions."
 
-- [ ] **4.5. Implement ConPort Data Hygiene Workflow**
+- [X] **4.5. Implement ConPort Data Hygiene Workflow**
     *   **Rationale:** Over time, ConPort can accumulate outdated or irrelevant information (e.g., `Decisions` for a feature that was deprecated). This "noise" can reduce the effectiveness of semantic searches and make it harder for agents and users to find current, relevant information. This can be addressed with a process-based solution without requiring server-side changes.
     *   **Action Item:** Create a new workflow: `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md`. This workflow will guide `Nova-LeadArchitect` to have its `ConPortSteward`:
         1.  Periodically scan for items that meet "staleness" criteria (e.g., `Decisions` or `SystemArchitecture` components not updated or linked to in over X months).
@@ -101,3 +101,7 @@ Improving the human-computer interface and providing better insight into the sys
 - **3.1. Bounded Autonomy for Trivial Fixes by Specialists:** Completed. A rule has been added to the prompts of `Nova-SpecializedFeatureImplementer` and `Nova-SpecializedCodeRefactorer` authorizing them to fix trivial, related issues within their current task scope, provided they log the action as a `Decision`.
 - **3.2. Implement a System Self-Improvement Cycle:** Completed. A new workflow `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md` was created. This allows the Orchestrator to delegate a process friction analysis to `Nova-FlowAsk`, which is guided by a new ConPort configuration item `NovaSystemConfig:ProcessFrictionHeuristics_v1`. Based on the analysis, `Nova-LeadArchitect` formulates a concrete improvement proposal for user approval. The bootstrap workflow `WF_PROJ_INIT_001_NewProjectBootstrap.md` was updated to create the new heuristics config item by default, and the `nova-orchestrator` prompt was updated to reflect this new capability.
 - **4.4. Structured "Decision Support Briefings":** Completed. The instruction to use a structured "Decision Support Briefing" format has been added to the `ask_followup_question` usage rules in all Lead Mode prompts to improve the quality and speed of user decision-making.
+- **4.1. ConPort "Cheatsheet" Generation:** Completed. New workflow `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md` created.
+- **4.2. Knowledge Graph Visualization Workflow:** Completed. New workflow `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md` created.
+- **4.3. New Developer Onboarding Workflow:** Completed. New workflow `WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md` created.
+- **4.5. Implement ConPort Data Hygiene Workflow:** Completed. New workflow `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md` created.

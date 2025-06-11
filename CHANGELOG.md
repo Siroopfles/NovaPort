@@ -5,9 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
+## [0.2.2-beta] - 2024-05-18
+
+This release focuses on implementing the strategic recommendations from the v2 system audit and creating new Developer Experience (DX) and system maintenance workflows.
+
+### ✨ New Features & Capabilities
+
+- **New System & DX Workflows:** Added several new workflows to improve system maintainability and developer experience:
+    - `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md`: For periodically identifying and archiving stale ConPort data.
+    - `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md`: For generating Mermaid.js diagrams of ConPort item relationships.
+    - `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md`: For creating a summary of active ConPort categories and workflows.
+    - `WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md`: For generating a comprehensive project briefing for new team members.
+- **System Retrospective Capability:** Enabled the system's self-improvement cycle by updating the `WF_PROJ_INIT_001_NewProjectBootstrap.md` to log the necessary `ProcessFrictionHeuristics_v1` configuration by default.
+
+### 🚀 Improvements & Hardening
+
+- **"Definition of Ready" (DoR) Gating in Workflows:** Hardened key workflows by adding mandatory, tool-based "Definition of Ready" pre-flight checks. This ensures phases do not start without necessary prerequisites.
+    - Updated: `WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md`
+    - Updated: `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`
+    - Updated: `WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md`
+    - Updated: `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md`
+    - Updated: `WF_QA_RELEASE_CANDIDATE_VALIDATION_001_v1.md`
+    - Updated: `WF_QA_TEST_CASE_DESIGN_FROM_SPECS_001_v1.md`
+    - Updated: `WF_DEV_TECHDEBT_REFACTOR_COMPONENT_001_v1.md`
+    - Updated: `WF_DEV_EXTERNAL_LIBRARY_INTEGRATION_001_v1.md`
+    - Updated: `WF_ARCH_IMPACT_ANALYSIS_001_v1.md`
+    - Updated: `WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md`
+- **System-Wide Prompt Hardening:** Re-engineered all Lead and Orchestrator prompts (`nova-orchestrator`, `nova-leadarchitect`, `nova-leaddeveloper`, `nova-leadqa`) to enforce the new hardened protocols, including structured delegation, DoR/DoD checks, and robust failure recovery.
+
+### 📖 Documentation & Prompts
+
+- **README Update:** The main `README.md` was updated to reflect the newly formalized, more robust system architecture and operational principles.
+- **CONTRIBUTING.md Update:** The contributing guide was updated to align with the project's more mature and structured nature.
+
 ## [0.2.1-beta] - 2024-05-18
 
-This is a comprehensive hardening and process-improvement release. The primary focus is on increasing system robustness by formalizing agent interaction protocols, introducing proactive quality gates (DoD/DoR), and enhancing the intelligence and autonomy of the agents within their defined roles. This release implements the core strategic recommendations from the v2 system audit.
+This was a comprehensive hardening and process-improvement release. The primary focus was on increasing system robustness by formalizing agent interaction protocols, introducing proactive quality gates (DoD/DoR), and enhancing the intelligence and autonomy of the agents within their defined roles. This release implemented the core strategic recommendations from the v2 system audit.
 
 ### 🚀 Improvements & Hardening
 
