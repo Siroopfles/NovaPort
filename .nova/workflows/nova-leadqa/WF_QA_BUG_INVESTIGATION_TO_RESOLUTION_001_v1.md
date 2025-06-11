@@ -24,7 +24,7 @@
             - **Failure (Missing):** If the item is not found, report to Nova-Orchestrator: "BLOCKER: The specified bug report `ErrorLogs:[BugKey]` does not exist in ConPort. Cannot start investigation." Halt this workflow.
             - **Check Status:** Review the `status` field in the `value` of the retrieved item. It should typically be 'OPEN', 'REOPENED', or a similar state that warrants investigation.
             - **Failure (Invalid Status):** If the status is 'RESOLVED', 'CLOSED_WONTFIX', or 'INVESTIGATION_COMPLETE_RCA_FOUND', the bug is not in a state for a *new* investigation. Report to Nova-Orchestrator: "NOTICE: Bug `ErrorLogs:[BugKey]` has status '[Status]' and does not require a new investigation. Halting this workflow."
-    *   **Output:** The bug report is confirmed to exist and be in a state that requires investigation.
+    *   **Output:** The bug report is confirmed to exist and be in a valid state that requires investigation.
 
 **Phase BIR.1: Detailed Investigation & Root Cause Analysis (RCA)**
 
@@ -130,7 +130,7 @@
     *   **Actor:** Nova-LeadQA
     *   **Condition:** If `ErrorLogs:[BugKey]` (key) status is `RESOLVED`:
         *   Update main `Progress` (`[BugProgressID]`) to DONE using `use_mcp_tool`.
-        *   Coordinate update of `active_context.open_issues` with Nova-Orchestrator.
+        *   Coordinate update of `active_context.open_issues` with Nova-Orchestrator. The Orchestrator will delegate the update to Nova-LeadArchitect, who can use the `update_active_context` tool.
         *   **Delegate to Nova-SpecializedBugInvestigator (or self, or ConPortSteward):** "Draft `LessonsLearned` (key) entry for `ErrorLogs:[BugKey]` (R21 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'LessonsLearned'`). Link it to the `ErrorLogs:[BugKey]`."
         *   Inform Nova-Orchestrator of successful resolution.
     *   **Condition:** If `ErrorLogs:[BugKey]` (key) status is `FAILED_VERIFICATION` or `REOPENED`:

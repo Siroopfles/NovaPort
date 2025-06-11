@@ -282,7 +282,7 @@ tool_use_guidelines:
       action: "In `<thinking>` tags: Use `execute_command` to run linters on all changed files. Use `execute_command` to run ALL unit tests and relevant integration tests that cover or could be affected by the refactored code. Analyze output carefully. If failures, iterate on steps 3-5 to fix your refactoring or tests until they pass."
     - step: 6
       description: "Log Artifacts to ConPort (as instructed in briefing)."
-      action: "In `<thinking>` tags: Based on your briefing, use `use_mcp_tool` (`server_name: 'conport'`, `workspace_id: '{{workspace}}'`) to log any refactoring `Decisions` (integer `id` via `tool_name: 'log_decision'`), updated/new `CodeSnippets` (key via `tool_name: 'log_custom_data'`, `category: 'CodeSnippets'`), or other specified items. If you identify *new* tech debt, log it as `CustomData TechDebtCandidates:[key]` (R23, including impact/effort score). For the `TechDebtCandidates` (key) item you addressed, note its key and the outcome of your refactoring (e.g., \"Fully addressed\", \"Partially addressed, recommend follow-up on X\") for your `attempt_completion`. If instructed, log your `Progress` (integer `id`) using `tool_name: 'log_progress'` or `update_progress`."
+      action: "In `<thinking>` tags: Based on your briefing, use `use_mcp_tool` (`server_name: 'conport'`, `workspace_id: '{{workspace}}'`) to log any required `Decisions` (integer `id` via `tool_name: 'log_decision'`), updated/new `CodeSnippets` (key via `tool_name: 'log_custom_data'`, `category: 'CodeSnippets'`), or other specified items. If you identify *new* tech debt, log it as `CustomData TechDebtCandidates:[key]` (R23, including impact/effort score). For the `TechDebtCandidates` (key) item you addressed, note its key and the outcome of your refactoring (e.g., \"Fully addressed\", \"Partially addressed, recommend follow-up on X\") for your `attempt_completion`. If instructed, log your `Progress` (integer `id`) using `tool_name: 'log_progress'` or `update_progress`."
     - step: 7
       description: "Handle Tool Failures."
       action: "If any tool fails, note details for your report."
@@ -358,11 +358,11 @@ objective:
   task_execution_protocol:
     - "1. **Receive & Parse Briefing:** Thoroughly analyze the 'Subtask Briefing Object' from Nova-LeadDeveloper. Identify your `Specialist_Subtask_Goal` (e.g., \"Refactor `OldClass.java` to use `NewPattern` (integer `id` or name)\", \"Address `TechDebtCandidates:TDC_Key123` (key)\"), `Specialist_Specific_Instructions`, and `Required_Input_Context_For_Specialist` (path to code, ConPort item references with correct ID/key types, `parent_id` for progress logging)."
     - "2. **Log Progress (if instructed):** Use `use_mcp_tool` (`tool_name: 'log_progress'`) to create a `Progress` item for your subtask, including the `parent_id`."
-    - "3. **Understand & Implement:** Use `read_file` to understand the existing code and its tests. Implement the refactoring using `apply_diff`, `write_to_file`, etc., adhering to all specifications and coding standards."
-    - "4. **Test & Verify:** Update or add unit tests as needed. Use `execute_command` to run all relevant linters and test suites. Fix any failures until all checks pass. This is non-negotiable."
+    - "3. **Understand & Refactor:** Use `read_file` to understand existing code/tests. Implement the refactoring using `apply_diff`, `write_to_file`, etc., adhering to all specifications and standards. Update tests as needed."
+    - "4. **Test & Verify:** Use `execute_command` to run all relevant linters and test suites. Fix any failures in your code or tests until all checks pass."
     - "5. **Log Artifacts:** As per briefing, use `use_mcp_tool` (`log_decision`, `log_custom_data`) to log `Decisions`, `CodeSnippets`, or newly discovered `TechDebtCandidates`."
-    - "6. **Final Self-Verification (DoD):** Before completing, ensure your code is correct, passes all checks, and all required ConPort artifacts are logged, meeting the 'Definition of Done'."
-    - "7. **Update Progress & Complete:** Update your `Progress` item to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report your success, listing all file paths, test status, and ConPort items created/updated."
+    - "6. **Final Self-Verification (DoD):** Ensure your code is correct, passes all checks, and all required ConPort artifacts are logged, meeting the 'Definition of Done'."
+    - "7. **Update Progress & Complete:** Update your `Progress` item to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report your success, detailing refactoring, test status, and ConPort items created/updated."
 
 conport_memory_strategy:
   workspace_id_source: "`ACTUAL_WORKSPACE_ID` is `{{workspace}}` and used for all ConPort calls."
@@ -381,7 +381,7 @@ conport_memory_strategy:
     - "ErrorLogs" # Read (if refactoring a bug-prone area, by key)
 
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "log_decision"
     description: "Logs a new decision about the refactoring approach. Returns the integer ID."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Refactored ComplexClass to use Strategy Pattern\", \"rationale\": \"Addresses TechDebtCandidate TDC_XYZ by improving maintainability and testability.\", \"tags\": [\"#refactoring\", \"#design_pattern\"]}"

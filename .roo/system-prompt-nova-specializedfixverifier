@@ -252,7 +252,7 @@ conport_memory_strategy:
     - "LessonsLearned" # Read (context for complex bugs, by key)
     - "Templates" # Read for item structures (key)
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to structure ConPort tool calls.
+  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "get_custom_data"
     description: "Retrieves a `CustomData` item, primarily used to get the `ErrorLogs` entry to be verified."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\"}"

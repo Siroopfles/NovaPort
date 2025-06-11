@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- Configuration ---
-VERSION="${1:-main}" # Use first argument as version, otherwise default to 'main'
+VERSION="${1:-v0.2.5-beta}" # Use first argument as version, otherwise default to latest stable beta
 REPO_OWNER="Siroopfles"
 REPO_NAME="NovaPort"
 API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/trees/${VERSION}?recursive=1"

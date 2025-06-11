@@ -52,7 +52,7 @@
 
 ## Installation
 
-You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.2.0-beta`). For most users, **installing a specific version is recommended for stability.**
+You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.2.5-beta`). For most users, **installing a specific version is recommended for stability.**
 
 The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
 
@@ -60,7 +60,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.2-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.5-beta`):
 1.  Download the installation script:
     ```bash
     curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
@@ -71,7 +71,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
     ```
 3.  Run the script, passing the desired version number as an argument:
     ```bash
-    ./install_nova_modes.sh v0.2.2-beta
+    ./install_nova_modes.sh v0.2.5-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -86,14 +86,14 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.2-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.2.5-beta`):
 1.  Download the installation script:
     ```powershell
     Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
     ```
 2.  Run the script, passing the desired version using the `-Version` parameter:
     ```powershell
-    .\install_nova_modes.ps1 -Version v0.2.2-beta
+    .\install_nova_modes.ps1 -Version v0.2.5-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -416,7 +416,7 @@ ConPort is the central nervous system of Nova, a workspace-specific knowledge gr
 *   **Workspace-Specific:** Each project workspace has its own isolated ConPort database (`context_portal/context.db`) and vector store.
 *   **Communication:** Interacted with via an MCP server, accessible locally via STDIO or remotely via HTTP.
 *   **Knowledge Graph:** Stores structured entities and allows explicit, queryable relationships (`ContextLinks`) between them.
-*   **RAG Enablement:** Its rich querying (FTS, semantic search, direct retrieval, graph traversal) provides the "Retrieval" mechanism for RAG, supplying AI modes with precise context.
+*   **RAG Enablement:** Its rich querying (FTS, semantic search via vector embeddings, direct retrieval, graph traversal) provides the "Retrieval" mechanism for RAG, supplying AI modes with precise context.
 
 ### Core Data Entities
 ConPort structures project knowledge into several key entities stored in SQLite tables:
@@ -436,7 +436,7 @@ Pydantic models in ConPort's source (`src/context_portal_mcp/db/models.py`) mirr
 *   **`NovaSystemConfig:ActiveSettings`:** Configures the behavior of Nova modes themselves (e.g., frequency of ConPort health checks, default DoR strictness, specific workflow triggers). Managed by Nova-LeadArchitect's team (ConPortSteward).
 
 ### MCP Tool Interaction
-AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_product_context`, `log_decision`, `get_custom_data`, `link_conport_items`, `semantic_search_conport`). All tools require a `workspace_id` to target the correct project database. The ConPort MCP server documentation (see [Foundations and Acknowledgements](#foundations-and-acknowledgements)) details all available tools and their parameters.
+AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_product_context`, `log_decision`, `get_custom_data`, `link_conport_items`, `search_decisions_fts`). All tools require a `workspace_id` to target the correct project database. The ConPort MCP server documentation (see [Foundations and Acknowledgements](#foundations-and-acknowledgements)) details all available tools and their parameters.
 
 ## Important Considerations & Experimental Nature
 
@@ -480,4 +480,3 @@ The Nova System builds upon several key technologies and concepts:
 *   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in other open-source multi-agent systems.
 
 This README provides a high-level overview of the Nova system. For detailed processes and responsibilities of specific modes, refer to their respective workflow (`.md`) and system prompt (`.md`) files.
-```

@@ -34,7 +34,7 @@
             "2. Execute the workflow `.nova/workflows/nova-leadarchitect/WF_ARCH_IMPACT_ANALYSIS_001_v1.md` to assess the impact of [FeatureName] on existing `SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key), and other relevant ConPort items for Project [ProjectName]. Your team (SystemDesigner, ConPortSteward) should perform the detailed checks as outlined in that workflow.",
             "3. Based on the impact analysis, propose necessary architectural changes or additions. Log these as new/updated `SystemArchitecture` (key) components and related `Decisions` (integer `id`) using `use_mcp_tool`.",
             "4. If new APIs or DB changes are needed, ensure your SystemDesigner defines them in `APIEndpoints` (key) / `DBMigrations` (key) using `use_mcp_tool`.",
-            "5. To update `active_context`, instruct your team to first `get_active_context`, modify the `state_of_the_union` field to 'Feature [FeatureName] specified and impact assessed. Ready for development planning', then use `log_custom_data` on the `ActiveContext` category with key `active_context`."
+            "5. To update `active_context`, instruct your team to use `use_mcp_tool` with `tool_name: 'update_active_context'` and provide a `patch_content` argument to set the `state_of_the_union` field to 'Feature [FeatureName] specified and impact assessed. Ready for development planning'."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",
@@ -112,7 +112,7 @@
             "Execute your standard development lifecycle (e.g., `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md`) to manage your team (FeatureImplementer, TestAutomator, CodeDocumenter, Refactorer if needed) for this feature.",
             "Ensure all new code is unit tested and integration tested with existing project components.",
             "Your team should log all technical implementation `Decisions` (integer `id`), `CodeSnippets` (key), `APIUsage` (key), `TechDebtCandidates` (key) with scoring, etc. using `use_mcp_tool`.",
-            "Update `active_context.state_of_the_union` to 'Feature [FeatureName] Development Completed, Awaiting QA' (This update will be coordinated via me, Nova-Orchestrator, to Nova-LeadArchitect if you cannot do it directly)."
+            "Coordinate with me to update `active_context.state_of_the_union` to 'Feature [FeatureName] Development Completed, Awaiting QA'."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",
@@ -162,8 +162,8 @@
             "Develop and execute test cases covering functional requirements, AC, and integration points with existing system parts.",
             "Log all defects as structured `CustomData ErrorLogs:[key]` (R20 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
             "Manage bug lifecycle: investigation, coordination for fixes (via me, Nova-Orchestrator, to Nova-LeadDeveloper), verification.",
-            "Update `active_context.open_issues` (coordinate update via me to Nova-LeadArchitect/ConPortSteward).",
-            "At the end of this phase, update `active_context.state_of_the_union` to 'Feature [FeatureName] QA Completed. Quality Status: [e.g., Ready for Integration, Blocked by X bugs]' (Coordinate update via me to Nova-LeadArchitect)."
+            "Coordinate with me to ensure `active_context.open_issues` is updated.",
+            "At the end of this phase, coordinate with me to update `active_context.state_of_the_union` to 'Feature [FeatureName] QA Completed. Quality Status: [e.g., Ready for Integration, Blocked by X bugs]'."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",
