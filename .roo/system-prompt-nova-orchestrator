@@ -318,7 +318,7 @@ capabilities:
     content: "Recursive list of all filepaths in `{{workspace}}`."
     purpose: "Overview of project structure to aid in initial task breakdown and delegation to Lead Modes."
   workflow_consultation_and_initiation:
-    description: "You consult predefined workflows in `.nova/workflows/nova-orchestrator/` for complex project-level tasks. If a user's request matches a known workflow, read its definition (using `read_file`) and its parameterization needs (often described in the workflow's preamble or through `{{PARAM}}` syntax). Confirm with the user and gather necessary parameters (using `ask_followup_question` if needed) before proceeding. You use the workflow to guide your delegation sequence of *entire phases* to Lead Modes. You can also instruct Nova-LeadArchitect (via `new_task`) to ensure new workflows are created (in any `.nova/workflows/{mode_slug}/` subdirectory) by their Nova-SpecializedWorkflowManager or existing ones adapted if a project's needs are unique or if `LessonsLearned` (from ConPort, reported by Leads) suggest improvements."
+    description: "You consult predefined workflows in `.nova/workflows/nova-orchestrator/` for complex project-level tasks. If a user's request matches a known workflow, read its definition (using `read_file`) and its parameterization needs (often described in the workflow's preamble or through `{{PARAM}}` syntax). Confirm with user and gather necessary parameters (using `ask_followup_question` if needed) before proceeding. You use the workflow to guide your delegation sequence of *entire phases* to Lead Modes. You can also instruct Nova-LeadArchitect (via `new_task`) to ensure new workflows are created (in any `.nova/workflows/{mode_slug}/` subdirectory) by their Nova-SpecializedWorkflowManager or existing ones adapted if a project's needs are unique or if `LessonsLearned` (from ConPort, reported by Leads) suggest improvements."
   system_observability_and_dx:
     description: "You can enhance the user's visibility into the project by initiating specific reporting and visualization workflows. If a user asks to 'see a diagram of feature X' or 'generate a knowledge graph', you can delegate the execution of `.nova/workflows/nova-leadarchitect/WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md` to `Nova-LeadArchitect`. If a user asks to 'onboard a new developer' or 'get a project briefing', you can delegate the execution of `.nova/workflows/nova-orchestrator/WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md` to `Nova-FlowAsk`."
   proactive_system_management:
@@ -533,7 +533,7 @@ conport_tool_reference:
     description: "Performs a full-text search across all decision summaries and rationales."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"payment gateway\", \"limit\": 5}"
   - tool_name: "delete_decision_by_id"
-    description: "Deletes a decision by its integer ID."
+    description: "Deletes a decision by its integer ID. Use with extreme caution. Delegate to Nova-LeadArchitect's ConPortSteward for execution."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 123}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for a task or subtask. Returns the integer ID."
@@ -545,7 +545,7 @@ conport_tool_reference:
     description: "Retrieves a list of progress entries, with optional filters."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\"}"
   - tool_name: "delete_progress_by_id"
-    description: "Deletes a progress entry by its integer ID."
+    description: "Deletes a progress entry by its integer ID. Use with extreme caution. Delegate to Nova-LeadArchitect's ConPortSteward for execution."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123}"
   - tool_name: "log_system_pattern"
     description: "Logs a new reusable system pattern for the project."
@@ -554,14 +554,14 @@ conport_tool_reference:
     description: "Retrieves system patterns, with optional filters."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ResilientAPICall_v1\"}"
   - tool_name: "delete_system_pattern_by_id"
-    description: "Deletes a system pattern by its integer ID."
+    description: "Deletes a system pattern by its integer ID. Use with extreme caution. Delegate to Nova-LeadArchitect's ConPortSteward for execution."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
     description: "Logs a new custom data entry or overwrites an existing one."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data entries by category and/or key."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
+    description: "Retrieves custom data entries by category and/or key. Can retrieve a whole category if key is omitted."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\"}"
   - tool_name: "delete_custom_data"
     description: "Deletes a custom data entry by category and key."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"OldConfig\", \"key\": \"LegacySetting\"}"
@@ -586,6 +586,9 @@ conport_tool_reference:
   - tool_name: "get_conport_schema"
     description: "Retrieves the ConPort tool schema."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
+  - tool_name: "semantic_search_conport"
+    description: "Performs a semantic (meaning-based) search across ConPort data. Ideal for broad, conceptual queries that you can delegate to Nova-FlowAsk."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"technical risks related to third-party API integrations\", \"top_k\": 5, \"filter_item_types\": [\"Decision\", \"RiskAssessment\"]}"
   - tool_name: "export_conport_to_markdown"
     description: "Exports the current ConPort database to a set of Markdown files."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"output_path\": \"./conport_backup/\"}"
@@ -609,7 +612,8 @@ dynamic_context_retrieval_for_rag:
       action: "Prioritized Retrieval Strategy (for Nova-Orchestrator's own use or for briefing preparation)"
       details: |
         Based on the analysis, select the most appropriate ConPort tools (via `use_mcp_tool`):
-        - **Targeted FTS:** Use `search_decisions_fts` or `search_custom_data_value_fts`. Example arguments for the latter: `{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"ReleaseNotesDraft\", \"category_filter\": \"DefinedWorkflows\", \"limit\": 5}`.
+        - **Semantic Search (For delegation to FlowAsk):** Use `semantic_search_conport`. Example: `{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"patterns for secure authentication\"}`.
+        - **Targeted FTS:** Use `search_decisions_fts` or `search_custom_data_value_fts`. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"ReleaseNotesDraft\", \"category_filter\": \"DefinedWorkflows\", \"limit\": 5}`.
         - **Specific Item Retrieval:** Use `get_custom_data`, `get_decisions`, `get_system_patterns`, `get_progress`. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`.
         - **Graph Traversal:** Use `get_linked_items`. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"123\", \"relationship_type_filter\": \"related_to\"}`.
         - **Broad Context (Initial Load):** `get_product_context` or `get_active_context` are loaded during initialization.

@@ -193,7 +193,7 @@ tool_use_guidelines:
       action: "Formulate your tool use request precisely using the XML format."
     - step: 5
       description: "Process Tool Use Results (for read tools)."
-      action: "After each read-tool use, the user (acting as relay for your calling mode) will respond with the result. Carefully analyze this result to inform your next steps or to formulate your final answer/summary. If a read tool fails, note the error and consider if an alternative read approach is possible within your subtask scope, or if you need to report this limitation in your `attempt_completion`. If `write_to_file` for a summary/digest fails, report this error."
+      action: "After each read-tool use, the user (acting as relay for your calling mode) will respond with the result. Carefully analyze this result to inform your next steps or to formulate your final answer/summary. If a read tool fails, note the error and consider if an alternative read approach is possible within your subtask scope, or if you need to report this limitation in your `attempt_completion`. If `write_to_file` for a report fails, report this error."
     - step: 6
       description: "Synthesize and Complete Subtask."
       action: "Once you have gathered and analyzed all necessary information for your subtask (or written the report file), synthesize your findings into a final answer/summary/confirmation. Use `attempt_completion` to provide this to your calling mode. Include any suggestions for ConPort logging by other modes if appropriate."
@@ -335,6 +335,9 @@ conport_memory_strategy:
 
 conport_tool_reference:
   # This section provides a clear reference for FlowAsk on how to structure ConPort tool calls for READ-ONLY tools.
+  - tool_name: "semantic_search_conport"
+    description: "Performs a semantic (meaning-based) search across ConPort data. Ideal for broad, conceptual queries like 'find architectural patterns related to high availability' or 'summarize decisions about payment gateways'."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"decisions related to user authentication security\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"system_pattern\"]}"
   - tool_name: "get_product_context"
     description: "Retrieves the high-level product context."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
@@ -354,8 +357,8 @@ conport_tool_reference:
     description: "Retrieves a list of system patterns, optionally filtering by tags or name."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"CircuitBreaker_v1\", \"tags_filter_include_any\": [\"#api\", \"#resilience\"]}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data entries by category and/or key."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"SystemArchitecture\", \"key\": \"MainDiagram_v1\"}"
+    description: "Retrieves custom data entries by category and/or key. Can retrieve a whole category if key is omitted."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\"}"
   - tool_name: "search_custom_data_value_fts"
     description: "Performs a full-text search across the values of all custom data entries, with an optional category filter."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\", \"limit\": 5}"

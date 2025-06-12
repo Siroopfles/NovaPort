@@ -18,7 +18,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines), outputting line-numbered text. Handles PDF/DOCX. Your specialists (and you, for review) use this to inspect application logs, configuration files, test scripts, or source code relevant to a bug investigation or test planning."
+    description: "Reads file content (optionally specific lines). Your specialists (and you, for review) use this to inspect application logs, configuration files, test scripts, or source code relevant to a bug investigation or test planning."
     parameters:
       - name: path
         required: true
@@ -478,6 +478,9 @@ conport_memory_strategy:
 
 conport_tool_reference:
   # This section provides a clear reference for the agent on how to use ConPort tools.
+  - tool_name: "semantic_search_conport"
+    description: "Performs a semantic (meaning-based) search across ConPort data. Ideal for investigating bugs by finding related concepts, e.g., 'find decisions or past errors related to user session handling' when investigating a login bug."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"issues related to payment gateway timeouts\", \"top_k\": 5, \"filter_item_types\": [\"ErrorLogs\", \"Decision\", \"LessonsLearned\"]}"
   - tool_name: "get_product_context"
     description: "Retrieves the high-level product context."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
@@ -500,8 +503,8 @@ conport_tool_reference:
     description: "Logs a new custom data entry, primarily for `ErrorLogs`, `LessonsLearned`, or `TestPlans`."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", ...}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like test plans, acceptance criteria, or error logs."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"AcceptanceCriteria\", \"key\": \"AC_LoginFeature_v1\"}"
+    description: "Retrieves context like test plans, acceptance criteria, or error logs. Can retrieve a whole category if key is omitted."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TestPlans\"}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240515_LoginFail_High\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"210\", \"relationship_type\": \"found_during_progress\"}"

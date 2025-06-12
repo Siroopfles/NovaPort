@@ -271,12 +271,20 @@ conport_memory_strategy:
     - "Templates" # Write/Read (key)
 
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
+  - tool_name: "delete_decision_by_id"
+    description: "Deletes a decision by its integer ID. Use only when explicitly instructed by Nova-LeadArchitect to remove an obsolete or erroneous decision."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 123}"
+  - tool_name: "delete_progress_by_id"
+    description: "Deletes a progress entry by its integer ID. Use only when explicitly instructed by Nova-LeadArchitect to clean up incorrect or obsolete progress trackers."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123}"
+  - tool_name: "delete_system_pattern_by_id"
+    description: "Deletes a system pattern by its integer ID. Use only when explicitly instructed by Nova-LeadArchitect to remove a deprecated pattern."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
     description: "Your primary tool. Logs a new entry or updates an existing one in a specified `CustomData` category."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"primary_language\": \"Python\", \"testing\": {\"framework\": \"pytest\"}, ...}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves a `CustomData` item by category and key, often for a health check or before an update."
+    description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. Used for health checks or before an update."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "delete_custom_data"
     description: "Deletes a custom data entry by category and key."
