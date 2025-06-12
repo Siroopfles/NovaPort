@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
+## [0.2.7-beta] - 2024-05-19
+
+### ⚖️ Legal
+
+- **Re-licensed Project to Apache 2.0:** Changed the project license from MIT to Apache License, Version 2.0. This change was made to ensure full compliance with the license of the upstream work (`RooFlow`) on which this project is based. A `NOTICE` file has been added for clear attribution.
+
 ## [0.2.6-beta] - 2024-05-19
 
 ### 🚀 Improvements & Hardening

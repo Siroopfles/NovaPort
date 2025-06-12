@@ -474,9 +474,10 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
     4.  Informing the user about the session closure and the location of the summary.
 
 ## Foundations and Acknowledgements
-The Nova System builds upon several key technologies and concepts:
-*   **Context Portal (ConPort):** The MCP server providing the structured knowledge base is based on the open-source project: [https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal). Refer to its documentation for detailed MCP tool specifications.
-*   **Nova Modes & Execution:** The concept of specialized AI modes and their interaction is designed for execution environments compatible with frameworks like [Roo Code](https://docs.roocode.com/). This configuration specifically uses **experimental custom system prompt features** of Roo Code, as detailed in its documentation ([Footgun Prompting](https://docs.roocode.com/features/footgun-prompting)).
-*   **Inspiration:** The overall architecture and mode-based workflow orchestration patterns draw inspiration from concepts explored in other open-source multi-agent systems.
 
-This README provides a high-level overview of the Nova system. For detailed processes and responsibilities of specific modes, refer to their respective workflow (`.md`) and system prompt (`.md`) files.
+The Nova System is a derivative work based on concepts and files from the `RooFlow` project by GreatScottyMac, which is licensed under the Apache License 2.0. To comply with the original license, the **Siroopfles-NovaPort** project is also licensed under the **Apache License, Version 2.0**. A full copy of the license and an attribution notice are available in the `LICENSE` and `NOTICE` files in the repository root.
+
+Key technologies and other inspirations include:
+
+*   **Context Portal (ConPort):** The MCP server providing the structured knowledge base is based on the open-source project: [https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal).
+*   **Roo Code Execution Environment:** The concept of specialized AI modes and their interaction is designed for execution environments compatible with frameworks like [Roo Code](https://docs.roocode.com/). This configuration specifically uses **experimental custom system prompt features** of Roo Code, as detailed in its documentation ([Footgun Prompting](https://docs.roocode.com/features/footgun-prompting)).
