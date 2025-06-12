@@ -363,7 +363,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Document public API of AuthService.ts (Assigned: nova-specializedcodedocumenter)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Document public API of AuthService.ts (Assigned: nova-specializedcodedocumenter)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -382,7 +382,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Inline TSDoc for AuthService.ts and docs/auth_service.md guide completed.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Inline TSDoc for AuthService.ts and docs/auth_service.md guide completed.\", \"parent_id\": null}"
   - tool_name: "get_custom_data"
     description: "Retrieves context like an API spec or project documentation standards."
     parameters:
@@ -411,4 +411,17 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"], \"tags_filter_include_any\": []}"
+  - tool_name: "get_system_patterns"
+    description: "Retrieves system patterns for context."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: tags_filter_include_all
+        required: false
+        description: "Filter: items must include ALL of these tags."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#documentation\"], \"tags_filter_include_all\": []}"

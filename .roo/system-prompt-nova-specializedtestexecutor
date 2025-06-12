@@ -321,7 +321,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Execute regression suite for API v2 (Assigned: nova-specializedtestexecutor)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Execute regression suite for API v2 (Assigned: nova-specializedtestexecutor)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -340,7 +340,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"API v2 regression complete. 3 new ErrorLogs logged.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"API v2 regression complete. 3 new ErrorLogs logged.\", \"parent_id\": null}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items."
     parameters:
@@ -365,4 +365,4 @@ conport_tool_reference:
       - name: description
         required: false
         description: "A description of the relationship."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\", \"description\": null}"

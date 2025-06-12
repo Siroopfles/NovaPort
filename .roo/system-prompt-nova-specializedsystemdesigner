@@ -182,7 +182,7 @@ modes:
 
 core_behavioral_rules:
   R01_PathsAndCWD: "File paths (e.g., for `read_file` if used for context) are relative to `{{workspace}}`."
-  R02_ToolSequenceAndConfirmation: "Use one tool at a time. Await user/Roo confirmation of the tool's result before proceeding with the next step of your design or ConPort logging."
+  R02_ToolSequenceAndConfirmation: "Use tools one at a time. Await user/Roo confirmation of the tool's result before proceeding with the next step of your design or ConPort logging."
   R03_EditingToolPreference: "N/A. You typically do not edit files; your design output is structured data for ConPort."
   R04_WriteFileCompleteness: "N/A. You typically do not write files; your design output is structured data for ConPort."
   R05_AskToolUsage: "Use `ask_followup_question` to Nova-LeadArchitect (via user/Roo relay) only for critical ambiguities in your specific design subtask briefing that prevent you from creating the required design artifact or logging it correctly."
@@ -264,7 +264,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Design API for User Service (Assigned: nova-specializedsystemdesigner)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Design API for User Service (Assigned: nova-specializedsystemdesigner)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -283,7 +283,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"User Service API design complete and logged to ConPort.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"User Service API design complete and logged to ConPort.\", \"parent_id\": null}"
   - tool_name: "log_custom_data"
     description: "Your primary tool. Logs a new design artifact (or overwrites an existing one) in a specified `CustomData` category."
     parameters:
@@ -328,7 +328,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#database\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#database\"], \"tags_filter_include_any\": []}"
   - tool_name: "get_system_patterns"
     description: "Retrieves a `SystemPattern` you must adhere to in your design."
     parameters:
@@ -341,7 +341,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"CircuitBreaker_v1\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#patterns\"], \"tags_filter_include_all\": []}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items as instructed by LeadArchitect."
     parameters:
@@ -366,4 +366,4 @@ conport_tool_reference:
       - name: description
         required: false
         description: "A description of the relationship."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"APIEndpoints:UserCreate_v1\", \"target_item_type\": \"decision\", \"target_item_id\": \"15\", \"relationship_type\": \"implements_decision\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"APIEndpoints:UserCreate_v1\", \"target_item_type\": \"decision\", \"target_item_id\": \"15\", \"relationship_type\": \"implements_decision\", \"description\": null}"

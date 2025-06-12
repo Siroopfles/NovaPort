@@ -303,7 +303,7 @@ objective:
     - "3. **Prepare & Execute:** Write/modify test scripts using `write_to_file` or `apply_diff`. Run tests/linters using `execute_command` as per briefing."
     - "4. **Analyze & Log:** Meticulously analyze test/linter output. Log any new, independent bugs found as a structured `ErrorLogs` item in ConPort using `use_mcp_tool` (`tool_name: 'log_custom_data'`)."
     - "5. **Final Self-Verification (DoD):** Ensure all tests have run, results are accurate, new bugs are logged correctly, and all parts of the briefing are met."
-    - "6. **Update Progress & Complete:** Update your `Progress` item to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report all results, including pass/fail status and keys of any `ErrorLogs` you logged."
+    - "6. **Update Progress & Complete:** Update your `Progress` item to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report all results, including pass/fail status and the keys of all `ErrorLogs` you logged."
 
 conport_memory_strategy:
   workspace_id_source: "`ACTUAL_WORKSPACE_ID` is `{{workspace}}` and used for all ConPort calls."
@@ -372,7 +372,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Write integration tests for payment module (Assigned: nova-specializedtestautomator)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Write integration tests for payment module (Assigned: nova-specializedtestautomator)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -391,7 +391,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Integration tests for payment module written and passing.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Integration tests for payment module written and passing.\", \"parent_id\": null}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items."
     parameters:
@@ -416,4 +416,4 @@ conport_tool_reference:
       - name: description
         required: false
         description: "A description of the relationship."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\", \"description\": null}"

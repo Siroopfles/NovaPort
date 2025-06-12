@@ -590,7 +590,7 @@ conport_memory_strategy:
     - "LessonsLearned" # Read/Write (key)
     - "DefinedWorkflows" # Primary Write (via WorkflowManager, key: `[WF_FileName]_SumAndPath`)
     - "RiskAssessment" # Write (key)
-    - "ConPortSchema" # Write (via ConPortSteward, key)
+    - "ConPortSchema" # Write (key)
     - "TechDebtCandidates" # Read (key)
     - "FeatureScope" # Read/Write (key)
     - "AcceptanceCriteria" # Read/Write (key)
@@ -660,7 +660,7 @@ conport_tool_reference:
       - name: tags
         required: false
         description: "Optional tags for categorization"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Use microservices architecture\", \"rationale\": \"Allows independent scaling and deployment.\", \"tags\": [\"#architecture\"], \"status\": \"APPROVED\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Use microservices architecture\", \"rationale\": \"Allows independent scaling and deployment.\", \"tags\": [\"#architecture\"], \"implementation_details\": \"To be implemented by the development team following this design.\"}"
   - tool_name: "get_decisions"
     description: "Retrieves logged decisions."
     parameters:
@@ -676,7 +676,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"], \"tags_filter_include_all\": []}"
   - tool_name: "search_decisions_fts"
     description: "Full-text search across decision fields (summary, rationale, details, tags)."
     parameters:
@@ -721,7 +721,10 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Orchestration: Implement 'User Profile' Feature E2E\"}"
+      - name: link_relationship_type
+        required: false
+        description: "Relationship type for the automatic link, defaults to 'relates_to_progress'"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Orchestration: Implement 'User Profile' Feature E2E\", \"parent_id\": null, \"linked_item_type\": null, \"linked_item_id\": null, \"link_relationship_type\": null}"
   - tool_name: "update_progress"
     description: "Updates an existing progress entry."
     parameters:
@@ -740,7 +743,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123, \"status\": \"BLOCKED\", \"description\": \"Blocked pending architectural decision.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123, \"status\": \"BLOCKED\", \"description\": \"Blocked pending architectural decision.\", \"parent_id\": null}"
   - tool_name: "get_progress"
     description: "Retrieves progress entries."
     parameters:
@@ -756,7 +759,7 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "Maximum number of entries to return (most recent first)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\", \"parent_id_filter\": null, \"limit\": 20}"
   - tool_name: "delete_progress_by_id"
     description: "Deletes a progress entry by its ID."
     parameters:
@@ -795,7 +798,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ResilientAPICall_v1\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#api\"], \"tags_filter_include_all\": []}"
   - tool_name: "delete_system_pattern_by_id"
     description: "Deletes a system pattern by its ID."
     parameters:
@@ -834,7 +837,7 @@ conport_tool_reference:
       - name: key
         required: false
         description: "Filter by key (requires category)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "delete_custom_data"
     description: "Deletes a specific custom data entry."
     parameters:
@@ -901,7 +904,7 @@ conport_tool_reference:
       - name: description
         required: false
         description: "Optional description for the link"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"progress_entry\", \"source_item_id\": \"124\", \"target_item_type\": \"decision\", \"target_item_id\": \"45\", \"relationship_type\": \"fulfills_decision\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"progress_entry\", \"source_item_id\": \"124\", \"target_item_type\": \"decision\", \"target_item_id\": \"45\", \"relationship_type\": \"fulfills_decision\", \"description\": null}"
   - tool_name: "get_linked_items"
     description: "Retrieves items linked to a specific item."
     parameters:
@@ -923,7 +926,7 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "Maximum number of links to return"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"
   - tool_name: "batch_log_items"
     description: "Logs multiple items of the same type (e.g., decisions, progress entries) in a single call."
     parameters:
@@ -936,7 +939,7 @@ conport_tool_reference:
       - name: items
         required: true
         description: "A list of dictionaries, each representing the arguments for a single item log."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"items\": [{\"summary\": \"Decision A\"}, {\"summary\": \"Decision B\"}]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"items\": [{\"summary\": \"Decision A\", \"rationale\": \"Rationale A\"}, {\"summary\": \"Decision B\", \"rationale\": \"Rationale B\"}]}"
   - tool_name: "get_item_history"
     description: "Retrieves version history for Product or Active Context."
     parameters:
@@ -958,7 +961,7 @@ conport_tool_reference:
       - name: version
         required: false
         description: "Return a specific version"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3, \"before_timestamp\": null, \"after_timestamp\": null, \"version\": null}"
   - tool_name: "get_conport_schema"
     description: "Retrieves the schema of available ConPort tools and their arguments."
     parameters:
@@ -981,7 +984,7 @@ conport_tool_reference:
       - name: limit_per_type
         required: false
         description: "Maximum number of recent items to show per activity type (e.g., 5 most recent decisions)."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"limit_per_type\": 5}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"since_timestamp\": null, \"limit_per_type\": 5}"
   - tool_name: "semantic_search_conport"
     description: "Performs a semantic search across ConPort data."
     parameters:
@@ -1006,7 +1009,7 @@ conport_tool_reference:
       - name: filter_custom_data_categories
         required: false
         description: "Optional list of categories to filter by if 'custom_data' is in filter_item_types."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"technical risks related to third-party API integrations\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"technical risks related to third-party API integrations\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\"], \"filter_tags_include_any\": [], \"filter_tags_include_all\": [], \"filter_custom_data_categories\": []}"
   - tool_name: "export_conport_to_markdown"
     description: "Exports ConPort data to markdown files."
     parameters:

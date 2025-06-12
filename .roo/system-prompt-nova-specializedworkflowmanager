@@ -25,8 +25,10 @@ tools:
         description: "Relative path to file (from `{{workspace}}`), e.g., `.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md`."
       - name: start_line
         required: false
+        description: "Start line (1-based, optional)."
       - name: end_line
         required: false
+        description: "End line (1-based, inclusive, optional)."
     usage_format: |
       <read_file>
       <path>.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md</path>
@@ -357,7 +359,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"id_filter\": [123]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 5, \"tags_filter_include_any\": [\"#workflow_change\"], \"tags_filter_include_all\": []}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your workflow management subtask. Returns the integer ID."
     parameters:
@@ -379,7 +381,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Create new workflow file for code reviews (Assigned: nova-specializedworkflowmanager)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Create new workflow file for code reviews (Assigned: nova-specializedworkflowmanager)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -398,4 +400,4 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"New code review workflow created and logged to ConPort.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"New code review workflow created and logged to ConPort.\", \"parent_id\": null}"

@@ -363,7 +363,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"], \"tags_filter_include_all\": []}"
   - tool_name: "search_decisions_fts"
     description: "Full-text search across decision fields (summary, rationale, details, tags)."
     parameters:
@@ -392,7 +392,7 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "Maximum number of entries to return (most recent first)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\", \"parent_id_filter\": null, \"limit\": 20}"
   - tool_name: "get_system_patterns"
     description: "Retrieves system patterns."
     parameters:
@@ -405,7 +405,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ResilientAPICall_v1\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#api\"], \"tags_filter_include_all\": []}"
   - tool_name: "get_custom_data"
     description: "Retrieves custom data."
     parameters:
@@ -418,7 +418,7 @@ conport_tool_reference:
       - name: key
         required: false
         description: "Filter by key (requires category)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": null}"
   - tool_name: "search_project_glossary_fts"
     description: "Full-text search within the 'ProjectGlossary' custom data category."
     parameters:
@@ -453,7 +453,7 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "Maximum number of links to return"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"
   - tool_name: "search_custom_data_value_fts"
     description: "Full-text search across all custom data values, categories, and keys."
     parameters:
@@ -491,7 +491,7 @@ conport_tool_reference:
       - name: version
         required: false
         description: "Return a specific version"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3, \"before_timestamp\": null, \"after_timestamp\": null, \"version\": null}"
   - tool_name: "get_recent_activity_summary"
     description: "Provides a summary of recent ConPort activity (new/updated items)."
     parameters:
@@ -507,7 +507,7 @@ conport_tool_reference:
       - name: limit_per_type
         required: false
         description: "Maximum number of recent items to show per activity type (e.g., 5 most recent decisions)."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"limit_per_type\": 5}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"since_timestamp\": null, \"limit_per_type\": 5}"
   - tool_name: "get_conport_schema"
     description: "Retrieves the schema of available ConPort tools and their arguments."
     parameters:
@@ -539,4 +539,4 @@ conport_tool_reference:
       - name: filter_custom_data_categories
         required: false
         description: "Optional list of categories to filter by if 'custom_data' is in filter_item_types."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"technical risks related to third-party API integrations\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"technical risks related to third-party API integrations\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\"], \"filter_tags_include_any\": [], \"filter_tags_include_all\": [], \"filter_custom_data_categories\": []}"

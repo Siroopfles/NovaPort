@@ -170,7 +170,7 @@ tools:
       - ConPort `CustomData ErrorLogs:EL_20240115_CheckoutCrash` (key) updated with detailed notes, refined repro steps, and RCA. Status set to `INVESTIGATION_COMPLETE_RCA_FOUND`.
       - Suggestion for fix: Add null check for `cartItem.product_id` in `OrderService.calculateTotal`.
       Suggested_ConPort_Links:
-        - { source_item: "ErrorLogs:EL_20240115_CheckoutCrash", target_item: "Decision:D-105" (recent change to cart logic), relationship: "potentially_caused_by" }
+        - { source_item: "ErrorLogs:EL_20240115_CheckoutCrash", target_item: "Decision:D-105", relationship: "potentially_caused_by" }
       - My `Progress` (integer `id` P-205) for this investigation is logged as DONE.
       </result>
       </attempt_completion>
@@ -354,7 +354,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Investigate ErrorLogs:EL_XYZ (Assigned: nova-specializedbuginvestigator)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Investigate ErrorLogs:EL_XYZ (Assigned: nova-specializedbuginvestigator)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -373,7 +373,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"RCA for ErrorLogs:EL_XYZ complete and logged to the item.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"RCA for ErrorLogs:EL_XYZ complete and logged to the item.\", \"parent_id\": null}"
   - tool_name: "get_decisions"
     description: "Retrieves a `Decision` item that provides context on a recent change possibly related to the bug."
     parameters:
@@ -389,7 +389,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"], \"tags_filter_include_any\": []}"
   - tool_name: "get_linked_items"
     description: "Retrieves all items linked to the `ErrorLogs` entry to understand its context."
     parameters:
@@ -411,4 +411,4 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "Maximum number of links to return"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"custom_data\", \"item_id\": \"ErrorLogs:EL_20240515_LoginFail_High\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"custom_data\", \"item_id\": \"ErrorLogs:EL_20240515_LoginFail_High\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"

@@ -86,7 +86,7 @@ tools:
     parameters:
     - name: path
       required: true
-      description: "File path to insert into (relative to '{{workspace}}')."
+      description: "File path to insert into (from `{{workspace}}`)."
     - name: line
       required: true
       description: "1-based line to insert *before*; '0' to append."
@@ -424,9 +424,6 @@ conport_tool_reference:
       - name: tags
         required: false
         description: "A list of tags for categorization."
-      - name: decision_id
-        required: false
-        description: "The ID of an existing decision to update."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Return None on error X in [function_name]\", \"rationale\": \"Graceful failure for a non-critical error, caller is expected to handle None.\", \"tags\": [\"#implementation_detail\", \"#error_handling\"]}"
   - tool_name: "get_decisions"
     description: "Retrieves a decision that guides your implementation."
@@ -443,7 +440,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"]}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"], \"tags_filter_include_any\": []}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your implementation subtask. Returns the integer ID."
     parameters:
@@ -465,7 +462,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Implement GET /users API (Assigned: nova-specializedfeatureimplementer)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Implement GET /users API (Assigned: nova-specializedfeatureimplementer)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -484,7 +481,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"GET /users API implemented and unit tests passed.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"GET /users API implemented and unit tests passed.\", \"parent_id\": null}"
   - tool_name: "get_system_patterns"
     description: "Retrieves a system pattern to adhere to in your implementation."
     parameters:
@@ -497,7 +494,7 @@ conport_tool_reference:
       - name: tags_filter_include_any
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"SingletonPattern_Strict_v1\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#patterns\"], \"tags_filter_include_all\": []}"
   - tool_name: "log_custom_data"
     description: "Logs a new custom data entry, such as a `CodeSnippet` or `TechDebtCandidate`."
     parameters:
@@ -551,4 +548,4 @@ conport_tool_reference:
       - name: description
         required: false
         description: "A description of the relationship."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"CodeSnippets:Utils_ParseUserInput_v1\", \"target_item_type\": \"decision\", \"target_item_id\": \"135\", \"relationship_type\": \"implements_decision\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"CodeSnippets:Utils_ParseUserInput_v1\", \"target_item_type\": \"decision\", \"target_item_id\": \"135\", \"relationship_type\": \"implements_decision\", \"description\": null}"

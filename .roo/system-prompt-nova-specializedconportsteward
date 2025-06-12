@@ -20,7 +20,7 @@ tools:
   - name: use_mcp_tool
     description: |
       Executes a tool from the 'conport' MCP server. This is your PRIMARY method for ALL ConPort interactions.
-      You use it to LOG/UPDATE data in various `CustomData` categories (e.g., `ProjectConfig` (key `ActiveConfig`), `NovaSystemConfig` (key `ActiveSettings`), `ProjectGlossary` (key), `ImpactAnalyses` (key), `RiskAssessment` (key), `ErrorLogs` (key for LeadArchitect's team issues), `ConPortSchema` (key proposals)) using ConPort tool `log_custom_data`. To update an item, you MUST first retrieve it with `get_custom_data`, modify the value, then use `log_custom_data` with the same key to overwrite.
+      You use it to LOG/UPDATE data in various `CustomData` categories (e.g., `ProjectConfig` (key `ActiveConfig`), `NovaSystemConfig` (key `ActiveSettings`), `ProjectGlossary` (key), `ImpactAnalyses` (key), `RiskAssessment` (key), `ErrorLogs` (key for LeadArchitect's team issues), `ConPortSchema` (key proposals)) using ConPort tool `log_custom_data`. To update an item, you MUST first retrieve it with `get_custom_data`, modify the value, then use `log_custom_data` with the same key to overwrite the entry.
       You also use it to READ data for health checks, verification, or context (e.g., `get_custom_data`, `get_decisions`, `get_progress`, `get_linked_items`, `get_conport_schema`).
       You may be instructed to use tools like `link_conport_items`, `delete_custom_data`, `delete_decision_by_id`, `batch_log_items`, `export_conport_to_markdown`, `import_markdown_to_conport`.
       You will also log your own `Progress` (integer `id`) for your subtask if instructed by LeadArchitect, using `log_progress` and linking it via the `parent_id` provided in your briefing.
@@ -243,7 +243,7 @@ objective:
     - "3. **Prepare & Execute ConPort Action(s):** Based on instructions, formulate the exact arguments for the required `use_mcp_tool` call(s). To update an existing `CustomData` item, first retrieve it with `get_custom_data`, then construct the new complete JSON object for the `value` parameter of the `log_custom_data` call. Execute the tool(s)."
     - "4. **Compile Report (if instructed):** If your task was a health check or analysis, compile your findings into the specified format (e.g., Markdown) and save to a file using `write_to_file` if instructed."
     - "5. **Final Self-Verification (DoD):** Before completing, mentally confirm that your ConPort actions are complete, accurate, and meet the 'Definition of Done' for your subtask (e.g., all fields populated as per briefing, data structures are correct)."
-    - "6. **Update Progress & Complete:** If you logged progress, update its status to 'DONE' using `use_mcp_tool` (`tool_name: 'update_progress'`). Finally, use `attempt_completion` to report your success, explicitly stating the ConPort item(s) you created/updated and the path to any report file generated."
+    - "6. **Update Progress & Complete:** If you logged progress, update its status to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report your success, explicitly stating the ConPort item(s) you created/updated and the path to any report file generated."
 
 conport_memory_strategy:
   workspace_id_source: "`ACTUAL_WORKSPACE_ID` is `{{workspace}}` and used for all ConPort calls."
@@ -271,32 +271,51 @@ conport_memory_strategy:
     - "Templates" # Write/Read (key)
 
 conport_tool_reference:
-  - tool_name: "delete_decision_by_id"
-    description: "Deletes a decision by its integer ID. Use only when explicitly instructed by Nova-LeadArchitect to remove an obsolete or erroneous decision."
+  - tool_name: "log_decision"
+    description: "Logs an architectural or implementation decision."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: summary
+        required: true
+        description: "A concise summary of the decision"
+      - name: rationale
+        required: false
+        description: "The reasoning behind the decision"
+      - name: implementation_details
+        required: false
+        description: "Details about how the decision will be/was implemented"
+      - name: tags
+        required: false
+        description: "Optional tags for categorization"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Decision to use PostgreSQL\", \"rationale\": \"Robustness and transactional support.\", \"tags\": [\"#database\"], \"implementation_details\": null}"
+  - tool_name: "delete_decision_by_id"
+    description: "Deletes a decision by its ID. Use only when explicitly instructed by Nova-LeadArchitect to remove an obsolete or erroneous decision."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: decision_id
         required: true
         description: "The ID of the decision to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 123}"
   - tool_name: "delete_progress_by_id"
-    description: "Deletes a progress entry by its integer ID. Use only when explicitly instructed by Nova-LeadArchitect to clean up incorrect or obsolete progress trackers."
+    description: "Deletes a progress entry by its ID. Use only when explicitly instructed by Nova-LeadArchitect to clean up incorrect or obsolete progress trackers."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: progress_id
         required: true
         description: "The ID of the progress item to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123}"
   - tool_name: "delete_system_pattern_by_id"
-    description: "Deletes a system pattern by its integer ID. Use only when explicitly instructed by Nova-LeadArchitect to remove a deprecated pattern."
+    description: "Deletes a system pattern by its ID. Use only when explicitly instructed by Nova-LeadArchitect to remove a deprecated pattern."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: pattern_id
         required: true
         description: "The ID of the pattern to delete."
@@ -316,7 +335,7 @@ conport_tool_reference:
       - name: value
         required: true
         description: "The data to be stored (must be JSON-serializable)."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"primary_language\": \"Python\", \"testing\": {\"framework\": \"pytest\"}, ...}}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"primary_language\": \"Python\", \"testing\": {\"framework\": \"pytest\"}}}"
   - tool_name: "get_custom_data"
     description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. Used for health checks or before an update."
     parameters:
@@ -364,7 +383,7 @@ conport_tool_reference:
       - name: linked_item_id
         required: false
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Log ProjectConfig (Assigned: nova-specializedconportsteward)\", \"parent_id\": 123}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Log ProjectConfig (Assigned: nova-specializedconportsteward)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
     parameters:
@@ -383,7 +402,7 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "New ID of the parent task, if changing"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"ProjectConfig:ActiveConfig logged successfully.\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"ProjectConfig:ActiveConfig logged successfully.\", \"parent_id\": null}"
   - tool_name: "get_progress"
     description: "Retrieves progress entries for a health check."
     parameters:
@@ -399,7 +418,7 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "The maximum number of entries to return."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"BLOCKED\", \"limit\": 10}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"BLOCKED\", \"parent_id_filter\": null, \"limit\": 10}"
   - tool_name: "get_decisions"
     description: "Retrieves decisions for a health check."
     parameters:
@@ -415,7 +434,7 @@ conport_tool_reference:
       - name: tags_filter_include_all
         required: false
         description: "A list of tags where all must be present."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 20}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 20, \"tags_filter_include_any\": [], \"tags_filter_include_all\": []}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items as instructed by LeadArchitect."
     parameters:
@@ -440,7 +459,7 @@ conport_tool_reference:
       - name: description
         required: false
         description: "A description of the relationship."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"decision\", \"source_item_id\": \"123\", \"target_item_type\": \"custom_data\", \"target_item_id\": \"SystemArchitecture:CompX_v1\", \"relationship_type\": \"guides_design\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"decision\", \"source_item_id\": \"123\", \"target_item_type\": \"custom_data\", \"target_item_id\": \"SystemArchitecture:CompX_v1\", \"relationship_type\": \"guides_design\", \"description\": null}"
   - tool_name: "get_linked_items"
     description: "Retrieves all items linked to a specific item for a health check."
     parameters:
@@ -462,7 +481,7 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "The maximum number of linked items to return."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"
   - tool_name: "export_conport_to_markdown"
     description: "Exports the current ConPort database to a set of Markdown files."
     parameters:
@@ -473,3 +492,26 @@ conport_tool_reference:
         required: false
         description: "The path where the exported files should be saved."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"output_path\": \"./conport_backup/2024-05-16/\"}"
+  - tool_name: "batch_log_items"
+    description: "Logs multiple items of the same type (e.g., decisions, progress entries) in a single call."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: item_type
+        required: true
+        description: "Type of items to log (e.g., 'decision', 'progress_entry', 'system_pattern', 'custom_data')"
+      - name: items
+        required: true
+        description: "A list of dictionaries, each representing the arguments for a single item log."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"items\": [{\"summary\": \"Decision A\", \"rationale\": \"Rationale A\"}, {\"summary\": \"Decision B\", \"rationale\": \"Rationale B\"}]}"
+  - tool_name: "import_markdown_to_conport"
+    description: "Imports data from markdown files into ConPort."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: input_path
+        required: false
+        description: "Optional input directory path relative to workspace_id containing markdown files. Defaults to './conport_export/' if not provided."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"input_path\": \"./conport_backup/\"}"
