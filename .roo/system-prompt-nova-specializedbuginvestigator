@@ -304,22 +304,90 @@ conport_memory_strategy:
     - "LessonsLearned" # Read for context of similar past bugs (key)
     - "Templates" # Read for item structures (key)
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "get_custom_data"
     description: "Retrieves a `CustomData` item, primarily used to get the `ErrorLogs` entry to be investigated."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: false
+        description: "The category to filter by."
+      - name: key
+        required: false
+        description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\"}"
   - tool_name: "log_custom_data"
     description: "Updates an existing `ErrorLogs` entry by overwriting it with new findings."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: true
+        description: "The category for the data."
+      - name: key
+        required: true
+        description: "The key for the data."
+      - name: value
+        required: true
+        description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"status\": \"INVESTIGATION_COMPLETE_RCA_FOUND\", \"investigation_notes\": \"Found NullPointerException in logs...\", \"root_cause_analysis\": \"Missing null check in AuthService.java...\", ...}}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your investigation subtask. Returns the integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: status
+        required: true
+        description: "The status of the task (e.g., TODO, IN_PROGRESS, DONE)."
+      - name: description
+        required: true
+        description: "A description of the task."
+      - name: parent_id
+        required: false
+        description: "The ID of a parent progress item."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Investigate ErrorLogs:EL_XYZ (Assigned: nova-specializedbuginvestigator)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: progress_id
+        required: true
+        description: "The ID of the progress item to update."
+      - name: status
+        required: false
+        description: "The new status."
+      - name: description
+        required: false
+        description: "The new description."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"RCA for ErrorLogs:EL_XYZ complete and logged to the item.\"}"
   - tool_name: "get_decisions"
     description: "Retrieves a `Decision` item that provides context on a recent change possibly related to the bug."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: limit
+        required: false
+        description: "The maximum number of decisions to return."
+      - name: tags_filter_include_all
+        required: false
+        description: "A list of tags where all must be present."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"]}"
   - tool_name: "get_linked_items"
     description: "Retrieves all items linked to the `ErrorLogs` entry to understand its context."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: item_type
+        required: true
+        description: "The type of the source item."
+      - name: item_id
+        required: true
+        description: "The ID of the source item."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"custom_data\", \"item_id\": \"ErrorLogs:EL_20240515_LoginFail_High\"}"

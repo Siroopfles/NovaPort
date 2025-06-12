@@ -243,25 +243,112 @@ conport_memory_strategy:
     - "Templates" # Read for item structures (key)
 
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your design subtask. Returns the integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: status
+        required: true
+        description: "The status of the task (e.g., TODO, IN_PROGRESS, DONE)."
+      - name: description
+        required: true
+        description: "A description of the task."
+      - name: parent_id
+        required: false
+        description: "The ID of a parent progress item."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Design API for User Service (Assigned: nova-specializedsystemdesigner)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: progress_id
+        required: true
+        description: "The ID of the progress item to update."
+      - name: status
+        required: false
+        description: "The new status."
+      - name: description
+        required: false
+        description: "The new description."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"User Service API design complete and logged to ConPort.\"}"
   - tool_name: "log_custom_data"
     description: "Your primary tool. Logs a new design artifact (or overwrites an existing one) in a specified `CustomData` category."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: true
+        description: "The category for the data."
+      - name: key
+        required: true
+        description: "The key for the data."
+      - name: value
+        required: true
+        description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"SystemArchitecture\", \"key\": \"Component_UserService_v1.2\", \"value\": {\"description\": \"Handles user registration, login, and profile management.\", \"diagram_src\": \"@startuml...\"}}"
   - tool_name: "get_custom_data"
     description: "Retrieves context like a parent `SystemArchitecture` component or a `FeatureScope` document."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: false
+        description: "The category to filter by."
+      - name: key
+        required: false
+        description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"FeatureScope\", \"key\": \"UserProfileFeature_Scope\"}"
   - tool_name: "get_decisions"
     description: "Retrieves an architectural `Decision` that guides your design."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: limit
+        required: false
+        description: "The maximum number of decisions to return."
+      - name: tags_filter_include_all
+        required: false
+        description: "A list of tags where all must be present."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#database\"]}"
   - tool_name: "get_system_patterns"
     description: "Retrieves a `SystemPattern` you must adhere to in your design."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: name_filter_exact
+        required: false
+        description: "Filter by an exact pattern name."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"CircuitBreaker_v1\"}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items as instructed by LeadArchitect."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: source_item_type
+        required: true
+        description: "The type of the source item."
+      - name: source_item_id
+        required: true
+        description: "The ID of the source item."
+      - name: target_item_type
+        required: true
+        description: "The type of the target item."
+      - name: target_item_id
+        required: true
+        description: "The ID of the target item."
+      - name: relationship_type
+        required: true
+        description: "The type of relationship."
+      - name: description
+        required: false
+        description: "A description of the relationship."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"APIEndpoints:UserCreate_v1\", \"target_item_type\": \"decision\", \"target_item_id\": \"15\", \"relationship_type\": \"implements_decision\"}"

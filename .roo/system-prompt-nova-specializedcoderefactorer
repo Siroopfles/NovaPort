@@ -381,25 +381,112 @@ conport_memory_strategy:
     - "ErrorLogs" # Read (if refactoring a bug-prone area, by key)
 
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "log_decision"
     description: "Logs a new decision about the refactoring approach. Returns the integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Refactored ComplexClass to use Strategy Pattern\", \"rationale\": \"Addresses TechDebtCandidate TDC_XYZ by improving maintainability and testability.\", \"tags\": [\"#refactoring\", \"#design_pattern\"]}"
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: summary
+        required: true
+        description: "A one-line summary of the decision."
+      - name: rationale
+        required: false
+        description: "The reasoning behind the decision."
+      - name: implementation_details
+        required: false
+        description: "Details about how the decision will be implemented."
+      - name: tags
+        required: false
+        description: "A list of tags for categorization."
+      - name: status
+        required: false
+        description: "The status of the decision (e.g., APPROVED, PENDING)."
+      - name: decision_id
+        required: false
+        description: "The ID of an existing decision to update."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Refactored ComplexClass to use Strategy Pattern\", \"rationale\": \"Addresses TechDebtCandidate TDC_XYZ by improving maintainability and testability.\", \"tags\": [\"#refactoring\", \"#design_pattern\", \"#ComplexClass\"]}"
   - tool_name: "log_custom_data"
     description: "Logs a new custom data entry, such as a CodeSnippet or a new TechDebtCandidate."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: true
+        description: "The category for the data."
+      - name: key
+        required: true
+        description: "The key for the data."
+      - name: value
+        required: true
+        description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Refactored_Parser_v2\", \"value\": {\"code\": \"// new refactored code...\", \"language\": \"javascript\", \"description\": \"Refactored parser for performance.\"}}"
   - tool_name: "get_custom_data"
     description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: false
+        description: "The category to filter by."
+      - name: key
+        required: false
+        description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TechDebtCandidates\", \"key\": \"TDC_20240101_LegacyModule\"}"
   - tool_name: "get_decisions"
     description: "Retrieves a decision that guides the refactoring."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: limit
+        required: false
+        description: "The maximum number of decisions to return."
+      - name: tags_filter_include_all
+        required: false
+        description: "A list of tags where all must be present."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#refactoring_strategy\"]}"
   - tool_name: "get_system_patterns"
     description: "Retrieves a system pattern to adhere to during refactoring."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: name_filter_exact
+        required: false
+        description: "Filter by an exact pattern name."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ImmutableDataObjects_v1\"}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your refactoring subtask. Returns the integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: status
+        required: true
+        description: "The status of the task (e.g., TODO, IN_PROGRESS, DONE)."
+      - name: description
+        required: true
+        description: "A description of the task."
+      - name: parent_id
+        required: false
+        description: "The ID of a parent progress item."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Refactor LegacyModule.java (Assigned: nova-specializedcoderefactorer)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: progress_id
+        required: true
+        description: "The ID of the progress item to update."
+      - name: status
+        required: false
+        description: "The new status."
+      - name: description
+        required: false
+        description: "The new description."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Refactoring of LegacyModule.java complete, all tests passing.\"}"

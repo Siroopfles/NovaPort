@@ -252,19 +252,77 @@ conport_memory_strategy:
     - "LessonsLearned" # Read (context for complex bugs, by key)
     - "Templates" # Read for item structures (key)
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "get_custom_data"
     description: "Retrieves a `CustomData` item, primarily used to get the `ErrorLogs` entry to be verified."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: false
+        description: "The category to filter by."
+      - name: key
+        required: false
+        description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\"}"
   - tool_name: "log_custom_data"
     description: "Updates an existing `ErrorLogs` entry by overwriting it, or logs a new `ErrorLogs` entry for a regression."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: true
+        description: "The category for the data."
+      - name: key
+        required: true
+        description: "The key for the data."
+      - name: value
+        required: true
+        description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"status\": \"RESOLVED\", \"verification_notes\": \"Verified fix on build v1.2.4. Login with special characters now succeeds. No regressions found.\", ...}}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your verification subtask. Returns the integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: status
+        required: true
+        description: "The status of the task (e.g., TODO, IN_PROGRESS, DONE)."
+      - name: description
+        required: true
+        description: "A description of the task."
+      - name: parent_id
+        required: false
+        description: "The ID of a parent progress item."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Verify fix for EL_20240515_LoginFail_High (Assigned: nova-specializedfixverifier)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: progress_id
+        required: true
+        description: "The ID of the progress item to update."
+      - name: status
+        required: false
+        description: "The new status."
+      - name: description
+        required: false
+        description: "The new description."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Verification for EL_20240515_LoginFail_High complete. Status: RESOLVED.\"}"
   - tool_name: "get_decisions"
     description: "Retrieves a `Decision` item that provides context on the fix being verified."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: limit
+        required: false
+        description: "The maximum number of decisions to return."
+      - name: tags_filter_include_all
+        required: false
+        description: "A list of tags where all must be present."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#fix_for_EL_20240515\"]}"
