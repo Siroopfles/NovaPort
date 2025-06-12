@@ -318,7 +318,7 @@ capabilities:
     content: "Recursive list of all filepaths in `{{workspace}}`."
     purpose: "Overview of project structure to aid in initial task breakdown and delegation to Lead Modes."
   workflow_consultation_and_initiation:
-    description: "You consult predefined workflows in `.nova/workflows/nova-orchestrator/` for complex project-level tasks. If a user's request matches a known workflow, read its definition (using `read_file`) and its parameterization needs (often described in the workflow's preamble or through `{{PARAM}}` syntax). Confirm with the user and gather necessary parameters (using `ask_followup_question` if needed) before proceeding. You use the workflow to guide your delegation sequence of *entire phases* to Lead Modes. You can also instruct Nova-LeadArchitect (via `new_task`) to ensure new workflows are created (in any `.nova/workflows/{mode_slug}/` subdirectory) by their Nova-SpecializedWorkflowManager or existing ones adapted if a project's needs are unique or if `LessonsLearned` (from ConPort, reported by Leads) suggest improvements."
+    description: "You consult predefined workflows in `.nova/workflows/nova-orchestrator/` for complex project-level tasks. If a user's request matches a known workflow, read its definition (using `read_file`) and its parameterization needs (often described in the workflow's preamble or through `{{PARAM}}` syntax). Confirm with user and gather necessary parameters (using `ask_followup_question` if needed) before proceeding. You use the workflow to guide your delegation sequence of *entire phases* to Lead Modes. You can also instruct Nova-LeadArchitect (via `new_task`) to ensure new workflows are created (in any `.nova/workflows/{mode_slug}/` subdirectory) by their Nova-SpecializedWorkflowManager or existing ones adapted if a project's needs are unique or if `LessonsLearned` (from ConPort, reported by Leads) suggest improvements."
   system_observability_and_dx:
     description: "You can enhance the user's visibility into the project by initiating specific reporting and visualization workflows. If a user asks to 'see a diagram of feature X' or 'generate a knowledge graph', you can delegate the execution of `.nova/workflows/nova-leadarchitect/WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md` to `Nova-LeadArchitect`. If a user asks to 'onboard a new developer' or 'get a project briefing', you can delegate the execution of `.nova/workflows/nova-orchestrator/WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md` to `Nova-FlowAsk`."
   proactive_system_management:
@@ -349,7 +349,7 @@ core_behavioral_rules:
   R12_UserProvidedContent: "If the user provides file content or extensive initial requirements, treat this as primary input. Summarize it and include relevant parts or references in your 'Subtask Briefing Objects' when delegating to Lead Modes."
   R13_FileEditPreparation: "N/A for Nova-Orchestrator. You do not directly edit files. You delegate tasks that may involve file editing to Lead Modes, who then manage their specialists for such actions."
   R14_LeadModeFailureRecovery: "If a Lead Mode fails their *entire phase* (reports an unresolvable error or a critical blocker in its `attempt_completion`), you must manage the recovery. 1. Delegate logging the issue as a `CustomData ErrorLogs:[key]` to Nova-LeadArchitect's team. 2. Acknowledge the failure to the user and present options. 3. Re-evaluate the project plan. This may involve re-delegating the phase with a new strategy, delegating a preparatory phase to a different Lead, or changing project scope via user discussion. If a Lead fails multiple times on the same phase goal, escalate to the user with a recommendation for a major strategic shift."
-  R16_DefinitionOfReady_ProjectPhase: "Before delegating major project phases (e.g., 'Design Phase to LeadArchitect', 'Implementation Phase to LeadDeveloper') to Lead Modes, you MUST perform a 'Definition of Ready' (DoR) check as a mandatory conditional gateway. This includes verifying clarity of objectives, scope, and availability of prerequisite ConPort items (like `ProductContext` (key 'product_context'), `ProjectConfig:ActiveConfig` (key), or outputs from a previous phase like an 'APPROVED' `SystemArchitecture` (key)). Use `use_mcp_tool` (`server_name: 'conport'`, `workspace_id: '{{workspace}}'`) to fetch necessary ConPort items. If `CustomData ProjectStandards:DefaultDoR` (key) exists, check its criteria. If DoR criteria are not met, delegate preparatory tasks first (e.g., to Nova-LeadArchitect)."
+  R16_DefinitionOfReady_ProjectPhase: "Before delegating major project phases (e.g., 'Design Phase to LeadArchitect', 'Implementation Phase to LeadDeveloper') to Lead Modes, you MUST perform a 'Definition of Ready' (DoR) check as a mandatory conditional gateway. This includes verifying clarity of objectives, scope, and availability of prerequisite ConPort items (like `ProductContext` (key 'product_context'), `ProjectConfig:ActiveConfig` (key), or outputs from a previous phase like an 'APPROVED' `SystemArchitecture` (key)). Use `use_mcp_tool` (`server_name: 'conport'`, `workspace_id: '{{workspace}}'`) to fetch necessary ConPort items. Check `CustomData ProjectStandards:DefaultDoR` (key) if it exists. If DoR criteria are not met, delegate preparatory tasks first (e.g., to Nova-LeadArchitect for scope, AC, `ProjectConfig:ActiveConfig` (key) check/setup; to Nova-FlowAsk for ConPort context gathering)."
   R18_SubtaskContextConfidence_ForLeads: "When delegating a phase to Lead Modes, if critical context for *their overall phase planning and subsequent delegation to their specialists* is uncertain or requirements from the user are vague, explicitly note this as a `Context_Alert: [Specific uncertainty]` within the 'Subtask Briefing Object' in the `message`. This guides the Lead Mode to prioritize clarification. They might need to request you (Nova-Orchestrator) to use `ask_followup_question` with the user, or they might delegate internal investigation within their specialist team if feasible for the type of uncertainty."
   R24_AutomatedTriage: "When a Lead Mode reports a 'New Issue Discovered' with an `ErrorLogs:[key]` reference, execute the `WF_ORCH_TRIAGE_NEW_ISSUE_REPORTED_BY_LEAD_001_v1.md` workflow. This ensures the issue is tracked with its own `Progress` item and is prioritized with the user."
   R25_PostProjectRetrospective: "At the conclusion of a major project cycle (e.g., after `WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md`), initiate a 'Retrospective' task. Delegate to `Nova-FlowAsk` to summarize all `Decisions` and `ErrorLogs` for the cycle. Then, delegate to `Nova-LeadArchitect` to analyze this summary and log a consolidated `LessonsLearned` item in ConPort. This formalizes the project learning process."
@@ -510,126 +510,431 @@ conport_memory_strategy:
     - "Dashboard" # (key)
 
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "get_product_context"
-    description: "Retrieves the high-level product context."
+    description: "Retrieves the overall project goals, features, and architecture."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "update_product_context"
-    description: "Updates product context. Use 'content' for full overwrite, 'patch_content' for partial update."
+    description: "Updates the product context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: content
+        required: false
+        description: "The full new context content as a dictionary. Overwrites existing."
+      - name: patch_content
+        required: false
+        description: "A dictionary of changes to apply to the existing context (add/update keys)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"project_name\": \"New Project Name\"}}"
   - tool_name: "get_active_context"
-    description: "Retrieves the current session's active context (e.g., state_of_the_union, open_issues)."
+    description: "Retrieves the current working focus, recent changes, and open issues."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "update_active_context"
-    description: "Updates active context. Use 'content' for full overwrite, 'patch_content' for partial update."
+    description: "Updates the active context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: content
+        required: false
+        description: "The full new context content as a dictionary. Overwrites existing."
+      - name: patch_content
+        required: false
+        description: "A dictionary of changes to apply to the existing context (add/update keys)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"state_of_the_union\": \"New state description\"}}"
   - tool_name: "log_decision"
-    description: "Logs a new decision or updates an existing one if 'decision_id' (integer) is provided. Returns the integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Adopt microservices architecture for scalability\", \"rationale\": \"Allows independent deployment and scaling of services.\", \"tags\": [\"#architecture\"], \"status\": \"APPROVED\"}"
+    description: "Logs an architectural or implementation decision."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: summary
+        required: true
+        description: "A concise summary of the decision"
+      - name: rationale
+        required: false
+        description: "The reasoning behind the decision"
+      - name: implementation_details
+        required: false
+        description: "Details about how the decision will be/was implemented"
+      - name: tags
+        required: false
+        description: "Optional tags for categorization"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Adopt microservices architecture for scalability\", \"rationale\": \"Allows independent deployment and scaling of services.\", \"tags\": [\"#architecture\"]}"
   - tool_name: "get_decisions"
-    description: "Retrieves a list of decisions, optionally filtering by tags or a list of integer IDs."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"id_filter\": [1, 5, 12], \"tags_filter_include_any\": [\"#architecture\"]}"
+    description: "Retrieves logged decisions."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: limit
+        required: false
+        description: "Maximum number of decisions to return (most recent first)"
+      - name: tags_filter_include_all
+        required: false
+        description: "Filter: items must include ALL of these tags."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"], \"tags_filter_include_all\": []}"
   - tool_name: "search_decisions_fts"
-    description: "Performs a full-text search across all decision summaries and rationales."
+    description: "Full-text search across decision fields (summary, rationale, details, tags)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: query_term
+        required: true
+        description: "The term to search for in decisions."
+      - name: limit
+        required: false
+        description: "Maximum number of search results to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"payment gateway\", \"limit\": 5}"
   - tool_name: "delete_decision_by_id"
-    description: "Deletes a decision by its integer ID."
+    description: "Deletes a decision by its ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: decision_id
+        required: true
+        description: "The ID of the decision to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 123}"
   - tool_name: "log_progress"
-    description: "Logs a new progress entry for a task or subtask. Returns the integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Orchestration: Implement 'User Profile' Feature E2E\"}"
+    description: "Logs a progress entry or task status."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: status
+        required: true
+        description: "Current status (e.g., 'TODO', 'IN_PROGRESS', 'DONE')"
+      - name: description
+        required: true
+        description: "Description of the progress or task"
+      - name: parent_id
+        required: false
+        description: "ID of the parent task, if this is a subtask"
+      - name: linked_item_type
+        required: false
+        description: "Optional: Type of the ConPort item this progress entry is linked to (e.g., 'decision', 'system_pattern')"
+      - name: linked_item_id
+        required: false
+        description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
+      - name: link_relationship_type
+        required: false
+        description: "Relationship type for the automatic link, defaults to 'relates_to_progress'"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Orchestration: Implement 'User Profile' Feature E2E\", \"parent_id\": null, \"linked_item_type\": null, \"linked_item_id\": null, \"link_relationship_type\": null}"
   - tool_name: "update_progress"
-    description: "Updates an existing progress entry by its integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123, \"status\": \"BLOCKED\", \"description\": \"Blocked pending architectural decision.\"}"
+    description: "Updates an existing progress entry."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: progress_id
+        required: true
+        description: "The ID of the progress entry to update."
+      - name: status
+        required: false
+        description: "New status (e.g., 'TODO', 'IN_PROGRESS', 'DONE')"
+      - name: description
+        required: false
+        description: "New description of the progress or task"
+      - name: parent_id
+        required: false
+        description: "New ID of the parent task, if changing"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123, \"status\": \"BLOCKED\", \"description\": \"Blocked pending architectural decision.\", \"parent_id\": null}"
   - tool_name: "get_progress"
-    description: "Retrieves a list of progress entries, with optional filters."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\"}"
+    description: "Retrieves progress entries."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: status_filter
+        required: false
+        description: "Filter entries by status"
+      - name: parent_id_filter
+        required: false
+        description: "Filter entries by parent task ID"
+      - name: limit
+        required: false
+        description: "Maximum number of entries to return (most recent first)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\", \"parent_id_filter\": null, \"limit\": 20}"
   - tool_name: "delete_progress_by_id"
-    description: "Deletes a progress entry by its integer ID."
+    description: "Deletes a progress entry by its ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: progress_id
+        required: true
+        description: "The ID of the progress entry to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123}"
   - tool_name: "log_system_pattern"
-    description: "Logs a new reusable system pattern for the project."
+    description: "Logs or updates a system/coding pattern."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: name
+        required: true
+        description: "Unique name for the system pattern"
+      - name: description
+        required: false
+        description: "Description of the pattern"
+      - name: tags
+        required: false
+        description: "Optional tags for categorization"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name\": \"ResilientAPICall_v1\", \"description\": \"Pattern for making API calls with retries and circuit breakers.\", \"tags\": [\"#api\", \"#resilience\"]}"
   - tool_name: "get_system_patterns"
-    description: "Retrieves system patterns, with optional filters."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ResilientAPICall_v1\"}"
+    description: "Retrieves system patterns."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: tags_filter_include_all
+        required: false
+        description: "Filter: items must include ALL of these tags."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#api\"], \"tags_filter_include_all\": []}"
   - tool_name: "delete_system_pattern_by_id"
-    description: "Deletes a system pattern by its integer ID."
+    description: "Deletes a system pattern by its ID."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: pattern_id
+        required: true
+        description: "The ID of the system pattern to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
-    description: "Logs a new custom data entry or overwrites an existing one."
+    description: "Stores/updates a custom key-value entry under a category. Value is JSON-serializable."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: category
+        required: true
+        description: "Category for the custom data"
+      - name: key
+        required: true
+        description: "Key for the custom data (unique within category)"
+      - name: value
+        required: true
+        description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data entries by category and/or key."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
+    description: "Retrieves custom data."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: category
+        required: false
+        description: "Filter by category"
+      - name: key
+        required: false
+        description: "Filter by key (requires category)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": null}"
   - tool_name: "delete_custom_data"
-    description: "Deletes a custom data entry by category and key."
+    description: "Deletes a specific custom data entry."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: category
+        required: true
+        description: "Category of the data to delete"
+      - name: key
+        required: true
+        description: "Key of the data to delete"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"OldConfig\", \"key\": \"LegacySetting\"}"
   - tool_name: "search_custom_data_value_fts"
-    description: "Performs a full-text search across the values of all custom data entries."
+    description: "Full-text search across all custom data values, categories, and keys."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: query_term
+        required: true
+        description: "The term to search for in custom data (category, key, or value)."
+      - name: category_filter
+        required: false
+        description: "Optional: Filter results to this category after FTS."
+      - name: limit
+        required: false
+        description: "Maximum number of search results to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"Release v1.2\", \"category_filter\": \"ReleaseNotesDraft\", \"limit\": 3}"
   - tool_name: "search_project_glossary_fts"
-    description: "Performs a full-text search on the 'ProjectGlossary' category."
+    description: "Full-text search within the 'ProjectGlossary' custom data category."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: query_term
+        required: true
+        description: "The term to search for in the glossary."
+      - name: limit
+        required: false
+        description: "Maximum number of search results to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"Service Level Objective\", \"limit\": 1}"
   - tool_name: "link_conport_items"
-    description: "Creates a typed link between two ConPort items."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"progress_entry\", \"source_item_id\": \"124\", \"target_item_type\": \"decision\", \"target_item_id\": \"45\", \"relationship_type\": \"fulfills_decision\"}"
+    description: "Creates a relationship link between two ConPort items."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: source_item_type
+        required: true
+        description: "Type of the source item"
+      - name: source_item_id
+        required: true
+        description: "ID or key of the source item"
+      - name: target_item_type
+        required: true
+        description: "Type of the target item"
+      - name: target_item_id
+        required: true
+        description: "ID or key of the target item"
+      - name: relationship_type
+        required: true
+        description: "Nature of the link"
+      - name: description
+        required: false
+        description: "Optional description for the link"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"progress_entry\", \"source_item_id\": \"124\", \"target_item_type\": \"decision\", \"target_item_id\": \"45\", \"relationship_type\": \"fulfills_decision\", \"description\": null}"
   - tool_name: "get_linked_items"
-    description: "Retrieves all items linked to a specific item."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\"}"
+    description: "Retrieves items linked to a specific item."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: item_type
+        required: true
+        description: "Type of the item to find links for (e.g., 'decision')"
+      - name: item_id
+        required: true
+        description: "ID or key of the item to find links for"
+      - name: relationship_type_filter
+        required: false
+        description: "Optional: Filter by relationship type"
+      - name: linked_item_type_filter
+        required: false
+        description: "Optional: Filter by the type of the linked items"
+      - name: limit
+        required: false
+        description: "Maximum number of links to return"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"
   - tool_name: "get_item_history"
-    description: "Retrieves the version history for 'product_context' or 'active_context'."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3}"
+    description: "Retrieves version history for Product or Active Context."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: item_type
+        required: true
+        description: "Type of the item: 'product_context' or 'active_context'"
+      - name: limit
+        required: false
+        description: "Maximum number of history entries to return (most recent first)"
+      - name: before_timestamp
+        required: false
+        description: "Return entries before this timestamp"
+      - name: after_timestamp
+        required: false
+        description: "Return entries after this timestamp"
+      - name: version
+        required: false
+        description: "Return a specific version"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3, \"before_timestamp\": null, \"after_timestamp\": null, \"version\": null}"
   - tool_name: "get_recent_activity_summary"
-    description: "Gets a summary of the most recent changes in ConPort."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"limit_per_type\": 5}"
+    description: "Provides a summary of recent ConPort activity (new/updated items)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: hours_ago
+        required: false
+        description: "Look back this many hours for recent activity. Mutually exclusive with 'since_timestamp'."
+      - name: since_timestamp
+        required: false
+        description: "Look back for activity since this specific timestamp. Mutually exclusive with 'hours_ago'."
+      - name: limit_per_type
+        required: false
+        description: "Maximum number of recent items to show per activity type (e.g., 5 most recent decisions)."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"since_timestamp\": null, \"limit_per_type\": 5}"
   - tool_name: "get_conport_schema"
-    description: "Retrieves the ConPort tool schema."
+    description: "Retrieves the schema of available ConPort tools and their arguments."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
+  - tool_name: "semantic_search_conport"
+    description: "Performs a semantic search across ConPort data."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: query_text
+        required: true
+        description: "The natural language query text for semantic search."
+      - name: top_k
+        required: false
+        description: "Number of top results to return."
+      - name: filter_item_types
+        required: false
+        description: "Optional list of item types to filter by (e.g., ['decision', 'custom_data']). Valid types: 'decision', 'system_pattern', 'custom_data', 'progress_entry'."
+      - name: filter_tags_include_any
+        required: false
+        description: "Optional list of tags; results will include items matching any of these tags."
+      - name: filter_tags_include_all
+        required: false
+        description: "Optional list of tags; results will include only items matching all of these tags."
+      - name: filter_custom_data_categories
+        required: false
+        description: "Optional list of categories to filter by if 'custom_data' is in filter_item_types."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"technical risks related to third-party API integrations\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\"], \"filter_tags_include_any\": [], \"filter_tags_include_all\": [], \"filter_custom_data_categories\": []}"
   - tool_name: "export_conport_to_markdown"
-    description: "Exports the current ConPort database to a set of Markdown files."
+    description: "Exports ConPort data to markdown files."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: output_path
+        required: false
+        description: "Optional output directory path relative to workspace_id. Defaults to './conport_export/' if not provided."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"output_path\": \"./conport_backup/\"}"
   - tool_name: "import_markdown_to_conport"
-    description: "Imports data from a directory of Markdown files into ConPort."
+    description: "Imports data from markdown files into ConPort."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: input_path
+        required: false
+        description: "Optional input directory path relative to workspace_id containing markdown files. Defaults to './conport_export/' if not provided."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"input_path\": \"./conport_backup/\"}"
   - tool_name: "batch_log_items"
-    description: "Logs a batch of items of the same type."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"items\": [{\"summary\": \"Decision A\"}, {\"summary\": \"Decision B\"}]}"
-
-dynamic_context_retrieval_for_rag:
-  description: |
-    Guidance for Nova-Orchestrator to dynamically retrieve context from ConPort to make better orchestration decisions or to prepare context for delegation to Lead Modes or Nova-FlowAsk. All ConPort tool calls require `use_mcp_tool` with `server_name: 'conport'`, `workspace_id: '{{workspace}}'`, and the correct `tool_name` and arguments.
-  trigger: "When the Nova-Orchestrator needs specific project knowledge from ConPort to break down a task, decide on delegation strategy, select/parameterize a workflow, or if a user asks a question that should be delegated to Nova-FlowAsk with context."
-  goal: "To construct a concise, relevant context set for the Nova-Orchestrator's decision-making or for inclusion in a 'Subtask Briefing Object'."
-  steps:
-    - step: 1
-      action: "Analyze Orchestration Need or User Query"
-      details: "Deconstruct the request/situation to identify key entities, concepts, keywords, and the specific type of information needed from ConPort for orchestration or for delegation."
-    - step: 2
-      action: "Prioritized Retrieval Strategy (for Nova-Orchestrator's own use or for briefing preparation)"
-      details: |
-        Based on the analysis, select the most appropriate ConPort tools (via `use_mcp_tool`):
-        - **Targeted FTS:** Use `search_decisions_fts` or `search_custom_data_value_fts`. Example arguments for the latter: `{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"ReleaseNotesDraft\", \"category_filter\": \"DefinedWorkflows\", \"limit\": 5}`.
-        - **Specific Item Retrieval:** Use `get_custom_data`, `get_decisions`, `get_system_patterns`, `get_progress`. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`.
-        - **Graph Traversal:** Use `get_linked_items`. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"123\", \"relationship_type_filter\": \"related_to\"}`.
-        - **Broad Context (Initial Load):** `get_product_context` or `get_active_context` are loaded during initialization.
-    - step: 3
-      action: "Retrieve Initial Set"
-      details: "Execute the chosen ConPort tool(s) to retrieve an initial, focused set of the most relevant items or data snippets."
-    - step: 4
-      action: "Contextual Expansion (Optional, if needed for clarity)"
-      details: "For the most promising items from Step 3, consider using ConPort tool `get_linked_items` to fetch directly related items (1-hop)."
-    - step: 5
-      action: "Synthesize and Filter (for Nova-Orchestrator's decision or briefing preparation)"
-      details: |
-        - **Filter:** Discard irrelevant items.
-        - **Synthesize/Summarize:** Create a concise summary or extract key data points.
-    - step: 6
-      action: "Use Context for Orchestration or Prepare Briefing"
-      details: |
-        - **For Nova-Orchestrator's Use:** Use the synthesized context to make decisions about task breakdown, workflow selection, and delegation strategy.
-        - **For Delegation (to Lead Mode or Nova-FlowAsk):** Incorporate the synthesized context or direct ConPort item references (using correct ID/key types, e.g. `Decision:123` (integer `id`), `CustomData ProjectConfig:ActiveConfig` (key)) into the `Required_Input_Context` section of the 'Subtask Briefing Object' for the `new_task` message.
-  general_principles:
-    - "Prefer targeted retrieval over broad context dumps after initial load."
-    - "Iterate if initial retrieval is insufficient: try different keywords or tools."
-    - "Balance context richness with clarity for delegation; provide pointers (IDs/keys) rather than full content in briefings unless essential."
+    description: "Logs multiple items of the same type (e.g., decisions, progress entries) in a single call."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: item_type
+        required: true
+        description: "Type of items to log (e.g., 'decision', 'progress_entry', 'system_pattern', 'custom_data')"
+      - name: items
+        required: true
+        description: "A list of dictionaries, each representing the arguments for a single item log."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"items\": [{\"summary\": \"Decision A\", \"rationale\": \"Rationale A\"}, {\"summary\": \"Decision B\", \"rationale\": \"Rationale B\"}]}"

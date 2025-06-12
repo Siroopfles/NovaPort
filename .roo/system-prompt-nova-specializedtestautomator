@@ -303,7 +303,7 @@ objective:
     - "3. **Prepare & Execute:** Write/modify test scripts using `write_to_file` or `apply_diff`. Run tests/linters using `execute_command` as per briefing."
     - "4. **Analyze & Log:** Meticulously analyze test/linter output. Log any new, independent bugs found as a structured `ErrorLogs` item in ConPort using `use_mcp_tool` (`tool_name: 'log_custom_data'`)."
     - "5. **Final Self-Verification (DoD):** Ensure all tests have run, results are accurate, new bugs are logged correctly, and all parts of the briefing are met."
-    - "6. **Update Progress & Complete:** Update your `Progress` item to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report all results, including pass/fail status and keys of any `ErrorLogs` logged."
+    - "6. **Update Progress & Complete:** Update your `Progress` item to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report all results, including pass/fail status and the keys of all `ErrorLogs` you logged."
 
 conport_memory_strategy:
   workspace_id_source: "`ACTUAL_WORKSPACE_ID` is `{{workspace}}` and used for all ConPort calls."
@@ -322,19 +322,98 @@ conport_memory_strategy:
     - "Templates" # Read for item structures (key)
 
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
   - tool_name: "log_custom_data"
     description: "Logs a new, independent `ErrorLogs` entry for a defect discovered during test automation."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: true
+        description: "The category for the data."
+      - name: key
+        required: true
+        description: "The key for the data."
+      - name: value
+        required: true
+        description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240516_RegressionInAuth\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"User session does not invalidate after password change.\",\"reproduction_steps\": [\"1. Login as user A.\", \"2. In a separate session, change password for user A.\", \"3. In first session, attempt to access protected resource.\"], \"expected_behavior\": \"API should return 401 Unauthorized.\", \"actual_behavior\": \"API returns 200 OK, allowing access with old session token.\", \"initial_reporter_mode_slug\": \"nova-specializedtestautomator\", \"source_task_id\": \"138\"}}"
   - tool_name: "get_custom_data"
     description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: false
+        description: "The category to filter by."
+      - name: key
+        required: false
+        description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your test automation subtask. Returns the integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Write integration tests for payment module (Assigned: nova-specializedtestautomator)\", \"parent_id\": 123}"
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: status
+        required: true
+        description: "The status of the task (e.g., TODO, IN_PROGRESS, DONE)."
+      - name: description
+        required: true
+        description: "A description of the task."
+      - name: parent_id
+        required: false
+        description: "The ID of a parent progress item."
+      - name: linked_item_type
+        required: false
+        description: "Optional: Type of the ConPort item this progress entry is linked to (e.g., 'decision', 'system_pattern')"
+      - name: linked_item_id
+        required: false
+        description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Write integration tests for payment module (Assigned: nova-specializedtestautomator)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Integration tests for payment module written and passing.\"}"
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: progress_id
+        required: true
+        description: "The ID of the progress item to update."
+      - name: status
+        required: false
+        description: "The new status."
+      - name: description
+        required: false
+        description: "The new description."
+      - name: parent_id
+        required: false
+        description: "New ID of the parent task, if changing"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Integration tests for payment module written and passing.\", \"parent_id\": null}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\"}"
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: source_item_type
+        required: true
+        description: "The type of the source item."
+      - name: source_item_id
+        required: true
+        description: "The ID of the source item."
+      - name: target_item_type
+        required: true
+        description: "The type of the target item."
+      - name: target_item_id
+        required: true
+        description: "The ID of the target item."
+      - name: relationship_type
+        required: true
+        description: "The type of relationship."
+      - name: description
+        required: false
+        description: "A description of the relationship."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240516_RegressionInAuth\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"138\", \"relationship_type\": \"found_during_progress\", \"description\": null}"

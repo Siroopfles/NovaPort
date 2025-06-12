@@ -18,7 +18,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines), outputting line-numbered text. Handles PDF/DOCX. Your specialists (and you, for review) use this to inspect application logs, configuration files, test scripts, or source code relevant to a bug investigation or test planning."
+    description: "Reads file content (optionally specific lines). Your specialists (and you, for review) use this to inspect application logs, configuration files, test scripts, or source code relevant to a bug investigation or test planning."
     parameters:
       - name: path
         required: true
@@ -139,7 +139,7 @@ tools:
       <use_mcp_tool>
       <server_name>conport</server_name>
       <tool_name>log_custom_data</tool_name>
-      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240115_CartUpdateFail_API\", \"value\": {\"schema_version\":\"1.0\",\"error_id_human\":\"PROJ-BUG-124\",\"timestamp_reported\":\"2024-01-15T10:00:00Z\",\"status\":\"OPEN\",\"severity\":\"HIGH\",\"priority\":\"HIGH\",\"summary\":\"API returns 500 error when updating cart item quantity to zero.\",\"description\":\"When a user attempts to set an item quantity to 0 in their cart via the API, a 500 Internal Server Error is returned instead of the item being removed or a proper validation error.\",\"reproduction_steps\":[\"1. Add item 'TSHIRT-RED' to cart.\",\"2. Call PUT /api/v1/cart with body {'item_id':'TSHIRT-RED', 'quantity': 0}\"],\"expected_behavior\":\"The item should be removed from the cart, and the API should return a 200 OK or 204 No Content.\",\"actual_behavior\":\"API returns HTTP 500.\",\"environment_snapshot\":{\"application_version\":\"v1.3.0-beta-2\",\"test_environment_url\":\"https://staging.example.com\"},\"attachments\":[{\"type\":\"log_file\",\"path\":\".nova/reports/qa/logs/cart_update_fail.log\"}]}}</arguments>
+      <arguments>{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240115_CartUpdateFail_API\", \"value\": {\"schema_version\":\"1.0\",\"error_id_human\":\"PROJ-BUG-124\",\"timestamp_reported\":\"2024-01-15T14:30:00Z\",\"status\":\"OPEN\",\"severity\":\"MEDIUM\",\"summary\":\"Updating item quantity to 0 via API fails.\",\"description\":\"When calling `PUT /api/v1/cart/items/123` with a quantity of 0, the API returns a 500 error instead of removing the item.\",\"reproduction_steps\":[\"1. Ensure item 123 is in the cart.\",\"2. Execute a PUT request to /api/v1/cart/items/123 with JSON body {\\\"quantity\\\": 0}.\",\"3. Observe the server response.\"],\"expected_behavior\":\"The server should respond with HTTP 200 OK and the cart should no longer contain item 123.\",\"actual_behavior\":\"The server responds with HTTP 500 Internal Server Error.\",\"environment_snapshot\":{\"application_version\":\"v1.4.0\",\"test_environment_url\":\"https://staging.example.com\"},\"source_task_id\":\"P-210\",\"initial_reporter_mode_slug\":\"nova-specializedtestexecutor\"}}</arguments>
       </use_mcp_tool>
     # --- Start of Hardened Item ID Note ---
     # CRITICAL USAGE NOTE for `item_id`: The format of the `item_id` string **depends entirely** on the `item_type`:
@@ -477,34 +477,184 @@ conport_memory_strategy:
     - "Templates" # Read for item structures (key)
 
 conport_tool_reference:
-  # This section provides a clear reference for the agent on how to use ConPort tools.
-  - tool_name: "get_product_context"
-    description: "Retrieves the high-level product context."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
-  - tool_name: "get_active_context"
-    description: "Retrieves the current session's active context (e.g., state_of_the_union, open_issues)."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
+  - tool_name: "update_product_context"
+    description: "Updates the product context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: content
+        required: false
+        description: "The full new context content as a dictionary. Overwrites existing."
+      - name: patch_content
+        required: false
+        description: "A dictionary of changes to apply to the existing context (add/update keys)."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"project_name\": \"New Project Name\"}}"
+  - tool_name: "update_active_context"
+    description: "Updates the active context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: content
+        required: false
+        description: "The full new context content as a dictionary. Overwrites existing."
+      - name: patch_content
+        required: false
+        description: "A dictionary of changes to apply to the existing context (add/update keys)."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"state_of_the_union\": \"New state description\"}}"
   - tool_name: "log_decision"
-    description: "Logs a new QA-related decision. Returns the integer ID."
+    description: "Logs an architectural or implementation decision."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: summary
+        required: true
+        description: "A concise summary of the decision"
+      - name: rationale
+        required: false
+        description: "The reasoning behind the decision"
+      - name: implementation_details
+        required: false
+        description: "Details about how the decision will be/was implemented"
+      - name: tags
+        required: false
+        description: "Optional tags for categorization"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Accept minor UI bug in v1.2 release to meet deadline\", \"rationale\": \"The bug is low-impact and a fix would delay the release significantly. Logged as ErrorLogs:EL_XYZ.\", \"tags\": [\"#release_management\", \"#triage\"]}"
   - tool_name: "get_decisions"
-    description: "Retrieves decisions to understand context for testing or bug investigation."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 5, \"tags_filter_include_any\": [\"#security\"]}"
+    description: "Retrieves logged decisions."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: limit
+        required: false
+        description: "The maximum number of decisions to return (most recent first)"
+      - name: tags_filter_include_all
+        required: false
+        description: "A list of tags where all must be present."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 5, \"tags_filter_include_any\": [\"#security\"], \"tags_filter_include_all\": []}"
   - tool_name: "log_progress"
-    description: "Logs a new progress entry for your QA phase or a specialist's subtask. Returns the integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"QA Phase for Login Feature\"}"
+    description: "Logs a progress entry or task status."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: status
+        required: true
+        description: "Current status (e.g., 'TODO', 'IN_PROGRESS', 'DONE')"
+      - name: description
+        required: true
+        description: "Description of the progress or task"
+      - name: parent_id
+        required: false
+        description: "ID of the parent task, if this is a subtask"
+      - name: linked_item_type
+        required: false
+        description: "Optional: Type of the ConPort item this progress entry is linked to (e.g., 'decision', 'system_pattern')"
+      - name: linked_item_id
+        required: false
+        description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
+      - name: link_relationship_type
+        required: false
+        description: "Relationship type for the automatic link, defaults to 'relates_to_progress'"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"QA Phase for Login Feature\", \"parent_id\": null, \"linked_item_type\": null, \"linked_item_id\": null, \"link_relationship_type\": null}"
   - tool_name: "update_progress"
-    description: "Updates an existing progress entry by its integer ID."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123, \"status\": \"BLOCKED\", \"description\": \"Testing blocked by environment outage (see ErrorLogs:EL_ENV_OUTAGE).\"}"
+    description: "Updates an existing progress entry."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: progress_id
+        required: true
+        description: "The ID of the progress entry to update."
+      - name: status
+        required: false
+        description: "New status (e.g., 'TODO', 'IN_PROGRESS', 'DONE')"
+      - name: description
+        required: false
+        description: "New description of the progress or task"
+      - name: parent_id
+        required: false
+        description: "New ID of the parent task, if changing"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123, \"status\": \"BLOCKED\", \"description\": \"Testing blocked by environment outage (see ErrorLogs:EL_ENV_OUTAGE).\", \"parent_id\": null}"
   - tool_name: "log_custom_data"
-    description: "Logs a new custom data entry, primarily for `ErrorLogs`, `LessonsLearned`, or `TestPlans`."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", ...}}"
+    description: "Stores/updates a custom key-value entry under a category. Value is JSON-serializable."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: category
+        required: true
+        description: "Category for the custom data"
+      - name: key
+        required: true
+        description: "Key for the custom data (unique within category)"
+      - name: value
+        required: true
+        description: "The custom data value (JSON serializable)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like test plans, acceptance criteria, or error logs."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"AcceptanceCriteria\", \"key\": \"AC_LoginFeature_v1\"}"
+    description: "Retrieves custom data."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: category
+        required: false
+        description: "Filter by category"
+      - name: key
+        required: false
+        description: "Filter by key (requires category)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TestPlans\", \"key\": null}"
   - tool_name: "link_conport_items"
-    description: "Creates a typed link between two ConPort items."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"ErrorLogs:EL_20240515_LoginFail_High\", \"target_item_type\": \"progress_entry\", \"target_item_id\": \"210\", \"relationship_type\": \"found_during_progress\"}"
+    description: "Creates a relationship link between two ConPort items."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: source_item_type
+        required: true
+        description: "Type of the source item"
+      - name: source_item_id
+        required: true
+        description: "ID or key of the source item"
+      - name: target_item_type
+        required: true
+        description: "Type of the target item"
+      - name: target_item_id
+        required: true
+        description: "ID or key of the target item"
+      - name: relationship_type
+        required: true
+        description: "Nature of the link"
+      - name: description
+        required: false
+        description: "Optional description for the link"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"progress_entry\", \"source_item_id\": \"124\", \"target_item_type\": \"decision\", \"target_item_id\": \"45\", \"relationship_type\": \"fulfills_decision\", \"description\": null}"
   - tool_name: "get_linked_items"
-    description: "Retrieves all items linked to a specific item."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"custom_data\", \"item_id\": \"ErrorLogs:EL_20240515_LoginFail_High\"}"
+    description: "Retrieves items linked to a specific item."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: item_type
+        required: true
+        description: "Type of the item to find links for (e.g., 'decision')"
+      - name: item_id
+        required: true
+        description: "ID or key of the item to find links for"
+      - name: relationship_type_filter
+        required: false
+        description: "Optional: Filter by relationship type"
+      - name: linked_item_type_filter
+        required: false
+        description: "Optional: Filter by the type of the linked items"
+      - name: limit
+        required: false
+        description: "Maximum number of links to return"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"
