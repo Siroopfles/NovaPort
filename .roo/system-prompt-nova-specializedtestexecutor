@@ -315,6 +315,12 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "The ID of a parent progress item."
+      - name: linked_item_type
+        required: false
+        description: "Optional: Type of the ConPort item this progress entry is linked to (e.g., 'decision', 'system_pattern')"
+      - name: linked_item_id
+        required: false
+        description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Execute regression suite for API v2 (Assigned: nova-specializedtestexecutor)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
@@ -331,6 +337,9 @@ conport_tool_reference:
       - name: description
         required: false
         description: "The new description."
+      - name: parent_id
+        required: false
+        description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"API v2 regression complete. 3 new ErrorLogs logged.\"}"
   - tool_name: "link_conport_items"
     description: "Creates a typed link between two ConPort items."

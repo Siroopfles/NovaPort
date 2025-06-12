@@ -334,213 +334,209 @@ conport_memory_strategy:
     - "Dashboard" # CustomData (key)
 
 conport_tool_reference:
-  - tool_name: "semantic_search_conport"
-    description: "Performs a semantic (meaning-based) search across ConPort data. Ideal for broad, conceptual queries like 'find architectural patterns related to high availability' or 'summarize decisions about payment gateways'."
-    parameters:
-      - name: workspace_id
-        required: true
-        description: "The ID of the current workspace."
-      - name: query_text
-        required: true
-        description: "The text to search for."
-      - name: top_k
-        required: false
-        description: "The number of results to return."
-      - name: filter_item_types
-        required: false
-        description: "A list of item types to filter the search by."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"decisions related to user authentication security\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"system_pattern\"]}"
   - tool_name: "get_product_context"
-    description: "Retrieves the high-level product context."
+    description: "Retrieves the overall project goals, features, and architecture."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "get_active_context"
-    description: "Retrieves the current session's active context (e.g., state_of_the_union, open_issues)."
+    description: "Retrieves the current working focus, recent changes, and open issues."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "get_decisions"
-    description: "Retrieves a list of decisions, optionally filtering by tags or a specific integer ID."
+    description: "Retrieves logged decisions."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: limit
         required: false
-        description: "The maximum number of decisions to return."
-      - name: id_filter
-        required: false
-        description: "A list of specific integer IDs to retrieve."
-      - name: tags_filter_include_any
-        required: false
-        description: "A list of tags where at least one must be present."
+        description: "Maximum number of decisions to return (most recent first)"
       - name: tags_filter_include_all
         required: false
-        description: "A list of tags where all must be present."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 5, \"tags_filter_include_any\": [\"#architecture\"]}"
+        description: "Filter: items must include ALL of these tags."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"]}"
   - tool_name: "search_decisions_fts"
-    description: "Performs a full-text search across all decision summaries and rationales."
+    description: "Full-text search across decision fields (summary, rationale, details, tags)."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: query_term
         required: true
-        description: "The term to search for."
+        description: "The term to search for in decisions."
       - name: limit
         required: false
-        description: "The maximum number of results to return."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"payment gateway integration\", \"limit\": 3}"
+        description: "Maximum number of search results to return."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"payment gateway\", \"limit\": 5}"
   - tool_name: "get_progress"
-    description: "Retrieves a list of progress entries, with optional filters."
+    description: "Retrieves progress entries."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: status_filter
         required: false
-        description: "Filter progress entries by status."
+        description: "Filter entries by status"
       - name: parent_id_filter
         required: false
-        description: "Filter progress entries by a specific parent ID."
+        description: "Filter entries by parent task ID"
       - name: limit
         required: false
-        description: "The maximum number of entries to return."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\", \"limit\": 10}"
+        description: "Maximum number of entries to return (most recent first)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\"}"
   - tool_name: "get_system_patterns"
-    description: "Retrieves a list of system patterns, optionally filtering by tags or name."
+    description: "Retrieves system patterns."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
-      - name: name_filter_exact
-        required: false
-        description: "Filter by an exact pattern name."
-      - name: tags_filter_include_any
-        required: false
-        description: "A list of tags where at least one must be present."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: tags_filter_include_all
         required: false
-        description: "A list of tags where all must be present."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"CircuitBreaker_v1\", \"tags_filter_include_any\": [\"#api\", \"#resilience\"]}"
+        description: "Filter: items must include ALL of these tags."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ResilientAPICall_v1\"}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data entries by category and/or key. Can retrieve a whole category if key is omitted."
+    description: "Retrieves custom data."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: category
         required: false
-        description: "The category to filter by."
+        description: "Filter by category"
       - name: key
         required: false
-        description: "The specific key to retrieve."
+        description: "Filter by key (requires category)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\"}"
-  - tool_name: "search_custom_data_value_fts"
-    description: "Performs a full-text search across the values of all custom data entries, with an optional category filter."
-    parameters:
-      - name: workspace_id
-        required: true
-        description: "The ID of the current workspace."
-      - name: query_term
-        required: true
-        description: "The term to search for."
-      - name: category_filter
-        required: false
-        description: "Limit the search to a specific category."
-      - name: limit
-        required: false
-        description: "The maximum number of results to return."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\", \"limit\": 5}"
   - tool_name: "search_project_glossary_fts"
-    description: "Performs a full-text search on the 'ProjectGlossary' category."
+    description: "Full-text search within the 'ProjectGlossary' custom data category."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: query_term
         required: true
-        description: "The term to search for."
+        description: "The term to search for in the glossary."
       - name: limit
         required: false
-        description: "The maximum number of results to return."
+        description: "Maximum number of search results to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"Service Level Objective\", \"limit\": 1}"
   - tool_name: "get_linked_items"
-    description: "Retrieves all items linked to a specific item."
+    description: "Retrieves items linked to a specific item."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: item_type
         required: true
-        description: "The type of the source item."
+        description: "Type of the item to find links for (e.g., 'decision')"
       - name: item_id
         required: true
-        description: "The ID of the source item."
+        description: "ID or key of the item to find links for"
       - name: relationship_type_filter
         required: false
-        description: "Filter by a specific relationship type."
+        description: "Optional: Filter by relationship type"
       - name: linked_item_type_filter
         required: false
-        description: "Filter by the type of the linked items."
+        description: "Optional: Filter by the type of the linked items"
       - name: limit
         required: false
-        description: "The maximum number of linked items to return."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\", \"relationship_type_filter\": \"implements_decision\"}"
-  - tool_name: "get_item_history"
-    description: "Retrieves the version history for 'product_context' or 'active_context'."
+        description: "Maximum number of links to return"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\"}"
+  - tool_name: "search_custom_data_value_fts"
+    description: "Full-text search across all custom data values, categories, and keys."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: query_term
+        required: true
+        description: "The term to search for in custom data (category, key, or value)."
+      - name: category_filter
+        required: false
+        description: "Optional: Filter results to this category after FTS."
+      - name: limit
+        required: false
+        description: "Maximum number of search results to return."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\", \"limit\": 5}"
+  - tool_name: "get_item_history"
+    description: "Retrieves version history for Product or Active Context."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: item_type
         required: true
-        description: "The type of item ('product_context' or 'active_context')."
-      - name: version
-        required: false
-        description: "A specific version number to retrieve."
-      - name: before_timestamp
-        required: false
-        description: "Retrieve versions before this timestamp."
-      - name: after_timestamp
-        required: false
-        description: "Retrieve versions after this timestamp."
+        description: "Type of the item: 'product_context' or 'active_context'"
       - name: limit
         required: false
-        description: "The maximum number of versions to return."
+        description: "Maximum number of history entries to return (most recent first)"
+      - name: before_timestamp
+        required: false
+        description: "Return entries before this timestamp"
+      - name: after_timestamp
+        required: false
+        description: "Return entries after this timestamp"
+      - name: version
+        required: false
+        description: "Return a specific version"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"active_context\", \"limit\": 3}"
   - tool_name: "get_recent_activity_summary"
-    description: "Gets a summary of the most recent changes in ConPort."
+    description: "Provides a summary of recent ConPort activity (new/updated items)."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
       - name: hours_ago
         required: false
-        description: "The number of hours in the past to look for activity."
+        description: "Look back this many hours for recent activity. Mutually exclusive with 'since_timestamp'."
       - name: since_timestamp
         required: false
-        description: "Look for activity since this specific timestamp."
+        description: "Look back for activity since this specific timestamp. Mutually exclusive with 'hours_ago'."
       - name: limit_per_type
         required: false
-        description: "The maximum number of items per type to include in the summary."
+        description: "Maximum number of recent items to show per activity type (e.g., 5 most recent decisions)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"hours_ago\": 24, \"limit_per_type\": 5}"
   - tool_name: "get_conport_schema"
-    description: "Retrieves the ConPort tool schema."
+    description: "Retrieves the schema of available ConPort tools and their arguments."
     parameters:
       - name: workspace_id
         required: true
-        description: "The ID of the current workspace."
+        description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
-
-dynamic_context_retrieval_for_rag:
-  description: |
-    This entire section defines how Nova-FlowAsk operates. Your core function is to dynamically retrieve and synthesize context from ConPort (and provided files) to answer queries or fulfill analysis tasks given in your 'Subtask Briefing Object'. You use the correct ID/key types for ConPort items (`use_mcp_tool` with correct `tool_name` and `arguments`).
-  trigger: "Every time you are activated by a `new_task` call."
-  goal: "To accurately and concisely fulfill the `Subtask_Goal` (your goal) from your briefing using the most relevant information."
-  # Steps are effectively covered by your main task_execution_protocol.
+  - tool_name: "semantic_search_conport"
+    description: "Performs a semantic search across ConPort data."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: query_text
+        required: true
+        description: "The natural language query text for semantic search."
+      - name: top_k
+        required: false
+        description: "Number of top results to return."
+      - name: filter_item_types
+        required: false
+        description: "Optional list of item types to filter by (e.g., ['decision', 'custom_data']). Valid types: 'decision', 'system_pattern', 'custom_data', 'progress_entry'."
+      - name: filter_tags_include_any
+        required: false
+        description: "Optional list of tags; results will include items matching any of these tags."
+      - name: filter_tags_include_all
+        required: false
+        description: "Optional list of tags; results will include only items matching all of these tags."
+      - name: filter_custom_data_categories
+        required: false
+        description: "Optional list of categories to filter by if 'custom_data' is in filter_item_types."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"technical risks related to third-party API integrations\", \"top_k\": 5, \"filter_item_types\": [\"decision\", \"custom_data\"]}"

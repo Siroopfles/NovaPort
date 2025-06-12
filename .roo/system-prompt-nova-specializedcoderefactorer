@@ -399,9 +399,6 @@ conport_tool_reference:
       - name: tags
         required: false
         description: "A list of tags for categorization."
-      - name: status
-        required: false
-        description: "The status of the decision (e.g., APPROVED, PENDING)."
       - name: decision_id
         required: false
         description: "The ID of an existing decision to update."
@@ -447,6 +444,9 @@ conport_tool_reference:
       - name: tags_filter_include_all
         required: false
         description: "A list of tags where all must be present."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#refactoring_strategy\"]}"
   - tool_name: "get_system_patterns"
     description: "Retrieves a system pattern to adhere to during refactoring."
@@ -454,9 +454,12 @@ conport_tool_reference:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
-      - name: name_filter_exact
+      - name: tags_filter_include_all
         required: false
-        description: "Filter by an exact pattern name."
+        description: "Filter: items must include ALL of these tags."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name_filter_exact\": \"ImmutableDataObjects_v1\"}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your refactoring subtask. Returns the integer ID."
@@ -473,6 +476,12 @@ conport_tool_reference:
       - name: parent_id
         required: false
         description: "The ID of a parent progress item."
+      - name: linked_item_type
+        required: false
+        description: "Optional: Type of the ConPort item this progress entry is linked to (e.g., 'decision', 'system_pattern')"
+      - name: linked_item_id
+        required: false
+        description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Refactor LegacyModule.java (Assigned: nova-specializedcoderefactorer)\", \"parent_id\": 123}"
   - tool_name: "update_progress"
     description: "Updates your progress entry by its integer ID."
@@ -489,4 +498,7 @@ conport_tool_reference:
       - name: description
         required: false
         description: "The new description."
+      - name: parent_id
+        required: false
+        description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Refactoring of LegacyModule.java complete, all tests passing.\"}"
