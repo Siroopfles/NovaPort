@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
+## [0.2.6-beta] - 2024-05-19
+
+### 🚀 Improvements & Hardening
+
+- **ConPort Tool Reference Refactoring:** Conducted a comprehensive refactoring and enhancement of the `conport_tool_reference` sections across all relevant system prompts (`.roo/system-prompt-nova-*.md`). This update improves the clarity, accuracy, and usability of tool definitions for all AI agents. Key changes include standardizing example arguments, enhancing tool descriptions and guidelines, and refining instructions for ConPort operations, leading to more reliable and predictable AI behavior when interacting with the ConPort server.
+
 ## [0.2.5-beta] - 2024-05-19
 
 ### 🚀 Improvements & Hardening
