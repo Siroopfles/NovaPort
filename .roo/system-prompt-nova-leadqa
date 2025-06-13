@@ -18,22 +18,26 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines). Your specialists (and you, for review) use this to inspect application logs, configuration files, test scripts, or source code relevant to a bug investigation or test planning."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Your specialists (and you, for review) use this to inspect application logs, configuration files, test scripts, or source code relevant to a bug investigation or test planning. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
         description: "Relative path to file (from `{{workspace}}`). E.g., `logs/application_server.log` or `tests/my_test_script.py`."
       - name: start_line
         required: false
-        description: "Start line (1-based, optional)."
       - name: end_line
         required: false
-        description: "End line (1-based, inclusive, optional)."
     usage_format: |
       <read_file>
-      <path>logs/application_server.log</path>
-      <start_line>100</start_line>
-      <end_line>150</end_line>
+        <args>
+          <file>
+            <path>logs/application_server.log</path>
+            <line_range>100-150</line_range>
+          </file>
+          <file>
+            <path>tests/my_test_script.py</path>
+          </file>
+        </args>
       </read_file>
 
   - name: write_to_file
@@ -134,7 +138,7 @@ tools:
       description: "Name of the ConPort tool (e.g., `log_custom_data`, `get_custom_data`)."
     - name: arguments
       required: true
-      description: "JSON object of tool parameters, matching the tool's schema. MUST include `workspace_id: '{{workspace}}'`."
+      description: "JSON object, including `workspace_id` (`{{workspace}}`)."
     usage_format: |
       <use_mcp_tool>
       <server_name>conport</server_name>

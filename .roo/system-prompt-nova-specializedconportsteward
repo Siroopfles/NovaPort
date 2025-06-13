@@ -50,7 +50,7 @@ tools:
     # --- End of Hardened Item ID Note ---
 
   - name: read_file
-    description: "Reads file content. Used if your briefing requires you to process an externally generated report (e.g., from `.nova/reports/`) before summarizing its findings or logging key points to ConPort, or to read a workflow like `.nova/workflows/nova-leadarchitect/WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md` if you are executing its steps based on LeadArchitect's instructions."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Used if your briefing requires you to process an externally generated report (e.g., from `.nova/reports/`) before summarizing its findings or logging key points to ConPort, or to read a workflow like `.nova/workflows/nova-leadarchitect/WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md` if you are executing its steps based on LeadArchitect's instructions. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
@@ -61,7 +61,14 @@ tools:
         required: false
     usage_format: |
       <read_file>
-      <path>.nova/reports/health_check_findings_temp.md</path>
+        <args>
+          <file>
+            <path>.nova/reports/health_check_findings_temp.md</path>
+          </file>
+          <file>
+            <path>.nova/workflows/nova-leadarchitect/WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md</path>
+          </file>
+        </args>
       </read_file>
 
   - name: write_to_file

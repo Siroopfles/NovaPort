@@ -37,7 +37,7 @@ tools:
       </execute_command>
 
   - name: read_file
-    description: "Reads file content (optionally specific lines). Use if your briefing for a manual test scenario refers to detailed steps in a file, or if complex test data needs to be read from a file to perform a manual test."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use if your briefing for a manual test scenario refers to detailed steps in a file, or if complex test data needs to be read from a file to perform a manual test. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
@@ -48,7 +48,11 @@ tools:
         required: false
     usage_format: |
       <read_file>
-      <path>tests/manual/checkout_scenario_detailed_steps.md</path>
+        <args>
+          <file>
+            <path>tests/manual/checkout_scenario_detailed_steps.md</path>
+          </file>
+        </args>
       </read_file>
 
   - name: write_to_file

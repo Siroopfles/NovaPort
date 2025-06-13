@@ -18,7 +18,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines). Use if your briefing requires you to check specific log files or configuration files as part of verifying a fix, or to understand the environment where the fix was deployed if details are in a file."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use if your briefing requires you to check specific log files or configuration files as part of verifying a fix, or to understand the environment where the fix was deployed if details are in a file. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
@@ -29,7 +29,11 @@ tools:
         required: false
     usage_format: |
       <read_file>
-      <path>logs/deployment_log_for_fix_build.txt</path>
+        <args>
+          <file>
+            <path>logs/deployment_log_for_fix_build.txt</path>
+          </file>
+        </args>
       </read_file>
 
   - name: execute_command

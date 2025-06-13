@@ -18,7 +18,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines), outputting line-numbered text. Handles PDF/DOCX. Essential for understanding the existing code you need to refactor. Also used to read existing test files you might need to update. CRITICAL: Use as a pre-check before `apply_diff` to confirm the content you want to search for."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Essential for understanding the existing code you need to refactor. Also used to read existing test files you might need to update. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
@@ -29,25 +29,33 @@ tools:
         required: false
     usage_format: |
       <read_file>
-      <path>src/legacy_module/complex_logic.py</path>
+        <args>
+          <file>
+            <path>src/legacy_module/complex_logic.py</path>
+          </file>
+        </args>
       </read_file>
 
   - name: apply_diff
     description: |
-      Precise file modifications using SEARCH/REPLACE blocks. Primary tool for applying refactoring changes to existing source code files and their corresponding test files.
-      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate (R13). Consolidate multiple changes in one file into a SINGLE call.
-      Base path: '{{workspace}}'. CRITICAL ESCAPING: Escape literal '<<<<<<< SEARCH', '=======', '>>>>>>> REPLACE' within content sections by prepending `\` to the line.
+      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Primary tool for applying refactoring changes to existing source code files and their corresponding test files. The legacy single-file format is also supported for backward compatibility.
+      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
+      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
+      Base path: '{{workspace}}'. Escape literal markers with `\`.
     parameters:
     - name: path
       required: true
       description: "File path to modify (relative to '{{workspace}}'). E.g., `src/legacy_module/complex_logic.py`."
     - name: diff
       required: true
-      description: "String of one or more SEARCH/REPLACE blocks detailing the refactoring changes."
+      description: "String of one or more SEARCH/REPLACE blocks."
     usage_format: |
       <apply_diff>
-      <path>src/legacy_module/complex_logic.py</path>
-      <diff>
+        <args>
+          <file>
+            <path>src/legacy_module/complex_logic.py</path>
+            <diff>
+              <content>
       <<<<<<< SEARCH
       :start_line:25
       :end_line:30
@@ -56,7 +64,10 @@ tools:
       =======
       # new_refactored_and_optimized_code_block
       >>>>>>> REPLACE
-      </diff>
+              </content>
+            </diff>
+          </file>
+        </args>
       </apply_diff>
 
   - name: insert_content

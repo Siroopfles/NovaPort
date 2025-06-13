@@ -18,22 +18,25 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines), outputting line-numbered text. Handles PDF/DOCX. Use to gather context for delegation, to read your orchestrator-level workflow definitions from `.nova/workflows/nova-orchestrator/`, or to read session summaries from `.nova/summary/`."
+    description: "Reads content from one or more files, outputting line-numbered text. Can read multiple files simultaneously using the `<args>` format for efficiency. Handles PDF/DOCX. Use to gather context for delegation, read your orchestrator-level workflow definitions from `.nova/workflows/nova-orchestrator/`, or read session summaries from `.nova/summary/`. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
         description: "Relative path to file (from `{{workspace}}`). E.g., `.nova/workflows/nova-orchestrator/WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md` or `.nova/summary/session_summary_20240115_103000.md`."
       - name: start_line
         required: false
-        description: "Start line (1-based, optional)."
       - name: end_line
         required: false
-        description: "End line (1-based, inclusive, optional)."
     usage_format: |
       <read_file>
-      <path>File path</path>
-      <start_line>opt_start_line</start_line>
-      <end_line>opt_end_line</end_line>
+        <args>
+          <file>
+            <path>.nova/workflows/nova-orchestrator/WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md</path>
+          </file>
+          <file>
+            <path>.nova/summary/session_summary_20240115_103000.md</path>
+          </file>
+        </args>
       </read_file>
 
   - name: fetch_instructions

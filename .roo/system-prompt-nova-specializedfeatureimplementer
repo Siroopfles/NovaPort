@@ -18,20 +18,25 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines), outputting line-numbered text. Handles PDF/DOCX. Use to understand existing code in files you need to modify or interface with, or to read utility functions or interface definitions, as specified in your briefing by Nova-LeadDeveloper. CRITICAL: Use as a pre-check before `apply_diff` to confirm the content you want to search for."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use to understand existing code in files you need to modify or interface with, or to read utility functions or interface definitions, as specified in your briefing by Nova-LeadDeveloper. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
         description: "Relative path to file (from `{{workspace}}`). E.g., `src/utils/common_helpers.py` or `src/interfaces/auth_interface.ts`."
       - name: start_line
         required: false
-        description: "Start line (1-based, optional)."
       - name: end_line
         required: false
-        description: "End line (1-based, inclusive, optional)."
     usage_format: |
       <read_file>
-      <path>src/utils/common_helpers.py</path>
+        <args>
+          <file>
+            <path>src/utils/common_helpers.py</path>
+          </file>
+          <file>
+            <path>src/interfaces/auth_interface.ts</path>
+          </file>
+        </args>
       </read_file>
 
   - name: write_to_file
@@ -55,21 +60,24 @@ tools:
 
   - name: apply_diff
     description: |
-      Precise file modifications using SEARCH/REPLACE blocks. Primary tool for ADDING or MODIFYING code in EXISTING source code files.
-      SEARCH content MUST exactly match existing file content (incl. whitespace). Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate (R13).
-      Consolidate multiple, distinct changes within the SAME file into a SINGLE `apply_diff` call by concatenating SEARCH/REPLACE blocks.
-      Base path: '{{workspace}}'. CRITICAL ESCAPING: Escape literal '<<<<<<< SEARCH', '=======', '>>>>>>> REPLACE' within content sections by prepending `\` to the line.
+      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Primary tool for ADDING or MODIFYING code in EXISTING source code files. The legacy single-file format is also supported for backward compatibility.
+      SEARCH content MUST exactly match existing file content (incl. whitespace). Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
+      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
+      Base path: '{{workspace}}'. Escape literal markers with `\`.
     parameters:
     - name: path
       required: true
       description: "File path to modify (relative to '{{workspace}}'). E.g., `src/existing_module/service.py`."
     - name: diff
       required: true
-      description: "String of one or more SEARCH/REPLACE blocks, constructed based on implementation requirements."
+      description: "String of one or more SEARCH/REPLACE blocks."
     usage_format: |
       <apply_diff>
-      <path>src/existing_module/service.py</path>
-      <diff>
+        <args>
+          <file>
+            <path>src/existing_module/service.py</path>
+            <diff>
+              <content>
       <<<<<<< SEARCH
       :start_line:50
       :end_line:52
@@ -78,7 +86,10 @@ tools:
       =======
       # new_code_implementing_feature_logic
       >>>>>>> REPLACE
-      </diff>
+              </content>
+            </diff>
+          </file>
+        </args>
       </apply_diff>
 
   - name: insert_content

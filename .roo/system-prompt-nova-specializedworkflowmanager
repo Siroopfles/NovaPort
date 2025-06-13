@@ -18,20 +18,25 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines). Used to read existing workflow files from any `.nova/workflows/{mode_slug}/` directory or system prompts from `.roo/` if your briefing is to update one, or to read the `.nova/README.md` or `.nova/workflows/README.md` if tasked to update those."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Used to read existing workflow files from any `.nova/workflows/{mode_slug}/` directory or system prompts from `.roo/` if your briefing is to update one. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
         description: "Relative path to file (from `{{workspace}}`), e.g., `.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md`."
       - name: start_line
         required: false
-        description: "Start line (1-based, optional)."
       - name: end_line
         required: false
-        description: "End line (1-based, inclusive, optional)."
     usage_format: |
       <read_file>
-      <path>.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md</path>
+        <args>
+          <file>
+            <path>.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md</path>
+          </file>
+          <file>
+            <path>.roo/system-prompt-nova-orchestrator</path>
+          </file>
+        </args>
       </read_file>
 
   - name: write_to_file
@@ -55,8 +60,9 @@ tools:
 
   - name: apply_diff
     description: |
-      Precise file modifications using SEARCH/REPLACE blocks. Your primary tool for UPDATING EXISTING workflow files in `.nova/workflows/`, system prompts in `.roo/`, or README files.
-      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate (R13). Consolidate multiple changes in one file into a SINGLE call.
+      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Your primary tool for UPDATING EXISTING workflow files in `.nova/workflows/`, system prompts in `.roo/`, or README files. The legacy single-file format is also supported for backward compatibility.
+      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
+      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
       Base path: '{{workspace}}'. Escape literal markers with `\`.
     parameters:
     - name: path
@@ -64,11 +70,14 @@ tools:
       description: "File path to modify (from `{{workspace}}`), e.g., `.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md`."
     - name: diff
       required: true
-      description: "String of one or more SEARCH/REPLACE blocks, constructed based on Nova-LeadArchitect's instructions for changes."
+      description: "String of one or more SEARCH/REPLACE blocks."
     usage_format: |
       <apply_diff>
-      <path>.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md</path>
-      <diff>
+        <args>
+          <file>
+            <path>.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_INIT_001_v1.md</path>
+            <diff>
+              <content>
       <<<<<<< SEARCH
       :start_line:20
       :end_line:22
@@ -77,7 +86,10 @@ tools:
       =======
       New, updated step description with more detail.
       >>>>>>> REPLACE
-      </diff>
+              </content>
+            </diff>
+          </file>
+        </args>
       </apply_diff>
 
   - name: insert_content

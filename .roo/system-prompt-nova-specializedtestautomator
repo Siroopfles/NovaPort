@@ -18,7 +18,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines). Use to inspect existing test scripts you need to modify or extend, or to understand the source code interfaces (signatures, classes) of the code you are writing tests for, as specified in your briefing."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use to inspect existing test scripts you need to modify or extend, or to understand the source code interfaces (signatures, classes) of the code you are writing tests for, as specified in your briefing. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
@@ -29,7 +29,14 @@ tools:
         required: false
     usage_format: |
       <read_file>
-      <path>tests/unit/test_user_service.py</path>
+        <args>
+          <file>
+            <path>src/services/user_service.py</path>
+          </file>
+          <file>
+            <path>tests/unit/test_user_service.py</path>
+          </file>
+        </args>
       </read_file>
 
   - name: write_to_file
@@ -53,8 +60,9 @@ tools:
 
   - name: apply_diff
     description: |
-      Precise file modifications using SEARCH/REPLACE blocks. Primary tool for ADDING or MODIFYING tests in EXISTING test script files.
-      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate (R13). Consolidate multiple changes in one file into a SINGLE call.
+      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Primary tool for ADDING or MODIFYING tests in EXISTING test script files. The legacy single-file format is also supported for backward compatibility.
+      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
+      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
       Base path: '{{workspace}}'. Escape literal markers with `\`.
     parameters:
     - name: path
@@ -62,17 +70,23 @@ tools:
       description: "File path to modify (from `{{workspace}}`), e.g., `tests/unit/test_user_service.py`."
     - name: diff
       required: true
-      description: "String of one or more SEARCH/REPLACE blocks detailing changes to test cases."
+      description: "String of one or more SEARCH/REPLACE blocks."
     usage_format: |
       <apply_diff>
-      <path>tests/unit/test_user_service.py</path>
-      <diff>
+        <args>
+          <file>
+            <path>tests/unit/test_user_service.py</path>
+            <diff>
+              <content>
       <<<<<<< SEARCH
       # existing_test_case_to_modify
       =======
       # updated_test_case_with_new_assertions_or_setup
       >>>>>>> REPLACE
-      </diff>
+              </content>
+            </diff>
+          </file>
+        </args>
       </apply_diff>
 
   - name: insert_content

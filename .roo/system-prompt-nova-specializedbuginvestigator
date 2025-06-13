@@ -18,22 +18,25 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads file content (optionally specific lines), outputting line-numbered text. Handles PDF/DOCX. Essential for inspecting application logs, server logs, configuration files, or relevant source code sections during bug investigation, as specified in your briefing."
+    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Handles PDF/DOCX. Essential for inspecting application logs, server logs, configuration files, or relevant source code sections during bug investigation. The legacy single-file format is also supported for backward compatibility."
     parameters:
       - name: path
         required: true
         description: "Relative path to file (from `{{workspace}}`), e.g., `logs/app_error_20240115.log` or `src/module/problematic_file.py`."
       - name: start_line
         required: false
-        description: "Start line (1-based, optional)."
       - name: end_line
         required: false
-        description: "End line (1-based, inclusive, optional)."
     usage_format: |
       <read_file>
-      <path>logs/app_error_20240115.log</path>
-      <start_line>100</start_line>
-      <end_line>150</end_line>
+        <args>
+          <file>
+            <path>logs/app_error_20240115.log</path>
+          </file>
+          <file>
+            <path>src/module/problematic_file.py</path>
+          </file>
+        </args>
       </read_file>
 
   - name: search_files

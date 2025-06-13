@@ -1,4 +1,5 @@
 # Nova System - Improvement TODO List (v3)
+# Nova System - Improvement TODO List (v3)
 
 This document outlines the next generation of strategic improvements for the Nova system. The core focus of v3 is to enhance agent reliability and system robustness by enforcing **task granularity**, improving **dynamic planning**, and increasing **traceability and testability**.
 
@@ -49,3 +50,39 @@ This document outlines the next generation of strategic improvements for the Nov
     - **Action Item:** Systematically update **all** agent prompts (Orchestrator, Leads, Specialists) with a new, mandatory rule in their `tool_use_protocol`.
     - **Example Wording:** "**Mandatory Rationale:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain: 1. **Goal:** What you are trying to achieve with this tool call. 2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing the user's request, your briefing from a superior, or the result of a previous tool call. 3. **Expectation:** What you expect the outcome of the tool call to be."
     - **Benefit:** This creates a structured, self-documented "flight recorder" log of the agent's reasoning for every single action it takes, which is invaluable for debugging and analysis.
+
+# Nova System - Improvement TODO List (v4)
+
+This document outlines the next evolutionary steps for the Nova system, focusing on enhancing agent intelligence, process efficiency, and user experience.
+
+## 1. Agent Intelligence & Autonomy
+- [ ] **1.1. Implement Self-Improvement Cycle:**
+    - **Action Item:** Create `WF_ARCH_LEARNING_CYCLE_001_v1.md`.
+    - **Description:** This workflow will guide the `LeadArchitect` to periodically use `Nova-FlowAsk` to analyze patterns in `LessonsLearned` and recurring `ErrorLogs`. Based on this analysis, the `LeadArchitect` will be prompted to initiate a `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL_001_v1.md` to fix the root cause of systemic issues directly in the prompts of the relevant agents, creating a closed-loop learning mechanism.
+
+- [ ] **1.2. Enable Specialist-Proposed Alternatives:**
+    - **Action Item 1:** Update all Specialist prompts to include a new protocol. If a briefed task is deemed impossible or highly inefficient, the specialist can return an `attempt_completion` with a `Proposed_Alternative` section, detailing a better approach.
+    - **Action Item 2:** Update all Lead prompts to recognize and handle the `Proposed_Alternative` field. The Lead must then log a `Decision` to either `APPROVE` or `REJECT` the specialist's suggestion before delegating the next sub-task (either the original one or the newly approved alternative).
+
+## 2. Workflow & Process Optimization
+- [ ] **2.1. Introduce Configurable Quality Gates:**
+    - **Action Item 1:** Add a `quality_gate_level: 'strict' | 'moderate' | 'lean'` setting to the `ProjectConfig:ActiveConfig` schema in `conport_standards.md`.
+    - **Action Item 2:** Update `LeadDeveloper` and `LeadQA` prompts. They must now read this setting from `ProjectConfig` at the start of their phase and adjust their team's "Definition of Done" checks accordingly. For example, a `lean` gate might relax test coverage requirements, while `strict` would enforce them rigidly.
+
+- [ ] **2.2. Implement Workflow Parameterization:**
+    - **Action Item 1:** Refactor key `nova-orchestrator` and `nova-leadarchitect` workflows to replace hardcoded names with `{{placeholder}}` variables (e.g., `{{FEATURE_NAME}}`, `{{TARGET_RELEASE_VERSION}}`).
+    - **Action Item 2:** Update the `new_task` briefing format for `Nova-Orchestrator` to include an optional `parameters` dictionary. The Orchestrator will be responsible for populating this dictionary to fill in the placeholders when initiating a parameterized workflow.
+
+## 3. ConPort & Data Strategy
+- [ ] **3.1. Automated ConPort Compaction Workflow:**
+    - **Action Item:** Create `WF_ORCH_CONPORT_COMPACTION_001_v1.md`.
+    - **Description:** This workflow orchestrates a scheduled task. First, it delegates to `Nova-FlowAsk` to read all `Progress` items with status `DONE` older than a configured threshold (e.g., 90 days). `FlowAsk` generates a Markdown summary of these items. `LeadArchitect`'s `ConPortSteward` then logs this summary to a new `CustomData ArchivedProgressSummary:[DateRange]` item. Upon user confirmation, a final task is delegated to delete the original, now-summarized, `Progress` items, keeping the active database clean and efficient.
+
+## 4. Developer/User Experience (DX/UX)
+- [ ] **4.1. Implement User Command Alias System:**
+    - **Action Item 1:** Define the schema for `CustomData UserCommands:Aliases` in ConPort. This will be a simple JSON object mapping short, user-defined strings to full workflow file paths (e.g., `{"run digest": ".nova/workflows/nova-orchestrator/WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md"}`).
+    - **Action Item 2:** Update the `Nova-Orchestrator`'s initial prompt logic (`task_execution_protocol`, step 2). Before proceeding with normal analysis, the Orchestrator must first check if the user's input exactly matches a key in the `UserCommands:Aliases` map. If it does, it will immediately initiate the corresponding workflow.
+
+- [ ] **4.2. Implement Self-Explanation Capability:**
+    - **Action Item:** Create `WF_ORCH_EXPLAIN_ACTION_001_v1.md`.
+    - **Description:** This workflow is triggered when a user asks "Why did [action X] happen?". It guides the `Orchestrator` to use `Nova-FlowAsk` to find the relevant `Progress` item for the action. `FlowAsk` will then use `get_linked_items` to trace this `Progress` item back to a motivating `Decision` item and present the `rationale` from that `Decision` to the user as the explanation.
