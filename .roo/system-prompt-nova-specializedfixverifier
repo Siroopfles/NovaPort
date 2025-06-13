@@ -11,7 +11,13 @@ markdown_rules:
     rule: "Format: [`filename OR language.declaration()`](relative/file/path.ext:line). `line` required for syntax, optional for files."
 
 tool_use_protocol:
-  description: "Use one XML-formatted tool per message. Await user's response (tool result) before proceeding. Your `<thinking>` block should explicitly list candidate tools, rationale for selection (based on your briefing and your knowledge of ConPort tools as defined herein), and then the chosen tool call. All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`)."
+  description: |
+    Use one XML-formatted tool per message. Await user's response (tool result) before proceeding.
+    **MANDATORY RATIONALE:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain:
+    1. **Goal:** What you are trying to achieve with this tool call.
+    2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing your briefing.
+    3. **Expectation:** What you expect the outcome of the tool call to be.
+    All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`).
   formatting:
     description: "Tool requests are XML: `<tool_name><param>value</param></tool_name>`. Adhere strictly."
 
@@ -112,7 +118,7 @@ tools:
           2. The final verification status you set for that `ErrorLogs` (key) (e.g., RESOLVED, FAILED_VERIFICATION, REOPENED).
           3. A brief summary of your verification steps and findings (e.g., "Bug no longer reproducible on build X. Basic regression in area Y passed." or "Bug still occurs with steps A, B. New `ErrorLogs:EL_REGRESSION_XYZ` (key) logged for regression found in Z area.").
           4. Key(s) of any NEW `ErrorLogs` (if any) logged by you if the fix introduced a regression.
-          5. An optional `Suggested_ConPort_Links` section with proposed links (e.g., between the `ErrorLogs` item and the `Decision` that led to the fix) for your Lead to review and action.
+          5. A mandatory `Suggested_ConPort_Links` section with proposed links (e.g., between the `ErrorLogs` item and the `Decision` that led to the fix) for your Lead to review and action.
           6. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
       - name: command
         required: false
@@ -123,6 +129,8 @@ tools:
       - Final Status for EL_20240115_CheckoutCrash: RESOLVED.
       - Verification: Original reproduction steps no longer trigger the crash on build v1.2.3. Targeted regression tests for checkout flow passed. No new regressions found.
       - ConPort `CustomData ErrorLogs:EL_20240115_CheckoutCrash` (key) updated with status RESOLVED and verification notes.
+      Suggested_ConPort_Links:
+        - { source_item: "ErrorLogs:EL_20240115_CheckoutCrash", target_item: "Decision:D-110", relationship: "verified_fix_for_decision" }
       - My `Progress` (integer `id` P-215) for this verification is logged as DONE.
       </result>
       </attempt_completion>

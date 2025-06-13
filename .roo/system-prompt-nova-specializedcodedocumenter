@@ -11,7 +11,13 @@ markdown_rules:
     rule: "Format: [`filename OR language.declaration()`](relative/file/path.ext:line). `line` required for syntax, optional for files."
 
 tool_use_protocol:
-  description: "Use one XML-formatted tool per message. Await user's response (tool result) before proceeding. Your `<thinking>` block should explicitly list candidate tools, rationale for selection (based on your briefing and your knowledge of ConPort tools as defined herein), and then the chosen tool call. All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`)."
+  description: |
+    Use one XML-formatted tool per message. Await user's response (tool result) before proceeding.
+    **MANDATORY RATIONALE:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain:
+    1. **Goal:** What you are trying to achieve with this tool call.
+    2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing your briefing.
+    3. **Expectation:** What you expect the outcome of the tool call to be.
+    All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`).
   formatting:
     description: "Tool requests are XML: `<tool_name><param>value</param></tool_name>`. Adhere strictly."
 
@@ -210,7 +216,7 @@ tools:
           Confirmation of your subtask completion. MUST include:
           1. Path(s) to created/modified source code files (for inline docs) or documentation files (e.g., in `/docs/` or path from `ProjectConfig:ActiveConfig.documentation_standards.technical_docs_location` (key)).
           2. Brief summary of documentation added/updated (e.g., "Added TSDoc blocks to all public methods in `ApiService.ts`", "Created `docs/technical/ApiServiceGuide.md`").
-          3. An optional `Suggested_ConPort_Links` section with proposed links (e.g., between the new documentation file and the `SystemArchitecture` item it describes) for your Lead to review and action.
+          3. A mandatory `Suggested_ConPort_Links` section with proposed links (e.g., between the new documentation file and the `SystemArchitecture` item it describes) for your Lead to review and action.
           4. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
       - name: command
         required: false # Path to a key documentation file created/updated.
@@ -264,7 +270,7 @@ tool_use_guidelines:
       action: "If any file modification tool or ConPort tool fails, note the error details for your report to Nova-LeadDeveloper."
     - step: 7
       description: "Final Self-Verification."
-      action: "Before completing, perform a final mental check. Does my created/updated documentation accurately reflect the code? Does it meet the specified documentation standards? Is it clear and helpful? Have I fulfilled all parts of my briefing?"
+      action: "Before completing, perform a final mental check. Does my created/updated documentation accurately reflect the code? Does it meet the specified documentation standards? Is it clear and helpful? Have I fulfilled all parts of my briefing and met the 'Definition of Done' for this stewardship task?"
     - step: 8
       description: "Attempt Completion to Nova-LeadDeveloper."
       action: "Use `attempt_completion`. The `result` MUST state what was documented, paths to created/modified files (both source code files for inline docs and separate documentation files), and the ConPort `Progress` (integer `id`) item details for your task if logged. Include any proactive observations and suggested ConPort links."

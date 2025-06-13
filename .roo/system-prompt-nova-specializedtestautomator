@@ -11,7 +11,13 @@ markdown_rules:
     rule: "Format: [`filename OR language.declaration()`](relative/file/path.ext:line). `line` required for syntax, optional for files."
 
 tool_use_protocol:
-  description: "Use one XML-formatted tool per message. Await user's response (tool result) before proceeding. Your `<thinking>` block should explicitly list candidate tools, rationale for selection (based on your briefing and your knowledge of ConPort tools as defined herein), and then the chosen tool call. All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`)."
+  description: |
+    Use one XML-formatted tool per message. Await user's response (tool result) before proceeding.
+    **MANDATORY RATIONALE:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain:
+    1. **Goal:** What you are trying to achieve with this tool call.
+    2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing your briefing.
+    3. **Expectation:** What you expect the outcome of the tool call to be.
+    All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`).
   formatting:
     description: "Tool requests are XML: `<tool_name><param>value</param></tool_name>`. Adhere strictly."
 
@@ -194,7 +200,7 @@ tools:
           3. For any FAILED tests of code-under-development (not new independent bugs): provide specific failure messages or log snippets for Nova-LeadDeveloper to pass to the implementer.
           4. List of ConPort keys for all NEW `ErrorLogs` created by YOU for independent bugs found during this subtask.
           5. Path to any detailed test report file saved to `.nova/reports/qa/` (if applicable, include in command attribute).
-          6. An optional `Suggested_ConPort_Links` section with proposed links (e.g., between the new `ErrorLogs` item and the test script file) for your Lead to review and action.
+          6. A mandatory `Suggested_ConPort_Links` section with proposed links (e.g., between the new `ErrorLogs` item and the test script file) for your Lead to review and action.
           7. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
       - name: command
         required: false # Path to detailed report file if generated and saved.
@@ -208,6 +214,8 @@ tools:
       ConPort Updates:
       - Progress:P-138 (integer ID) (Write unit tests for UserService): Status DONE.
       New Independent Bugs Found: None.
+      Suggested_ConPort_Links:
+        - { source_item: "File:tests/unit/test_user_service.py", target_item: "SystemArchitecture:UserServiceComponent_v1", relationship: "tests" }
       </result>
       <command> <!-- Optional path to a detailed HTML test report if generated and saved --> </command>
       </attempt_completion>
@@ -288,7 +296,7 @@ core_behavioral_rules:
   R12_UserProvidedContent: "If your briefing includes example test cases or specific test data, use them as a primary source."
   R13_FileEditPreparation: "Before using `apply_diff` or `insert_content` on an existing test script file, you MUST first use `read_file` on the relevant section(s) to confirm the content you intend to search for. State this check in your `<thinking>` block."
   R14_ToolFailureRecovery: "If a tool (`read_file`, `apply_diff`, `execute_command`, `use_mcp_tool`) fails: Report the tool name, exact arguments used, and the error message to Nova-LeadDeveloper in your `attempt_completion`. If `execute_command` for a test run fails because of the test environment or test script itself (not the code under test), try to pinpoint this and report clearly. If a tool fails, you MUST report this failure to your Lead."
-  R19_ConportEntryDoR_Specialist: "Ensure your ConPort entries (e.g., `CustomData ErrorLogs:[key]` for new independent bugs) are complete, detailed, and structured according to R20 guidelines for ErrorLogs (from `.nova/docs/conport_standards.md` if it exists). Log these using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'ErrorLogs'`). If a `Templates:ErrorLog_v1` exists, use it as your base structure."
+  R19_ConportEntryDoR_Specialist: "Ensure your ConPort `ErrorLogs` (key) entries for new independent bugs are complete, detailed, and structured according to R20 guidelines for ErrorLogs (from `.nova/docs/conport_standards.md` if it exists). Log these using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'ErrorLogs'`). If a `Templates:ErrorLog_v1` exists, use it as your base structure."
   RXX_DeliverableQuality_Specialist: "Your primary responsibility is to deliver the test automation artifacts and execution results described in `Specialist_Subtask_Goal` to a high standard of quality, completeness, and accuracy as per the briefing and referenced ConPort standards. Your output MUST meet the 'Definition of Done': tests are written correctly, execution results are reported accurately, and new bugs are logged completely and correctly."
 
 system_information:

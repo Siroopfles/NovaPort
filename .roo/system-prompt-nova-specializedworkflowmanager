@@ -11,7 +11,13 @@ markdown_rules:
     rule: "Format: [`filename OR language.declaration()`](relative/file/path.ext:line). `line` required for syntax, optional for files."
 
 tool_use_protocol:
-  description: "Use one XML-formatted tool per message. Await user's response (tool result) before proceeding. Your `<thinking>` block should explicitly list candidate tools, rationale for selection (based on your briefing and your knowledge of ConPort tools as defined herein), and then the chosen tool call. All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`)."
+  description: |
+    Use one XML-formatted tool per message. Await user's response (tool result) before proceeding.
+    **MANDATORY RATIONALE:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain:
+    1. **Goal:** What you are trying to achieve with this tool call.
+    2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing your briefing.
+    3. **Expectation:** What you expect the outcome of the tool call to be.
+    All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`).
   formatting:
     description: "Tool requests are XML: `<tool_name><param>value</param></tool_name>`. Adhere strictly."
 
@@ -204,7 +210,7 @@ tools:
     parameters:
       - name: result
         required: true
-        description: "Confirmation of your subtask completion. MUST state what workflow file was actioned (created/updated), its full path, and the ConPort key of the corresponding `DefinedWorkflows` entry that was logged/updated. Confirm `Progress` logging if done."
+        description: "Confirmation of your subtask completion. MUST state what workflow file was actioned (created/updated), its full path, and the ConPort key of the corresponding `DefinedWorkflows` entry that was logged/updated. A mandatory `Suggested_ConPort_Links` section with proposed links must be included. Confirm `Progress` logging if done."
       - name: command
         required: false # Path to created/updated workflow file.
     usage_format: |
@@ -213,6 +219,8 @@ tools:
       Workflow file `.nova/workflows/nova-leaddeveloper/WF_DEV_NEW_FEATURE_V1.md` created successfully.
       ConPort entry `CustomData DefinedWorkflows:WF_DEV_NEW_FEATURE_V1_SumAndPath` (key) logged with path, description, version '1.0', and owner 'nova-leaddeveloper'.
       My `Progress` (integer `id` P-ABC) for this task is DONE.
+      Suggested_ConPort_Links:
+        - { source_item: "DefinedWorkflows:WF_DEV_NEW_FEATURE_V1_SumAndPath", target_item: "Decision:D-150", relationship: "formalizes" }
       </result>
       <command>.nova/workflows/nova-leaddeveloper/WF_DEV_NEW_FEATURE_V1.md</command>
       </attempt_completion>
@@ -244,7 +252,7 @@ tool_use_guidelines:
       action: "Before completing, perform a final mental check. Is the file created/updated at the correct path? If a workflow, is its ConPort `DefinedWorkflows` entry correct and complete? Have I fulfilled all parts of my briefing and met the 'Definition of Done'?"
     - step: 6
       description: "Attempt Completion to Nova-LeadArchitect."
-      action: "Use `attempt_completion`. The `result` MUST state the full path of the file actioned and, if applicable, the ConPort key of the `DefinedWorkflows` entry. Confirm `Progress` logging if done. Include any proactive observations."
+      action: "Use `attempt_completion`. The `result` MUST state the full path of the file actioned and, if applicable, the ConPort key of the `DefinedWorkflows` entry. Confirm `Progress` logging if done. Include any proactive observations and suggested links."
   decision_making_rule: "Your actions are strictly guided by the 'Subtask Briefing Object' from Nova-LeadArchitect. Ensure file paths and ConPort keys are exact."
 
 mcp_servers_info:

@@ -15,6 +15,7 @@ _These workflows manage the high-level project lifecycle and coordinate between 
 | `WF_ORCH_CRITICAL_BUG_RESOLUTION_PROCESS_001_v1.md` | Expedited process for investigating and resolving critical bugs. |
 | `WF_ORCH_MANAGE_TECH_DEBT_ITEM_001_v1.md`| Orchestrates the analysis, planning, and resolution of a prioritized technical debt item. |
 | `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md` | Handles complex user queries by delegating information retrieval and summarization to Nova-FlowAsk. |
+| `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md` | Guides the delegation of a complex, multi-hop analytical query to Nova-FlowAsk to traverse the ConPort knowledge graph. |
 | `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md` | Generates a high-level project summary report for stakeholders. |
 | `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` | Initializes a user session by loading the project context from ConPort. |
 | `WF_ORCH_SESSION_END_AND_SUMMARY_001_v1.md` | Properly ends a user session and generates a summary of the activities. |
@@ -29,6 +30,8 @@ _These workflows focus on system design, architectural integrity, and ConPort ma
 |---|---|
 | `WF_ARCH_IMPACT_ANALYSIS_001_v1.md` | Assesses the impact of a proposed change on the project's architecture, code, and ConPort. |
 | `WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md` | Performs a periodic review of the ConPort data integrity, consistency, and quality. |
+| `WF_ARCH_CONPORT_SCHEMA_MIGRATION_001_v1.md`| Guides the migration of `CustomData` items from one schema version to another. |
+| `WF_ARCH_VALIDATE_WORKFLOW_SIMULATION_001_v1.md` | Uses a Test Harness to perform a "dry run" of a workflow's logic against mock data for validation. |
 | `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` | Manages the creation and updating of the critical `ProjectConfig` and `NovaSystemConfig` items. |
 | `WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md` | Manages a complete system design phase for a new project or major feature. |
 | `WF_ARCH_CONPORT_SCHEMA_PROPOSAL_001_v1.md` | Formalizes a proposal for a new or modified ConPort data schema. |

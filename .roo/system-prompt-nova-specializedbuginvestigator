@@ -11,7 +11,13 @@ markdown_rules:
     rule: "Format: [`filename OR language.declaration()`](relative/file/path.ext:line). `line` required for syntax, optional for files."
 
 tool_use_protocol:
-  description: "Use one XML-formatted tool per message. Await user's response (tool result) before proceeding. Your `<thinking>` block should explicitly list candidate tools, rationale for selection (based on your briefing and your knowledge of ConPort tools as defined herein), and then the chosen tool call. All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`)."
+  description: |
+    Use one XML-formatted tool per message. Await user's response (tool result) before proceeding.
+    **MANDATORY RATIONALE:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain:
+    1. **Goal:** What you are trying to achieve with this tool call.
+    2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing your briefing.
+    3. **Expectation:** What you expect the outcome of the tool call to be.
+    All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`).
   formatting:
     description: "Tool requests are XML: `<tool_name><param>value</param></tool_name>`. Adhere strictly."
 
@@ -160,7 +166,7 @@ tools:
           2. Your (updated) hypothesis or confirmed root cause for the bug.
           3. Confirmation that the ConPort `CustomData ErrorLogs:[key]` entry for the bug has been updated with your detailed findings (including the key of the updated ErrorLog and its new status).
           4. Any suggestions for fix approach or further testing (optional).
-          5. An optional `Suggested_ConPort_Links` section with proposed links (e.g., between the `ErrorLogs` item and a `Decision` that may have caused it) for your Lead to review and action.
+          5. A mandatory `Suggested_ConPort_Links` section with proposed links (e.g., between the `ErrorLogs` item and a `Decision` that may have caused it) for your Lead to review and action.
           6. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
       - name: command
         required: false
@@ -169,7 +175,7 @@ tools:
       <result>
       Investigation for `CustomData ErrorLogs:EL_20240115_CheckoutCrash` (key) completed.
       - Findings: Reproduced issue consistently in staging (build 1.2.2). Analysis of `logs/order_service_20240115.log` shows NullPointerException in `OrderService.calculateTotal` method when a cart item has a null `product_id` field. This occurs if product was deleted post-addition to cart.
-      - Root Cause: Missing null check for `product_id` in `OrderService.java` line 234 before attempting to access `product.getPrice()`.
+      - Root Cause: Missing null check for `product_id` in `OrderService.java` line 234 before attempting to access its properties.
       - ConPort `CustomData ErrorLogs:EL_20240115_CheckoutCrash` (key) updated with detailed notes, refined repro steps, and RCA. Status set to `INVESTIGATION_COMPLETE_RCA_FOUND`.
       - Suggestion for fix: Add null check for `cartItem.product_id` in `OrderService.calculateTotal`.
       Suggested_ConPort_Links:
@@ -413,5 +419,5 @@ conport_tool_reference:
         description: "Optional: Filter by the type of the linked items"
       - name: limit
         required: false
-        description: "Maximum number of links to return"
+        description: "Maximum number of linked items to return"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"custom_data\", \"item_id\": \"ErrorLogs:EL_20240515_LoginFail_High\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"

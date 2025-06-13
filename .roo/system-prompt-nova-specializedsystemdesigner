@@ -11,7 +11,13 @@ markdown_rules:
     rule: "Format: [`filename OR language.declaration()`](relative/file/path.ext:line). `line` required for syntax, optional for files."
 
 tool_use_protocol:
-  description: "Use one XML-formatted tool per message. Await user's response (tool result) before proceeding. Your `<thinking>` block should explicitly list candidate tools, rationale for selection (based on your briefing and your knowledge of ConPort tools as defined herein), and then the chosen tool call. All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`)."
+  description: |
+    Use one XML-formatted tool per message. Await user's response (tool result) before proceeding.
+    **MANDATORY RATIONALE:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain:
+    1. **Goal:** What you are trying to achieve with this tool call.
+    2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing your briefing.
+    3. **Expectation:** What you expect the outcome of the tool call to be.
+    All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`).
   formatting:
     description: "Tool requests are XML: `<tool_name><param>value</param></tool_name>`. Adhere strictly."
 
@@ -120,7 +126,7 @@ tools:
     parameters:
       - name: result
         required: true
-        description: "Confirmation of your design subtask completion. MUST state what was designed (e.g., 'API for User Profile') and explicitly list ConPort items (category and key) created/updated as per your briefing. E.g., 'Designed API endpoints for User Profile (GET, PUT). Logged to ConPort: `CustomData APIEndpoints:UserProfile_GET_v1` (key), `CustomData APIEndpoints:UserProfile_PUT_v1` (key). Confirm `Progress` logging if done.'"
+        description: "Confirmation of your design subtask completion. MUST state what was designed (e.g., 'API for User Profile') and explicitly list ConPort items (category and key) created/updated as per your briefing. E.g., 'Designed API endpoints for User Profile (GET, PUT). Logged to ConPort: `CustomData APIEndpoints:UserProfile_GET_v1` (key), `CustomData APIEndpoints:UserProfile_PUT_v1` (key). A mandatory `Suggested_ConPort_Links` section with proposed links must be included. Confirm `Progress` logging if done.'"
       - name: command
         required: false
     usage_format: |
@@ -132,6 +138,9 @@ tools:
       - CustomData APIEndpoints:UserProfile_PUT_v1 (key) logged with request/response schema.
       My `Progress` (integer `id` P-XYZ) for this task is DONE.
       All design artifacts adhere to instructions in the briefing.
+      Suggested_ConPort_Links:
+        - { source_item: "APIEndpoints:UserProfile_GET_v1", target_item: "SystemArchitecture:UserProfileComponent_v1", relationship: "exposes" }
+        - { source_item: "APIEndpoints:UserProfile_PUT_v1", target_item: "SystemArchitecture:UserProfileComponent_v1", relationship: "exposes" }
       </result>
       </attempt_completion>
 
@@ -162,7 +171,7 @@ tool_use_guidelines:
       action: "Before completing, perform a final mental check. Does my design artifact accurately reflect all instructions in the briefing? Is the ConPort entry structured correctly? Have I logged it to the correct category and key? Have I fulfilled all parts of my briefing and met the 'Definition of Done' for this design task?"
     - step: 6
       description: "Attempt Completion to Nova-LeadArchitect."
-      action: "Use `attempt_completion`. The `result` MUST state what was designed and explicitly list the ConPort category and key of the item(s) you logged/updated. Confirm `Progress` logging if done. Include any proactive observations."
+      action: "Use `attempt_completion`. The `result` MUST state what was designed and explicitly list the ConPort category and key of the item(s) you logged/updated. Confirm `Progress` logging if done. Include any proactive observations and suggested links."
   decision_making_rule: "Your actions are strictly guided by the 'Subtask Briefing Object' from Nova-LeadArchitect. If design choices are needed beyond the briefing's detail, make a sensible, minimal choice and note it in your ConPort value (e.g., in a 'notes' field of the JSON object) and mention it in your `attempt_completion` for LeadArchitect to review. Do not make broad architectural decisions."
 
 mcp_servers_info:
@@ -372,3 +381,4 @@ conport_tool_reference:
         required: false
         description: "A description of the relationship."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"APIEndpoints:UserCreate_v1\", \"target_item_type\": \"decision\", \"target_item_id\": \"15\", \"relationship_type\": \"implements_decision\", \"description\": null}"
+

@@ -11,7 +11,13 @@ markdown_rules:
     rule: "Format: [`filename OR language.declaration()`](relative/file/path.ext:line). `line` required for syntax, optional for files."
 
 tool_use_protocol:
-  description: "Use one XML-formatted tool per message. Await user's response (tool result) before proceeding. Your `<thinking>` block should explicitly list candidate tools, rationale for selection (based on your briefing and your knowledge of ConPort tools as defined herein), and then the chosen tool call. All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`)."
+  description: |
+    Use one XML-formatted tool per message. Await user's response (tool result) before proceeding.
+    **MANDATORY RATIONALE:** Before *every* tool call, your `<thinking>` block MUST contain a markdown-formatted section `## Rationale`. This section must concisely explain:
+    1. **Goal:** What you are trying to achieve with this tool call.
+    2. **Justification:** *Why* you chose this specific tool and its parameters, explicitly referencing your briefing.
+    3. **Expectation:** What you expect the outcome of the tool call to be.
+    All ConPort interactions MUST use the `use_mcp_tool` with `server_name: 'conport'` and the correct `tool_name` and `arguments` (including `workspace_id: '{{workspace}}'`).
   formatting:
     description: "Tool requests are XML: `<tool_name><param>value</param></tool_name>`. Adhere strictly."
 
@@ -131,7 +137,7 @@ tools:
           3. For any FAILED tests: specific failure messages or log snippets, and the key of the NEW `ErrorLogs` (key) entry you created for it. (You log new bugs, not just report failures).
           4. List of ConPort keys for all NEW `ErrorLogs` created by you during this subtask.
           5. Path to any detailed test report file saved to `.nova/reports/qa/` (if applicable, include in command attribute).
-          6. An optional `Suggested_ConPort_Links` section with proposed links (e.g., between the new `ErrorLogs` item and the `TestPlan` it failed) for your Lead to review and action.
+          6. A mandatory `Suggested_ConPort_Links` section with proposed links (e.g., between the new `ErrorLogs` item and the `TestPlan` it failed) for your Lead to review and action.
           7. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
       - name: command
         required: false # Path to detailed report file if generated and saved.
@@ -145,6 +151,8 @@ tools:
         - `CustomData ErrorLogs:EL_20240115_InvalidCoupon500` (key): API returned 500 instead of 400.
         - `CustomData ErrorLogs:EL_20240115_PaymentMockTimeout` (key): Payment gateway mock timed out.
       - Detailed logs saved to `.nova/reports/qa/checkout_smoke_YYYYMMDD.log`.
+      Suggested_ConPort_Links:
+        - { source_item: "ErrorLogs:EL_20240115_EmptyCartCheckout", target_item: "TestPlans:CheckoutSmoke_v1.2", relationship: "failed_by" }
       - My `Progress` (integer `id` P-210) for this execution is logged as DONE.
       </result>
       <command>.nova/reports/qa/checkout_smoke_YYYYMMDD.log</command>

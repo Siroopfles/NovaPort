@@ -5,7 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
-## [0.3.0-beta] - Unreleased
+## [0.3.0-beta] - 2024-05-20
+
+### 🚀 System Architecture & Agent Logic v3 Overhaul
+
+This is a major release focused on fundamentally improving agent reliability, system robustness, and traceability by implementing the entire v3 improvement roadmap.
+
+#### ✨ New Features & Capabilities
+
+- **Workflow Validation Suite:** Introduced a new `Test-Harness-Orchestrator` mode and a corresponding `WF_ARCH_VALIDATE_WORKFLOW_SIMULATION_001_v1.md` workflow. This enables "dry-runs" of workflow logic for validation and debugging before live execution.
+- **ConPort Schema Migration:** Added a new `WF_ARCH_CONPORT_SCHEMA_MIGRATION_001_v1.md` workflow to guide the `LeadArchitect` and `ConPortSteward` through the process of migrating `CustomData` items to new schemas.
+- **Analytical Graph Query:** Enabled complex, multi-hop analysis of the ConPort knowledge graph.
+  - Added a new `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md` workflow for the Orchestrator to delegate multi-step queries.
+  - Enhanced the `Nova-FlowAsk` prompt with an explicit capability to execute a sequence of `use_mcp_tool` calls as part of a single subtask.
+
+#### 🚀 Improvements & Hardening
+
+- **Granular Single-Step Execution Loop (Lead Modes):** Re-engineered the core `task_execution_protocol` for all Lead Modes (`LeadArchitect`, `LeadDeveloper`, `LeadQA`). They no longer plan entire phases upfront. Instead, they create a high-level plan and then enter an iterative loop, determining and delegating only the single, next, most logical atomic sub-task to a specialist at a time. This dramatically improves reliability and reduces the risk of complex, error-prone specialist briefings.
+- **Mandatory Auditable Rationale Protocol:** System-wide hardening of all 15 agent prompts (`Orchestrator`, `Leads`, `Specialists`, `FlowAsk`). Before *every* tool call, agents must now include a `## Rationale` section in their `<thinking>` block, detailing the goal, justification, and expected outcome of the tool call. This creates an invaluable "flight recorder" log for debugging and analysis.
+- **Proactive ConPort Linking (Specialist Modes):** All 10 Specialist Mode prompts have been updated to include a mandatory `Suggested_ConPort_Links` section in their `attempt_completion` reports. Specialists are now required to proactively suggest potential links between the ConPort items they create and other relevant items, enriching the knowledge graph for their Leads to review and action.
+
+### 📖 Documentation & Prompts
+
+- **System-Wide Prompt Re-engineering:** All 15 system prompts in the `.roo/` directory have been updated to implement the new "Auditable Rationale" protocol. All Lead prompts have their core logic updated for the "Single-Step Loop". All Specialist prompts have been updated with the "Proactive ConPort Linking" protocol.
+- **README Update:** The main `README.md` was updated to reflect the new operational principles of Granular Tasking and Auditable Reasoning. The descriptions of Lead and Specialist modes have been updated to reflect their new responsibilities and logic.
+- **New Workflows Added to Manifest:** The `.nova/workflows/manifest.md` has been updated to include the new validation, migration, and query workflows.
 
 ## [0.2.8-beta] - 2024-05-20
 

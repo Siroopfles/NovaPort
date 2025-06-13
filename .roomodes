@@ -39,9 +39,18 @@ customModes:
     groups:
       - read
       - - edit
-        - fileRegex: \.nova/(summary|reports/digests)/.*\.md$
-          description: "Session summary and project digest Markdown files"
+        - fileRegex: \.nova/(summary|reports)/.*\.md$
+          description: "Session summary and project digest/onboarding Markdown files"
       - mcp
+
+  - slug: nova-testharnessorchestrator
+    name: Nova-TestHarnessOrchestrator
+    roleDefinition: "A dummy orchestrator for 'dry-running' workflow logic with mock data. Reports simulation transcripts. Called by Nova-LeadArchitect."
+    groups:
+      - read # Reads workflow and mock data files
+      - - edit
+        - fileRegex: \.nova/reports/simulations/.*\.log$
+          description: "Workflow simulation transcript log files"
 
   - slug: nova-specializedsystemdesigner
     name: Nova-SpecializedSystemDesigner
