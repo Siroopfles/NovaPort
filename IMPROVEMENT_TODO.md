@@ -3,18 +3,18 @@
 ## v3 Finalization Tasks
 **Rationale:** These tasks were identified during the final review of the v3 implementation. They refine agent interactions and ensure consistency with the new v3 protocols, thereby maximizing system robustness.
 
-- [ ] **3.2. Update Lead Mode Prompts for Link Processing:**
+- [x] **3.2. Update Lead Mode Prompts for Link Processing:**
     - **Action Item:** Adjust the `task_execution_protocol` (specifically the 'Process Result' step) in all three Lead Mode prompts (`-LeadArchitect`, `-LeadDeveloper`, `-LeadQA`). Add an explicit instruction to process the `Suggested_ConPort_Links` section from a specialist's `attempt_completion`.
     - **Example Wording:** "f. **Process Result:** Analyze the specialist's report. ... **Review the `Suggested_ConPort_Links` section; if the suggestions are valid, delegate a `link_conport_items` task to the appropriate specialist (e.g., ConPortSteward) or log the link yourself.** Update their `Progress` item..."
 
-- [ ] **3.3. Align Orchestrator Workflows with Single-Step Loop Logic:**
+- [x] **3.3. Align Orchestrator Workflows with Single-Step Loop Logic:**
     - **Action Item:** Conduct a review of the `new_task` `message` blocks within the main `WF_ORCH_*` workflow files (e.g., `WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1.md`, `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`).
     - **Refinement Goal:** Ensure the `Lead_Mode_Specific_Instructions` direct the Lead towards their *Phase_Goal* and encourage them to follow their new iterative "Single-Step Loop" protocol, rather than dictating the old execution logic.
     - **Example Refactor:**
         - **Old:** `Lead_Mode_Specific_Instructions: ["Execute the workflow defined in .nova/workflows/..."]`
         - **New:** `Lead_Mode_Specific_Instructions: ["Your goal for this phase is to [Phase_Goal]. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/...` for a reference process."]`
 
-- [ ] **3.4. Finalize Documentation for v3 Release:**
+- [x] **3.4. Finalize Documentation for v3 Release:**
     - **Action Item 3.4.1:** Update the `README.md` to clearly explain the new v3 concepts, particularly the "Single-Step Loop" for Leads and the "Auditable Rationale Protocol" for all agents.
     - **Action Item 3.4.2:** Update the `CHANGELOG.md` with a detailed description of the v3.0.0-beta release, highlighting all major architectural changes.
 

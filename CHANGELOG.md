@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 ## [0.3.0-beta] - 2024-05-20
 
-### 🚀 System Architecture & Agent Logic v3 Overhaul
-
 This is a major release focused on fundamentally improving agent reliability, system robustness, and traceability by implementing the entire v3 improvement roadmap.
 
 #### ✨ New Features & Capabilities

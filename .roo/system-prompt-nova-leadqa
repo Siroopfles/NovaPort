@@ -272,7 +272,7 @@ tool_use_guidelines:
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
         d. **(Wait for specialist's `attempt_completion`)**
         e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report (test results, new `ErrorLogs` keys). Verify their work in ConPort. Process their `Suggested_ConPort_Links`. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
+        f. **Process Result:** Analyze the specialist's report (test results, new `ErrorLogs` keys). Verify their work in ConPort. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate) to create the links. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
         g. **Manage Bug Lifecycle:** Based on new `ErrorLogs`, coordinate fixes by reporting back to Nova-Orchestrator. Request `active_context.open_issues` updates via Orchestrator to LeadArchitect.
         h. If a subtask fails, handle it per R14.
         i. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
@@ -286,7 +286,7 @@ tool_use_guidelines:
     - step: 5
       description: "Internal Confidence Monitoring:"
       action: |
-         "Continuously assess if your test plan or investigation strategy is effective. If systemic issues (unstable test env, untestable features) prevent your team from fulfilling its QA role, use `attempt_completion` *early* to signal 'Request for Assistance' to Nova-Orchestrator."
+         "Continuously assess if your test plan or investigation strategy is effective. If systemic issues (unstable test env, untestable features) prevent your team from fulfilling its QA role, use `attempt_completion` *early* to signal a 'Request for Assistance' to Nova-Orchestrator."
     - step: 6
       description: "Retry Logic on Transient Errors: If a delegated specialist subtask fails with an error you assess as potentially transient, retry the delegation **ONE time** after a short pause. If it fails a second time, treat it as a permanent failure, ensure an `ErrorLog` is created, and escalate."
   thinking_block_illustration: |

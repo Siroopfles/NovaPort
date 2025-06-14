@@ -25,13 +25,16 @@
     *   [Workspace](#workspace)
     *   [Knowledge Graph & RAG](#knowledge-graph--rag)
     *   [Prompt Caching](#prompt-caching)
+    *   [Auditable Rationale (v3)](#auditable-rationale-v3)
 7.  [Nova Modes in Detail](#nova-modes-in-detail)
     *   [Nova-Orchestrator (Roo)](#nova-orchestrator-roo)
     *   [Lead Modes](#lead-modes)
+        *   [Lead Mode Execution Logic (v3 Single-Step Loop)](#lead-mode-execution-logic-v3-single-step-loop)
         *   [Nova-LeadArchitect](#nova-leadarchitect)
         *   [Nova-LeadDeveloper](#nova-leaddeveloper)
         *   [Nova-LeadQA](#nova-leadqa)
     *   [Specialized Modes](#specialized-modes)
+        *   [Proactive ConPort Linking (v3)](#proactive-conport-linking-v3)
         *   [Architect Team](#architect-team)
         *   [Developer Team](#developer-team)
         *   [QA Team](#qa-team)
@@ -52,7 +55,7 @@
 
 ## Installation
 
-You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.2.5-beta`). For most users, **installing a specific version is recommended for stability.**
+You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.3.0-beta`). For most users, **installing a specific version is recommended for stability.**
 
 The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
 
@@ -60,7 +63,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.5-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.3.0-beta`):
 1.  Download the installation script:
     ```bash
     curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
@@ -71,7 +74,7 @@ The installer will automatically download: `.roomodes`, `README.md`, the entire 
     ```
 3.  Run the script, passing the desired version number as an argument:
     ```bash
-    ./install_nova_modes.sh v0.2.5-beta
+    ./install_nova_modes.sh v0.3.0-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -86,14 +89,14 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.2.5-beta`):
+#### To Install a Specific Version (Recommended, e.g., `v0.3.0-beta`):
 1.  Download the installation script:
     ```powershell
     Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
     ```
 2.  Run the script, passing the desired version using the `-Version` parameter:
     ```powershell
-    .\install_nova_modes.ps1 -Version v0.2.5-beta
+    .\install_nova_modes.ps1 -Version v0.3.0-beta
     ```
 
 #### To Install the Latest Development Version (from `main` branch):
@@ -282,6 +285,14 @@ ConPort facilitates the creation of a project-specific **knowledge graph** by st
 ### Prompt Caching
 ConPort supports efficient prompt caching with compatible LLM providers. Structured, frequently accessed context (like `ProductContext`, `SystemPatterns`, or user-flagged `CustomData` items) can be identified by AI assistants (guided by `prompt_caching_strategies` in their instructions) and included in the cacheable prefix of prompts. This improves LLM interaction efficiency and cost-effectiveness.
 
+### Auditable Rationale (v3)
+A core principle of the v3 architecture is **traceability**. Every agent in the system (`Orchestrator`, `Leads`, and `Specialists`) is now required to follow an "Auditable Rationale Protocol". Before *every* tool call, the agent must include a `## Rationale` section in its `<thinking>` block that explains:
+1.  **Goal:** What it is trying to achieve.
+2.  **Justification:** *Why* it chose that specific tool and parameters, referencing its briefing or previous results.
+3.  **Expectation:** What it expects the outcome to be.
+
+This creates a self-documenting "flight recorder" log of the agent's reasoning for every action, which is invaluable for debugging, analysis, and understanding the system's behavior.
+
 ## Nova Modes in Detail
 
 ### Nova-Orchestrator (Roo)
@@ -299,7 +310,19 @@ ConPort supports efficient prompt caching with compatible LLM providers. Structu
 *   **ConPort Interaction (Direct):** Primarily read-only to load context and perform DoR checks. May log/update its own top-level `Progress` items. Delegates most ConPort writes.
 
 ### Lead Modes
-Lead Modes receive phase-tasks from the Orchestrator. They create an internal, sequential plan of small, focused sub-tasks, log this plan in ConPort (`LeadPhaseExecutionPlan:[ProgressID]_[Mode]Plan`), and delegate these sub-tasks one-by-one to their specialized team members. They are responsible for the quality and completion of their assigned phase.
+Lead Modes receive phase-tasks from the Orchestrator. They are responsible for the quality and completion of their assigned phase by managing their team of specialists.
+
+#### Lead Mode Execution Logic (v3 Single-Step Loop)
+A fundamental change in v3 is how Lead Modes operate. They no longer create a large, upfront plan and execute it. Instead, they follow a more robust, iterative **Single-Step Loop**:
+1.  **High-Level Plan:** Upon receiving a phase-task, the Lead creates a *coarse-grained* `LeadPhaseExecutionPlan` with only 2-4 major milestones and logs it to ConPort.
+2.  **Execution Loop:** The Lead then enters a loop:
+    a. **Focus** on the current milestone.
+    b. **Determine** the single, next, most logical, and atomic specialist sub-task required to make progress.
+    c. **Delegate** only that single, atomic sub-task to the appropriate specialist via `new_task`.
+    d. **Await** the specialist's `attempt_completion`, process the result, update ConPort `Progress`, and handle any new suggested links.
+    e. **Return** to step (b) to determine the very next action.
+
+This "just-in-time" planning model makes the Lead agents more predictable, reduces the complexity of individual specialist tasks, and increases overall system reliability.
 
 #### Nova-LeadArchitect
 *   **Role:** Head of system design, project knowledge structure, and architectural strategy.
@@ -332,6 +355,9 @@ Lead Modes receive phase-tasks from the Orchestrator. They create an internal, s
 ### Specialized Modes
 Each Specialized Mode has a highly focused role and operates under the direct instruction of its Lead Mode. They receive a `Subtask Briefing Object` for a small, specific task and report back with `attempt_completion`. They interact with ConPort and the file system using tools defined in their system prompts.
 
+#### Proactive ConPort Linking (v3)
+A key improvement in v3 is that all Specialist Modes are now required to proactively contribute to the project's knowledge graph. In their `attempt_completion`, they MUST include a `Suggested_ConPort_Links` section, proposing logical links between the items they've created and other relevant items in ConPort. Their Lead is then responsible for reviewing and actioning these suggestions, ensuring the knowledge graph remains rich and interconnected.
+
 #### Architect Team
 *   **Nova-SpecializedSystemDesigner:** Focuses on detailed system and component design, API specifications, and data modeling. Logs `SystemArchitecture`, `APIEndpoints`, `DBMigrations` in ConPort.
 *   **Nova-SpecializedConPortSteward:** Focuses on ConPort data integrity, quality, glossary management, and logging configurations (`ProjectConfig`, `NovaSystemConfig`), `ImpactAnalyses`, `RiskAssessment`, `ConPortSchema` proposals. Executes ConPort Health Checks.
@@ -352,7 +378,7 @@ Each Specialized Mode has a highly focused role and operates under the direct in
 
 #### Nova-FlowAsk
 *   **Role:** A specialized information retrieval and analysis agent.
-*   **Responsibilities:** Answers specific questions, analyzes code (read-only), explains concepts, or summarizes provided text/ConPort data when a Lead Mode or Orchestrator delegates this. Does not modify ConPort or project files (except for writing session summaries to `.nova/summary/` or digests to `.nova/reports/digests/` when tasked by Nova-Orchestrator).
+*   **Responsibilities:** Answers specific questions, analyzes code (read-only), explains concepts, or summarizes provided text/ConPort data when a Lead Mode or Orchestrator delegates this. Can perform multi-step "graph-hop" queries in ConPort. Does not modify ConPort or project files (except for writing session summaries to `.nova/summary/` or digests to `.nova/reports/digests/` when tasked by Nova-Orchestrator).
 
 ## Workflows (`.nova/workflows/`)
 Workflows are the backbone of standardized processes within Nova.
@@ -371,6 +397,7 @@ These guide the overall project lifecycle or key cross-mode processes. Examples:
 *   `WF_ORCH_MANAGE_TECH_DEBT_ITEM_001_v1.md`: For addressing a prioritized technical debt item.
 *   `WF_ORCH_TRIAGE_NEW_ISSUE_REPORTED_BY_LEAD_001_v1.md`: For processing new issues discovered by Lead modes.
 *   `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md`: To direct `Nova-FlowAsk` for complex ConPort queries.
+*   `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md`: To direct `Nova-FlowAsk` for multi-hop graph analysis.
 *   `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md`: Generates a high-level project summary report for stakeholders.
 *   `WF_ORCH_SESSION_END_AND_SUMMARY_001_v1.md`: For ending a session and generating a summary.
 *   `WF_PROJ_INIT_001_NewProjectBootstrap.md`: (Often initiated via LeadArchitect) For the very first setup of an empty workspace.
@@ -392,6 +419,8 @@ These describe processes specific to a Lead Mode's domain, used to guide their t
     *   `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md`: For creating Mermaid diagrams of ConPort relationships.
     *   `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md`: For generating a summary of ConPort usage.
     *   `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md`: For identifying and archiving stale ConPort data.
+    *   `WF_ARCH_VALIDATE_WORKFLOW_SIMULATION_001_v1.md`: For "dry-running" a workflow's logic.
+    *   `WF_ARCH_CONPORT_SCHEMA_MIGRATION_001_v1.md`: For migrating ConPort data to a new schema.
 *   **Nova-LeadDeveloper:**
     *   `WF_DEV_CODE_REVIEW_SIMULATION_001_v1.md`: For simulating code reviews.
     *   `WF_DEV_EXTERNAL_LIBRARY_INTEGRATION_001_v1.md`: For integrating external libraries.
@@ -453,6 +482,8 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 
 ## Key Operational Principles
 *   **Structured Delegation:** Tasks are delegated top-down with clear, structured **`Subtask Briefing Objects`** to minimize ambiguity.
+*   **Granular, Single-Step Execution (v3):** Lead modes operate in a loop, delegating only one atomic sub-task at a time to specialists for increased reliability and predictability.
+*   **Auditable Reasoning (v3):** All agents must document their reasoning (`Goal`, `Justification`, `Expectation`) before every tool call, creating a transparent execution log.
 *   **Sequential Processing:** Only one AI mode is active at a time. Modes await `attempt_completion` from subordinates before proceeding.
 *   **ConPort as Central Hub:** All significant information is logged to ConPort, serving as the collective memory.
 *   **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented in ConPort and `.nova/` files.

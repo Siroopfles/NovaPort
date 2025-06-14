@@ -84,7 +84,7 @@
                   "Lead_Mode_Specific_Instructions": [
                     "The 'Definition of Ready' for the Development Phase has failed. The following criteria are not met: [List of Failed_Criteria].",
                     "Your team must take action to meet these criteria. This may involve finalizing designs, securing approvals (simulated via user interaction if needed), or updating ConPort statuses.",
-                    "Report back via `attempt_completion` when all listed criteria are met."
+                    "Report back via `attempt_completion` when all listed criteria are now met."
                   ],
                   "Required_Input_Context": { "Failed_Criteria_List": "[...]" },
                   "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Confirmation that all failed DoR criteria are now met."]
@@ -107,12 +107,7 @@
           "Overall_Project_Goal": "Successfully integrate new feature [FeatureName] into Project [ProjectName].",
           "Phase_Goal": "Implement [FeatureName] for Project [ProjectName] according to provided specifications, ensuring code quality and comprehensive testing.",
           "Lead_Mode_Specific_Instructions": [
-            "Feature to implement: [FeatureName].",
-            "Refer to `FeatureScope:[FeatureName_Scope_Key]` (key), `AcceptanceCriteria:[FeatureName_AC_Key]` (key), and relevant `SystemArchitecture` (key)/`APIEndpoints` (key)/`DBMigrations` (key) updates provided by Nova-LeadArchitect's team (retrieve using `use_mcp_tool`).",
-            "Execute your standard development lifecycle (e.g., `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md`) to manage your team (FeatureImplementer, TestAutomator, CodeDocumenter, Refactorer if needed) for this feature.",
-            "Ensure all new code is unit tested and integration tested with existing project components.",
-            "Your team should log all technical implementation `Decisions` (integer `id`), `CodeSnippets` (key), `APIUsage` (key), `TechDebtCandidates` (key) with scoring, etc. using `use_mcp_tool`.",
-            "Coordinate with me to update `active_context.state_of_the_union` to 'Feature [FeatureName] Development Completed, Awaiting QA'."
+            "Your goal for this phase is to implement the feature '[FeatureName]'. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` for a reference process. Ensure all code is tested and quality standards are met."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",

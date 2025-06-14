@@ -66,10 +66,7 @@
           "Overall_Project_Goal": "Successfully set up and launch Project [UserProvided_ProjectName].",
           "Phase_Goal": "Define and document the complete system architecture, detailed component designs, API specifications, and database schema for Project [UserProvided_ProjectName].",
           "Lead_Mode_Specific_Instructions": [
-            "Execute the workflow defined in `.nova/workflows/nova-leadarchitect/WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md` to manage your team (SystemDesigner, ConPortSteward) for this entire design phase.",
-            "Ensure all architectural `Decisions` (integer `id`), `SystemArchitecture` documents (key), `APIEndpoints` (key), and `DBMigrations` (key) / schemas are thoroughly defined and logged in ConPort with DoD met.",
-            "Consider creating project-specific workflows (e.g., for new service onboarding within this project) via your WorkflowManager and log them to `DefinedWorkflows` (key).",
-            "At the end of this phase, to update `active_context`, instruct your team to first `get_active_context`, modify the `state_of_the_union` to 'Design Phase Completed, Awaiting Development', then use `log_custom_data` on the `ActiveContext` category with key `active_context`."
+            "Your goal for this phase is to define and document the complete system architecture for project '[UserProvided_ProjectName]'. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/nova-leadarchitect/WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md` for a reference process. Ensure all design artifacts are created and logged according to project standards."
           ],
           "Required_Input_Context": {
             "ProjectName": "[UserProvided_ProjectName]",
@@ -118,7 +115,7 @@
                     "The 'Definition of Ready' for the Development Phase has failed. The following criteria are not met: [List of Failed_Criteria].",
                     "Example Task: 'The status of `SystemArchitecture:XYZ` is DRAFT, not APPROVED'.",
                     "Your team must take action to meet these criteria. This may involve finalizing designs, securing approvals (simulated via user interaction if needed), or updating ConPort statuses.",
-                    "Report back via `attempt_completion` when all listed criteria are met."
+                    "Report back via `attempt_completion` when all listed criteria are now met."
                   ],
                   "Required_Input_Context": { "Failed_Criteria_List": "[...]" },
                   "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Confirmation that all failed DoR criteria are now met."]
@@ -140,11 +137,7 @@
           "Overall_Project_Goal": "Successfully set up and launch Project [UserProvided_ProjectName].",
           "Phase_Goal": "Implement all specified features and components for Project [UserProvided_ProjectName] according to the defined architecture and API specifications, ensuring code quality through linting and comprehensive unit/integration testing.",
           "Lead_Mode_Specific_Instructions": [
-            "Execute the workflow defined in `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` (or a more project-specific one if created by LeadArchitect) to manage your team (FeatureImplementer, TestAutomator, CodeDocumenter, Refactorer if needed) for this entire development phase.",
-            "Ensure all code adheres to standards in `ProjectConfig:ActiveConfig` and ConPort `SystemPatterns` (integer `id`/name).",
-            "All new code must have accompanying unit tests. Integration tests for service interactions are crucial.",
-            "Ensure your team logs technical implementation `Decisions` (integer `id`), `CodeSnippets` (key), `APIUsage` (key), `TechDebtCandidates` (key) with scoring, and detailed `Progress` (integer `id`) for modules/features.",
-            "At the end of this phase, coordinate with me, Nova-Orchestrator, to update `active_context.state_of_the_union` to 'Development Phase Completed (Code Implemented & Unit/Integration Tested), Awaiting QA'."
+            "Your goal for this phase is to implement the core features for project '[UserProvided_ProjectName]'. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` for a reference process. Ensure all code is implemented according to specifications, is fully tested, and meets quality standards."
           ],
           "Required_Input_Context": {
             "ProjectName": "[UserProvided_ProjectName]",
@@ -188,12 +181,7 @@
           "Overall_Project_Goal": "Successfully set up and launch Project [UserProvided_ProjectName].",
           "Phase_Goal": "Thoroughly test Project [UserProvided_ProjectName], identify and track defects, verify fixes, and provide a quality assessment for release readiness.",
           "Lead_Mode_Specific_Instructions": [
-            "Execute the workflow defined in `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md` (or a more project-specific one like `WF_QA_RELEASE_CANDIDATE_VALIDATION_001_v1.md` if this is a release candidate) to manage your team (TestExecutor, BugInvestigator, FixVerifier) for this QA phase.",
-            "Develop/utilize test plans based on `FeatureScope` (key), `AcceptanceCriteria` (key), `APIEndpoints` (key), and `SystemArchitecture` (key).",
-            "Ensure your team meticulously logs all defects as structured `CustomData ErrorLogs:[key]` (R20 compliant), updates their status through the lifecycle, and contributes to `LessonsLearned` (key).",
-            "Maintain an accurate list of `active_context.open_issues` (coordinate update via me to Nova-LeadArchitect/ConPortSteward).",
-            "Coordinate with Nova-Orchestrator for communication with Nova-LeadDeveloper regarding bug fixes.",
-            "At the end of this phase, coordinate with me to update `active_context.state_of_the_union` to 'QA Phase Completed. Quality Status: [e.g., Ready for Release Candidate, Blocked by X critical bugs]'."
+            "Your goal for this phase is to ensure the quality of project '[UserProvided_ProjectName]'. Create a high-level test plan, log it to ConPort, and then use your standard single-step execution loop to delegate atomic testing and bug investigation tasks to your specialists. You may consult `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md` or other relevant QA workflows for reference processes. Ensure all new features are tested and all discovered bugs are managed according to project standards."
           ],
           "Required_Input_Context": {
             "ProjectName": "[UserProvided_ProjectName]",
