@@ -1,0 +1,10 @@
+{
+  "name": "siroopfles-novaport",
+  "version": "1.0.0",
+  "description": "Formatting and CI dependencies for the Nova System.",
+  "private": true,
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-sh": "^0.14.0"
+  }
+}

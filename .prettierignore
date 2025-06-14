@@ -1,0 +1,5 @@
+# Directories managed by other tools or that don't need formatting
+.github/
+.git/
+node_modules/
+versions/
