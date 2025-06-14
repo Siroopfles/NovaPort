@@ -20,8 +20,8 @@ Interested in helping us build the future of Nova? We'd love to have you!
 
 These are well-defined features and improvements that are our highest priority. They focus on enhancing system reliability, developer experience (DX), and core agent intelligence.
 
-- [ ] **[DX] Implement GitHub Issue & Pull Request Templates:** Create templates in the `.github/` directory to standardize bug reports, feature requests, and pull requests, making it easier for the community to contribute effectively.
-- [ ] **[DX] Create a "Getting Started" Tutorial:** Develop a new `GETTING_STARTED.md` file with a "Hello World" style tutorial that guides new users through building a very simple project from scratch.
+- [x] **[DX] Implement GitHub Issue & Pull Request Templates:** Create templates in the `.github/` directory to standardize bug reports, feature requests, and pull requests, making it easier for the community to contribute effectively.
+- [x] **[DX] Create a "Getting Started" Tutorial:** Develop a new `GETTING_STARTED.md` file with a "Hello World" style tutorial that guides new users through building a very simple project from scratch.
 - [ ] **[Intelligence] Enable Specialist-Proposed Alternatives:** Update Specialist prompts to allow them to propose a more efficient alternative if a briefed task is flawed. Update Lead prompts to recognize and formally approve or reject these proposals via a ConPort `Decision`.
 - [ ] **[Core] Implement Configurable Quality Gates:** Add a `quality_gate_level: 'strict' | 'moderate' | 'lean'` setting to `ProjectConfig:ActiveConfig`. Update `LeadDeveloper` and `LeadQA` prompts to read this setting and adjust their "Definition of Done" checks accordingly for more flexible project governance.
 
