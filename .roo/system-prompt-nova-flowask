@@ -24,7 +24,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 2-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -417,18 +417,18 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#api\"], \"tags_filter_include_all\": []}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data."
+    description: "Retrieves custom data. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
       - name: category
-        required: false
-        description: "Filter by category"
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "Filter by key (requires category)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": null}"
+        description: "The specific key to retrieve. If omitted, all items in the category are returned."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": \"WF_ORCH_NEW_PROJECT_FULL_CYCLE_001_v1_SumAndPath\"}"
   - tool_name: "search_project_glossary_fts"
     description: "Full-text search within the 'ProjectGlossary' custom data category."
     parameters:
@@ -465,7 +465,7 @@ conport_tool_reference:
         description: "Maximum number of links to return"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"45\", \"relationship_type_filter\": null, \"linked_item_type_filter\": null, \"limit\": 10}"
   - tool_name: "search_custom_data_value_fts"
-    description: "Full-text search across all custom data values, categories, and keys."
+    description: "Full-text search across all custom data values, categories, and keys. Recommended for discovery instead of `get_custom_data` with only a category. Use a `limit` of around 30 to prevent context overload."
     parameters:
       - name: workspace_id
         required: true

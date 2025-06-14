@@ -353,17 +353,17 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": \"WF_ARCH_NEW_WORKFLOW_DEFINITION_001_v1_SumAndPath\", \"value\": {\"description\": \"Defines, documents, and registers a new standardized workflow for any mode.\", \"path\": \".nova/workflows/nova-leadarchitect/WF_ARCH_NEW_WORKFLOW_DEFINITION_001_v1.md\", \"version\": \"1.0\", \"primary_mode_owner\": \"nova-leadarchitect\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like `LessonsLearned` or existing `DefinedWorkflows` entries."
+    description: "Retrieves context like `LessonsLearned` or existing `DefinedWorkflows` entries. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "The specific key to retrieve."
+        description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"LessonsLearned\", \"key\": \"LL_20240510_WorkflowFriction\"}"
   - tool_name: "get_decisions"
     description: "Retrieves a decision that guides your workflow design."

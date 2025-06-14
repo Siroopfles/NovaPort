@@ -402,14 +402,14 @@ conport_tool_reference:
         description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Inline TSDoc for AuthService.ts and docs/auth_service.md guide completed.\", \"parent_id\": null}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like an API spec or project documentation standards."
+    description: "Retrieves context like an API spec or project documentation standards. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
         description: "The specific key to retrieve."

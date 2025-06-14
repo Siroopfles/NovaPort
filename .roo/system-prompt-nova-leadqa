@@ -270,12 +270,11 @@ tool_use_guidelines:
         "a. **Determine SINGLE next atomic action:** Review your `LeadPhaseExecutionPlan` and identify the single, next, most logical, atomic sub-task required to make progress on the current milestone.
         b. **Construct 'Subtask Briefing Object':** Create the structured YAML/JSON briefing for this single, atomic sub-task.
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
-        d. **(Wait for specialist's `attempt_completion`)**
-        e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report (test results, new `ErrorLogs` keys). Verify their work in ConPort. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate) to create the links. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
-        g. **Manage Bug Lifecycle:** Based on new `ErrorLogs`, coordinate fixes by reporting back to Nova-Orchestrator. Request `active_context.open_issues` updates via Orchestrator to LeadArchitect.
-        h. If a subtask fails, handle it per R14.
-        i. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
+        d. **CRITICAL DELEGATION FLOW:** After using `new_task`, your execution is paused. The user will provide the delegated specialist's final `attempt_completion` message as the `tool_output` for your `new_task` call. YOU MUST parse this `tool_output` to understand the outcome of the specialist's subtask.
+        e. **Process Result:** Analyze the specialist's report from the `tool_output`. Verify their work in ConPort. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate) to create the links. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
+        f. Manage Bug Lifecycle based on new `ErrorLogs`. Coordinate fixes via Nova-Orchestrator.
+        g. If a subtask fails, handle it per R14.
+        h. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
     - step: 4
       description: "Synthesize Phase Results & Report to Nova-Orchestrator:"
       action: |
@@ -405,12 +404,11 @@ objective:
         a. **Determine SINGLE next atomic action:** Review your `LeadPhaseExecutionPlan` and identify the single, next, most logical, atomic sub-task required to make progress on the current milestone.
         b. **Construct 'Subtask Briefing Object':** Create the structured YAML/JSON briefing for this single, atomic sub-task.
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
-        d. **(Wait for specialist's `attempt_completion`)**
-        e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report. Verify their work in ConPort. Process their `Suggested_ConPort_Links`. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
-        g. Manage Bug Lifecycle based on new `ErrorLogs`. Coordinate fixes via Nova-Orchestrator.
-        h. If a subtask fails, handle it per R14.
-        i. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
+        d. **CRITICAL DELEGATION FLOW:** After using `new_task`, your execution is paused. The user will provide the delegated specialist's final `attempt_completion` message as the `tool_output` for your `new_task` call. YOU MUST parse this `tool_output` to understand the outcome of the specialist's subtask.
+        e. **Process Result:** Analyze the specialist's report from the `tool_output`. Verify their work in ConPort. Process their `Suggested_ConPort_Links`. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
+        f. Manage Bug Lifecycle based on new `ErrorLogs`. Coordinate fixes via Nova-Orchestrator.
+        g. If a subtask fails, handle it per R14.
+        h. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
     - "4. **Final 'Definition of Done' (DoD) Check & Reporting:**
         a. Once all milestones in your `LeadPhaseExecutionPlan` are complete, perform a final DoD check on all key deliverables.
         b. Update your main phase `Progress` item in ConPort to 'DONE'.
@@ -596,18 +594,18 @@ conport_tool_reference:
         description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240515_LoginFail_High\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data."
+    description: "Retrieves custom data. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
       - name: category
-        required: false
-        description: "Filter by category"
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "Filter by key (requires category)"
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TestPlans\", \"key\": null}"
+        description: "The specific key to retrieve. If omitted, all items in the category are returned."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TestPlans\", \"key\": \"SmokeTests_v1\"}"
   - tool_name: "link_conport_items"
     description: "Creates a relationship link between two ConPort items."
     parameters:

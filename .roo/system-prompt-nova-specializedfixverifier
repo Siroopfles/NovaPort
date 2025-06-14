@@ -265,14 +265,14 @@ conport_memory_strategy:
     - "Templates" # Read for item structures (key)
 conport_tool_reference:
   - tool_name: "get_custom_data"
-    description: "Retrieves a `CustomData` item, primarily used to get the `ErrorLogs` entry to be verified."
+    description: "Retrieves a `CustomData` item, primarily used to get the `ErrorLogs` entry to be verified. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
         description: "The specific key to retrieve."

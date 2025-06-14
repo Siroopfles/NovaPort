@@ -353,14 +353,14 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"primary_language\": \"Python\", \"testing\": {\"framework\": \"pytest\"}}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. Used for health checks or before an update."
+    description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
         description: "The specific key to retrieve."

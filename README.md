@@ -55,33 +55,50 @@
 
 ## Installation
 
-You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.3.0-beta`). For most users, **installing a specific version is recommended for stability.**
+The installer scripts allow you to choose which version of the Nova System you want to install. You can select the latest stable release, the latest pre-release, the cutting-edge development version, or a specific version tag.
 
-The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
+The installer will automatically download the core system files: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory.
+
+### Choosing a Version
+
+*   **`latest-prerelease` (Recommended Default):** Installs the most recent pre-release version (e.g., `v0.3.1-beta`). This is the best choice for users who want access to the latest features that are in the final stages of testing.
+*   **`latest`:** Installs the most recent **stable** release. This is the safest option, recommended for production-like environments or users who prioritize stability over the newest features.
+*   **`main`:** Installs the latest version from the `main` branch, which represents the stable base for the next release.
+*   **`dev`:** Installs the absolute latest commit from the `dev` branch. This version is potentially unstable and should only be used by developers contributing to the Nova System itself or those who need cutting-edge changes immediately.
+*   **`[specific_tag]`:** Installs a specific version by its tag name, for example, `v0.2.8-beta`.
 
 ---
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.3.0-beta`):
-1.  Download the installation script:
+First, download the installer script:
+```bash
+curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
+chmod +x install_nova_modes.sh
+```
+
+Now, run the script with the desired version.
+
+*   **To Install Latest Pre-Release (Recommended):**
     ```bash
-    curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
+    ./install_nova_modes.sh latest-prerelease
     ```
-2.  Make the script executable:
+    *(If no version is specified, the script defaults to this)*
+
+*   **To Install Latest Stable Release:**
     ```bash
-    chmod +x install_nova_modes.sh
-    ```
-3.  Run the script, passing the desired version number as an argument:
-    ```bash
-    ./install_nova_modes.sh v0.3.0-beta
+    ./install_nova_modes.sh latest
     ```
 
-#### To Install the Latest Development Version (from `main` branch):
-If you want the absolute latest (but potentially unstable) changes, run this one-liner:
-```bash
-curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh | bash
-```
+*   **To Install from the `dev` branch:**
+    ```bash
+    ./install_nova_modes.sh dev
+    ```
+
+*   **To Install a Specific Version (e.g., v0.3.1-beta):**
+    ```bash
+    ./install_nova_modes.sh v0.3.1-beta
+    ```
 
 > **Note:** The script requires `curl` and `jq` to be installed.
 
@@ -89,23 +106,35 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.3.0-beta`):
-1.  Download the installation script:
-    ```powershell
-    Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
-    ```
-2.  Run the script, passing the desired version using the `-Version` parameter:
-    ```powershell
-    .\install_nova_modes.ps1 -Version v0.3.0-beta
-    ```
-
-#### To Install the Latest Development Version (from `main` branch):
-If you want the absolute latest (but potentially unstable) changes, run this one-liner:
+First, download the installer script:
 ```powershell
-irm https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 | iex
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
 ```
 
-> **Note:** If you get an error about execution policies, run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
+Now, run the script with the desired version using the `-Version` parameter.
+
+*   **To Install Latest Pre-Release (Recommended):**
+    ```powershell
+    .\install_nova_modes.ps1 -Version latest-prerelease
+    ```
+    *(If no version is specified, the script defaults to this)*
+
+*   **To Install Latest Stable Release:**
+    ```powershell
+    .\install_nova_modes.ps1 -Version latest
+    ```
+    
+*   **To Install from the `dev` branch:**
+    ```powershell
+    .\install_nova_modes.ps1 -Version dev
+    ```
+
+*   **To Install a Specific Version (e.g., v0.3.1-beta):**
+    ```powershell
+    .\install_nova_modes.ps1 -Version v0.3.1-beta
+    ```
+
+> **Note:** If you encounter an error about execution policies, you may need to run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
 
 ## Dependencies & Setup
 
@@ -484,7 +513,8 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 *   **Structured Delegation:** Tasks are delegated top-down with clear, structured **`Subtask Briefing Objects`** to minimize ambiguity.
 *   **Granular, Single-Step Execution (v3):** Lead modes operate in a loop, delegating only one atomic sub-task at a time to specialists for increased reliability and predictability.
 *   **Auditable Reasoning (v3):** All agents must document their reasoning (`Goal`, `Justification`, `Expectation`) before every tool call, creating a transparent execution log.
-*   **Sequential Processing:** Only one AI mode is active at a time. Modes await `attempt_completion` from subordinates before proceeding.
+*   **Intelligent Batching and Verification (v3.1):** For multi-file operations (`read_file`, `apply_diff`), agents are instructed to operate on small, logical batches of files. After each `apply_diff` batch, a verification `read_file` step is mandatory to ensure changes were applied correctly, creating a robust, self-correcting loop.
+*   **Sequential Processing & Explicit Delegation Flow (v3.1):** Only one AI mode is active at a time. A delegating agent explicitly pauses after a `new_task` call and understands that the subordinate's `attempt_completion` will be the `tool_output` it receives to continue its own process, preventing confusion and stalled loops.
 *   **ConPort as Central Hub:** All significant information is logged to ConPort, serving as the collective memory.
 *   **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented in ConPort and `.nova/` files.
 *   **Specialization:** Modes have clearly defined roles and responsibilities.

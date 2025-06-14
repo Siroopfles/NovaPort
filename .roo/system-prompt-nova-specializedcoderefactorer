@@ -440,14 +440,14 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Refactored_Parser_v2\", \"value\": {\"code\": \"// new refactored code...\", \"language\": \"javascript\", \"description\": \"Refactored parser for performance.\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`."
+    description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
         description: "The specific key to retrieve."
