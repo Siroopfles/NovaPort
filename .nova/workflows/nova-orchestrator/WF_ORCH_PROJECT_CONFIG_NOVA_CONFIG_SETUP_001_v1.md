@@ -6,10 +6,12 @@
 **Delegated Lead Mode Actor:** Nova-LeadArchitect
 
 **Trigger / Recognition:**
+
 - Executed by Nova-Orchestrator as part of its `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` if `ProjectConfig:ActiveConfig` (key) or `NovaSystemConfig:ActiveSettings` (key) are not found in ConPort.
 - Can also be triggered if user explicitly requests to review/setup these configurations.
 
 **Pre-requisites by Nova-Orchestrator:**
+
 - ConPort is `[CONPORT_ACTIVE]`.
 - If part of a new project, `WF_PROJ_INIT_001_NewProjectBootstrap.md` (or similar) should ideally have been completed to establish basic `ProductContext` (key 'product_context').
 
@@ -18,45 +20,46 @@
 **Phase CFGS.1: Delegation to Nova-LeadArchitect**
 
 1.  **Nova-Orchestrator: Identify Missing Configs & Delegate Setup**
-    *   **Actor:** Nova-Orchestrator
-    *   **Action:**
-        *   Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`) to check for `ProjectConfig:ActiveConfig` (key).
-        *   Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"NovaSystemConfig\", \"key\": \"ActiveSettings\"}`) to check for `NovaSystemConfig:ActiveSettings` (key).
-        *   If either or both are missing, or if user explicitly requested setup:
-            *   Log a `Progress` (integer `id`) item for this overall orchestration task: "Setup Project/Nova Configurations (Orchestrated)" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[OrchCfgProgressID]`.
-    *   **Task:** "Delegate the definition and logging of `ProjectConfig:ActiveConfig` and/or `NovaSystemConfig:ActiveSettings` to Nova-LeadArchitect."
-    *   **`new_task` message for Nova-LeadArchitect:**
-        ```json
-        {
-          "Context_Path": "ProjectSetup (Orchestrator) -> ConfigSetup (LeadArchitect)",
-          "Overall_Project_Goal": "Ensure Project [ProjectName] has necessary ConPort configurations.",
-          "Phase_Goal": "Define and log [missing/requested configs: ProjectConfig:ActiveConfig and/or NovaSystemConfig:ActiveSettings] in ConPort.",
-          "Lead_Mode_Specific_Instructions": [
-            "Project: [ProjectName].",
-            "The following configurations need to be established/reviewed in ConPort: [List missing, e.g., 'ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings'].",
-            "Your goal is to ensure these configurations are correctly defined and logged. Create a high-level plan for this, log it, and use your single-step loop to delegate atomic tasks to your ConPortSteward.",
-            "You may consult `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for a reference process.",
-            "Key sub-tasks for your specialists will include: preparing default values, guiding the user (via me) through key settings, and logging the final JSON objects to ConPort."
-          ],
-          "Required_Input_Context": {
-            "ProjectName": "[ProjectName]",
-            "Missing_Configs_List": "['ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings']",
-            "User_Project_Type_Hint_From_Orchestrator": "[e.g., 'web_api_project']"
-          },
-          "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
-            "Confirmation that `ProjectConfig:ActiveConfig` (key) has been created/updated, with a summary of key values.",
-            "Confirmation that `NovaSystemConfig:ActiveSettings` (key) has been created/updated, with a summary of key values.",
-            "ConPort keys for both logged configuration items."
-          ]
-        }
-        ```
-    *   **Nova-Orchestrator Action after Lead's `attempt_completion`:**
-        *   Verify configurations are reported as logged by LeadArchitect.
-        *   Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to re-load `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) into its own session understanding.
-        *   Update its `Progress` (`[OrchCfgProgressID]`) for "Setup Project/Nova Configurations (Orchestrated)" to "DONE" using `use_mcp_tool` (`tool_name: 'update_progress'`).
-        *   Inform user: "Project and Nova system configurations have been established in ConPort."
+    - **Actor:** Nova-Orchestrator
+    - **Action:**
+      - Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`) to check for `ProjectConfig:ActiveConfig` (key).
+      - Nova-Orchestrator uses `use_mcp_tool` (`tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"NovaSystemConfig\", \"key\": \"ActiveSettings\"}`) to check for `NovaSystemConfig:ActiveSettings` (key).
+      - If either or both are missing, or if user explicitly requested setup:
+        - Log a `Progress` (integer `id`) item for this overall orchestration task: "Setup Project/Nova Configurations (Orchestrated)" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[OrchCfgProgressID]`.
+    - **Task:** "Delegate the definition and logging of `ProjectConfig:ActiveConfig` and/or `NovaSystemConfig:ActiveSettings` to Nova-LeadArchitect."
+    - **`new_task` message for Nova-LeadArchitect:**
+      ```json
+      {
+        "Context_Path": "ProjectSetup (Orchestrator) -> ConfigSetup (LeadArchitect)",
+        "Overall_Project_Goal": "Ensure Project [ProjectName] has necessary ConPort configurations.",
+        "Phase_Goal": "Define and log [missing/requested configs: ProjectConfig:ActiveConfig and/or NovaSystemConfig:ActiveSettings] in ConPort.",
+        "Lead_Mode_Specific_Instructions": [
+          "Project: [ProjectName].",
+          "The following configurations need to be established/reviewed in ConPort: [List missing, e.g., 'ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings'].",
+          "Your goal is to ensure these configurations are correctly defined and logged. Create a high-level plan for this, log it, and use your single-step loop to delegate atomic tasks to your ConPortSteward.",
+          "You may consult `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for a reference process.",
+          "Key sub-tasks for your specialists will include: preparing default values, guiding the user (via me) through key settings, and logging the final JSON objects to ConPort."
+        ],
+        "Required_Input_Context": {
+          "ProjectName": "[ProjectName]",
+          "Missing_Configs_List": "['ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings']",
+          "User_Project_Type_Hint_From_Orchestrator": "[e.g., 'web_api_project']"
+        },
+        "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
+          "Confirmation that `ProjectConfig:ActiveConfig` (key) has been created/updated, with a summary of key values.",
+          "Confirmation that `NovaSystemConfig:ActiveSettings` (key) has been created/updated, with a summary of key values.",
+          "ConPort keys for both logged configuration items."
+        ]
+      }
+      ```
+    - **Nova-Orchestrator Action after Lead's `attempt_completion`:**
+      - Verify configurations are reported as logged by LeadArchitect.
+      - Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to re-load `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) into its own session understanding.
+      - Update its `Progress` (`[OrchCfgProgressID]`) for "Setup Project/Nova Configurations (Orchestrated)" to "DONE" using `use_mcp_tool` (`tool_name: 'update_progress'`).
+      - Inform user: "Project and Nova system configurations have been established in ConPort."
 
 **Key ConPort Items Involved:**
+
 - CustomData ProjectConfig:ActiveConfig (key) (created/updated by LeadArchitect's team)
 - CustomData NovaSystemConfig:ActiveSettings (key) (created/updated by LeadArchitect's team)
 - Progress (integer `id`) (for Orchestrator's tracking of this delegation)

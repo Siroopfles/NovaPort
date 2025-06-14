@@ -90,13 +90,13 @@
       }
     }
   },
-  
+
   "logging": {
     "_comment": "Log file locations needed for `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md`.",
     "paths": {
-        "application": "/var/log/apollo/app.log",
-        "access": "/var/log/apollo/access.log",
-        "database": "/var/log/apollo/db.log"
+      "application": "/var/log/apollo/app.log",
+      "access": "/var/log/apollo/access.log",
+      "database": "/var/log/apollo/db.log"
     }
   }
 }

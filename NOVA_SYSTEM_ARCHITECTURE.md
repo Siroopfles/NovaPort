@@ -14,9 +14,9 @@ The following visualizations dissect the system's key components, data structure
 
 This C4-style context diagram provides a bird's-eye view of the Nova System's ecosystem. It illustrates the primary components and their relationships, showing how the system interacts with the user and its core data layer within its execution environment.
 
--   **User & Environment:** The `User` interacts with the system through a `Roo Code Execution Environment` (like the VS Code extension), which is responsible for activating the appropriate AI modes.
--   **Nova System Core:** The `Nova-Orchestrator` is the central point of contact, delegating entire project phases to `Lead Modes`. These Leads, in turn, break down phases into atomic sub-tasks for their teams of `Specialized Modes`.
--   **Data & Knowledge Layer:** All modes interact with the `Context Portal (ConPort)`, the system's central memory. ConPort utilizes `SQLite` for structured data and `ChromaDB` for vector embeddings, enabling powerful semantic search and Retrieval Augmented Generation (RAG).
+- **User & Environment:** The `User` interacts with the system through a `Roo Code Execution Environment` (like the VS Code extension), which is responsible for activating the appropriate AI modes.
+- **Nova System Core:** The `Nova-Orchestrator` is the central point of contact, delegating entire project phases to `Lead Modes`. These Leads, in turn, break down phases into atomic sub-tasks for their teams of `Specialized Modes`.
+- **Data & Knowledge Layer:** All modes interact with the `Context Portal (ConPort)`, the system's central memory. ConPort utilizes `SQLite` for structured data and `ChromaDB` for vector embeddings, enabling powerful semantic search and Retrieval Augmented Generation (RAG).
 
 ```mermaid
 graph TD
@@ -41,16 +41,16 @@ graph TD
             ChromaDB["ChromaDB<br/><i>Vector Embeddings for RAG</i>"]
         end
     end
-    
+
     User -- "User Prompt / Request" --> RooEnv
     RooEnv -- "Activates & Executes" --> Orchestrator
     Orchestrator -- "Delegates Phase" --> LeadModes
     LeadModes -- "Delegates Sub-task" --> SpecializedModes
-    
+
     SpecializedModes -- "Reads/Writes Project Data" --> ConPort
     LeadModes -- "Reads/Writes Project Data" --> ConPort
     Orchestrator -- "Reads/Writes Project Data" --> ConPort
-    
+
     ConPort -- "Stores/Retrieves Structured Data" --> SQLite
     ConPort -- "Stores/Retrieves Vectors" --> ChromaDB
 ```
@@ -61,8 +61,8 @@ graph TD
 
 This Entity Relationship Diagram (ERD) reveals the structure of the system's memory. It models the core data entities within ConPort's SQLite database, showcasing how project knowledge is captured and organized. The `ContextLinks` table is the critical component that transforms these entities from isolated data points into a richly interconnected knowledge graph, enabling complex queries and contextual understanding.
 
--   **Key Entities:** `ProductContext` and `ActiveContext` hold high-level and session-specific state. `Decisions` and `Progress` track strategic choices and task status. `CustomData` is a flexible key-value store for everything from `ProjectConfig` to `ErrorLogs`.
--   **The Knowledge Graph:** The `ContextLinks` entity explicitly defines relationships (e.g., "implements," "tested_by," "caused_by") between any two items in the database, forming the graph's edges.
+- **Key Entities:** `ProductContext` and `ActiveContext` hold high-level and session-specific state. `Decisions` and `Progress` track strategic choices and task status. `CustomData` is a flexible key-value store for everything from `ProjectConfig` to `ErrorLogs`.
+- **The Knowledge Graph:** The `ContextLinks` entity explicitly defines relationships (e.g., "implements," "tested_by," "caused_by") between any two items in the database, forming the graph's edges.
 
 ```mermaid
 erDiagram
@@ -130,21 +130,21 @@ sequenceDiagram
     Note right of Orchestrator: Initiates WF_ORCH_EXISTING_PROJECT...
     Orchestrator->>LeadDev: new_task (Briefing for Development Phase)
     deactivate Orchestrator
-    
+
     activate LeadDev
     LeadDev->>ConPort: log_progress("Start Dev Phase")
     LeadDev->>Implementer: new_task (Briefing for 'Implement UI Component')
-    
+
     activate Implementer
     Implementer->>ConPort: log_decision("Chose Vue.js for UI")
     Note over Implementer, ConPort: Writes code and unit tests...
     Implementer->>ConPort: log_custom_data("CodeSnippets:UserProfileComponent_v1")
     Implementer-->>LeadDev: attempt_completion("UI Component Done")
     deactivate Implementer
-    
+
     LeadDev-->>Orchestrator: attempt_completion("Development Phase Complete")
     deactivate LeadDev
-    
+
     activate Orchestrator
     Orchestrator-->>User: Report: "Development is complete, ready for QA."
     deactivate Orchestrator
@@ -154,7 +154,7 @@ sequenceDiagram
 
 ### 4. The Lead Mode "Single-Step Loop"
 
-This flowchart illustrates the fundamental execution logic for all Lead Modes (`-LeadArchitect`, `-LeadDeveloper`, `-LeadQA`) in the v3 architecture. This "Single-Step Loop" is a cornerstone of system reliability. Instead of planning and delegating a complex series of tasks upfront, the Lead Mode creates a coarse-grained plan and then iteratively determines and delegates only the *single, next, most logical sub-task*. This "just-in-time" approach makes agent behavior more predictable, reduces the risk of error in complex briefings, and increases overall system robustness.
+This flowchart illustrates the fundamental execution logic for all Lead Modes (`-LeadArchitect`, `-LeadDeveloper`, `-LeadQA`) in the v3 architecture. This "Single-Step Loop" is a cornerstone of system reliability. Instead of planning and delegating a complex series of tasks upfront, the Lead Mode creates a coarse-grained plan and then iteratively determines and delegates only the _single, next, most logical sub-task_. This "just-in-time" approach makes agent behavior more predictable, reduces the risk of error in complex briefings, and increases overall system robustness.
 
 ```mermaid
 flowchart TD
@@ -209,7 +209,7 @@ mindmap
 
 ### 6. The "Auditable Rationale" Protocol
 
-This flowchart visualizes the "Auditable Rationale Protocol," a mandatory process for every agent in the v3 system. It serves as a "flight recorder" for the agent's reasoning. Before *every* tool call, the agent must explicitly document its Goal, Justification, and Expectation in its internal `<thinking>` block. This protocol is the key to system traceability, providing invaluable insight for debugging, analysis, and understanding the system's decision-making process for every action it takes.
+This flowchart visualizes the "Auditable Rationale Protocol," a mandatory process for every agent in the v3 system. It serves as a "flight recorder" for the agent's reasoning. Before _every_ tool call, the agent must explicitly document its Goal, Justification, and Expectation in its internal `<thinking>` block. This protocol is the key to system traceability, providing invaluable insight for debugging, analysis, and understanding the system's decision-making process for every action it takes.
 
 ```mermaid
 flowchart TD

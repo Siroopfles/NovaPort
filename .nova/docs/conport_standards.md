@@ -9,6 +9,7 @@ This document defines the standard structures and guidelines for key `CustomData
 **Purpose:** To log a unique, verifiable defect, bug, or system error.
 
 **JSON Value Structure (`ErrorLogs_v1` Template):**
+
 ```json
 {
   "schema_version": "1.0",
@@ -79,6 +80,7 @@ This document defines the standard structures and guidelines for key `CustomData
 **Purpose:** To capture valuable insights from events (e.g., major bugs, successful releases, process failures) to improve future work.
 
 **JSON Value Structure (`LessonsLearned_v1` Template):**
+
 ```json
 {
   "schema_version": "1.0",
@@ -128,6 +130,7 @@ This document defines the standard structures and guidelines for key `CustomData
 **Purpose:** To define project-wide standards for "Definition of Done" and "Definition of Ready".
 
 **JSON Value Structure (`DefaultDoD_v1` Template):**
+
 ```json
 {
   "schema_version": "1.0",
@@ -145,3 +148,4 @@ This document defines the standard structures and guidelines for key `CustomData
     "No new CRITICAL or HIGH severity bugs have been introduced."
   ]
 }
+```

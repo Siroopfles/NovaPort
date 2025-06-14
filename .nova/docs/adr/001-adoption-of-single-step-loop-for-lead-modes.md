@@ -1,7 +1,7 @@
 # 1. Adoption of Single-Step Loop for Lead Modes
 
-*   **Status:** Accepted
-*   **Date:** 2024-05-20 (Date from Changelog)
+- **Status:** Accepted
+- **Date:** 2024-05-20 (Date from Changelog)
 
 ## Context and Problem Statement
 
@@ -22,10 +22,12 @@ We will replace the upfront planning model with a "Single-Step Execution Loop" f
 ## Consequences
 
 **Positive:**
-*   **Increased Reliability:** By breaking work into the smallest possible atomic units, the chance of a complex, error-prone delegation is dramatically reduced.
-*   **Enhanced Predictability:** The agent's "cognitive window" is small and focused, making its next action much easier to predict and debug.
-*   **Improved Adaptability:** The system can adapt to the results of one sub-task before deciding on the next, allowing for more dynamic and intelligent execution paths.
-*   **Simplified Specialist Briefings:** Briefings for specialists become simpler and more focused, reducing the chance of misinterpretation.
+
+- **Increased Reliability:** By breaking work into the smallest possible atomic units, the chance of a complex, error-prone delegation is dramatically reduced.
+- **Enhanced Predictability:** The agent's "cognitive window" is small and focused, making its next action much easier to predict and debug.
+- **Improved Adaptability:** The system can adapt to the results of one sub-task before deciding on the next, allowing for more dynamic and intelligent execution paths.
+- **Simplified Specialist Briefings:** Briefings for specialists become simpler and more focused, reducing the chance of misinterpretation.
 
 **Negative:**
-*   **Potential for Increased Overhead:** For very simple, linear phases, this model might introduce slightly more delegation overhead (more `new_task` calls) compared to a single, bundled instruction. This is considered an acceptable trade-off for the massive gains in robustness.
+
+- **Potential for Increased Overhead:** For very simple, linear phases, this model might introduce slightly more delegation overhead (more `new_task` calls) compared to a single, bundled instruction. This is considered an acceptable trade-off for the massive gains in robustness.
