@@ -76,11 +76,11 @@ def generate_manifest():
         # --- Section Generation Function ---
         def create_section(title, actor, workflow_list):
             lines = [
-                f"## {title}\n",
+                f"## {title}\n\n",
                 f"**Primary Actor:** `{actor}`\n",
                 f"_{workflow_list[1]}_\n\n",  # Using a placeholder for the description text, will be replaced
                 "| Filename | Description |\n",
-                "|---|---|\n",
+                "| --- | --- |\n",
             ]
 
             section_descriptions = {
@@ -93,6 +93,7 @@ def generate_manifest():
             lines[2] = f"{section_descriptions.get(title, '')}\n\n"
 
             for filename, desc in workflow_list[0]:
+                # PRETTIER-COMPLIANT FORMATTING: Spaces around pipes
                 lines.append(f"| `{filename}` | {desc} |\n")
             return lines
 
@@ -157,7 +158,6 @@ def generate_manifest():
 
     except Exception as e:
         print(f"\n❌ An error occurred: {e}")
-
 
 if __name__ == "__main__":
     generate_manifest()

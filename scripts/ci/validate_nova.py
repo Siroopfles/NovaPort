@@ -26,7 +26,8 @@ def validate_manifest(root_dir):
     try:
         with open(manifest_path, "r", encoding="utf-8") as f:
             content = f.read()
-        manifest_files = set(re.findall(r"\| `(WF_.*?.md)` \|", content))
+        # ROBUUSTERE REGEX: \s* staat voor nul of meer witruimtekarakters.
+        manifest_files = set(re.findall(r"\|\s*`(WF_.*?.md)`\s*\|", content))
         print(f"Found {len(manifest_files)} workflow files listed in the manifest.")
     except FileNotFoundError:
         print(f"ERROR: Manifest file not found at {manifest_path}")
