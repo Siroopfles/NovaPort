@@ -7,6 +7,7 @@ This tutorial will show you the power of Nova's collaborative AI agents by guidi
 ## Prerequisites
 
 Before you begin, please make sure you have completed the following steps from our main `README.md`:
+
 1.  **Installed the Nova System files** into an empty directory for this project.
 2.  **Installed and configured the `context-portal-mcp-server`** in your Roo Code environment.
 
@@ -74,6 +75,7 @@ Quality is key! Let's ask for a simple test to ensure our tool works as expected
 You have successfully completed your first project with the Nova System!
 
 You've witnessed the entire workflow:
+
 - **Orchestration:** `Nova-Orchestrator` managed the project phases.
 - **Architecture:** `Nova-LeadArchitect` handled project setup and design.
 - **Development:** `Nova-LeadDeveloper`'s team implemented the code.
