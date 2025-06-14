@@ -55,33 +55,50 @@
 
 ## Installation
 
-You can install the latest development version directly from the `main` branch or choose a specific, stable version tag (e.g., `v0.3.0-beta`). For most users, **installing a specific version is recommended for stability.**
+The installer scripts allow you to choose which version of the Nova System you want to install. You can select the latest stable release, the latest pre-release, the cutting-edge development version, or a specific version tag.
 
-The installer will automatically download: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory (if it exists). It will **exclude** any versioned directories (e.g., `v1/`).
+The installer will automatically download the core system files: `.roomodes`, `README.md`, the entire `.nova` directory, and the `.roo` directory.
+
+### Choosing a Version
+
+*   **`latest-prerelease` (Recommended Default):** Installs the most recent pre-release version (e.g., `v0.3.0-beta`). This is the best choice for users who want access to the latest features that are in the final stages of testing.
+*   **`latest`:** Installs the most recent **stable** release. This is the safest option, recommended for production-like environments or users who prioritize stability over the newest features.
+*   **`main`:** Installs the latest version from the `main` branch, which represents the stable base for the next release.
+*   **`dev`:** Installs the absolute latest commit from the `dev` branch. This version is potentially unstable and should only be used by developers contributing to the Nova System itself or those who need cutting-edge changes immediately.
+*   **`[specific_tag]`:** Installs a specific version by its tag name, for example, `v0.2.8-beta`.
 
 ---
 
 ### **macOS / Linux (Bash)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.3.0-beta`):
-1.  Download the installation script:
+First, download the installer script:
+```bash
+curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
+chmod +x install_nova_modes.sh
+```
+
+Now, run the script with the desired version.
+
+*   **To Install Latest Pre-Release (Recommended):**
     ```bash
-    curl -O https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh
+    ./install_nova_modes.sh latest-prerelease
     ```
-2.  Make the script executable:
+    *(If no version is specified, the script defaults to this)*
+
+*   **To Install Latest Stable Release:**
     ```bash
-    chmod +x install_nova_modes.sh
+    ./install_nova_modes.sh latest
     ```
-3.  Run the script, passing the desired version number as an argument:
+
+*   **To Install from the `dev` branch:**
+    ```bash
+    ./install_nova_modes.sh dev
+    ```
+
+*   **To Install a Specific Version (e.g., v0.3.0-beta):**
     ```bash
     ./install_nova_modes.sh v0.3.0-beta
     ```
-
-#### To Install the Latest Development Version (from `main` branch):
-If you want the absolute latest (but potentially unstable) changes, run this one-liner:
-```bash
-curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.sh | bash
-```
 
 > **Note:** The script requires `curl` and `jq` to be installed.
 
@@ -89,23 +106,35 @@ curl -sSL https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/ins
 
 ### **Windows (PowerShell)**
 
-#### To Install a Specific Version (Recommended, e.g., `v0.3.0-beta`):
-1.  Download the installation script:
+First, download the installer script:
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
+```
+
+Now, run the script with the desired version using the `-Version` parameter.
+
+*   **To Install Latest Pre-Release (Recommended):**
     ```powershell
-    Invoke-WebRequest -Uri https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 -OutFile "install_nova_modes.ps1"
+    .\install_nova_modes.ps1 -Version latest-prerelease
     ```
-2.  Run the script, passing the desired version using the `-Version` parameter:
+    *(If no version is specified, the script defaults to this)*
+
+*   **To Install Latest Stable Release:**
+    ```powershell
+    .\install_nova_modes.ps1 -Version latest
+    ```
+    
+*   **To Install from the `dev` branch:**
+    ```powershell
+    .\install_nova_modes.ps1 -Version dev
+    ```
+
+*   **To Install a Specific Version (e.g., v0.3.0-beta):**
     ```powershell
     .\install_nova_modes.ps1 -Version v0.3.0-beta
     ```
 
-#### To Install the Latest Development Version (from `main` branch):
-If you want the absolute latest (but potentially unstable) changes, run this one-liner:
-```powershell
-irm https://raw.githubusercontent.com/Siroopfles/NovaPort/main/scripts/install_nova_modes.ps1 | iex
-```
-
-> **Note:** If you get an error about execution policies, run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
+> **Note:** If you encounter an error about execution policies, you may need to run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
 
 ## Dependencies & Setup
 

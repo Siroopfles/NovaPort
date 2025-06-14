@@ -1,90 +1,133 @@
-# PowerShell script to install the core Nova System files from the official GitHub repository.
-# It selectively downloads only the .nova and .roo directories, plus .roomodes and README.md.
-# It accepts an optional -Version parameter (e.g., -Version v0.2.0-beta). Defaults to 'main'.
+# PowerShell script to install or update the core Nova System files from the official GitHub repository.
+# Modernized to dynamically fetch versions from the GitHub API.
+
+# Param block for user inputs
 param(
-    [string]$Version = "v0.2.5-beta"
+    # Specifies the version to install. Can be:
+    # - A specific tag name (e.g., "v0.3.0-beta")
+    # - "latest" for the latest stable release
+    # - "latest-prerelease" for the latest pre-release
+    # - "main" for the stable main branch
+    # - "dev" for the latest development branch
+    [ValidateSet("latest", "latest-prerelease", "main", "dev")]
+    [string]$Version = "latest-prerelease"
 )
 
 # --- Configuration ---
 $RepoOwner = "Siroopfles"
 $RepoName = "NovaPort"
-$ApiUrl = "https://api.github.com/repos/$RepoOwner/$RepoName/git/trees/$Version`?recursive=1"
-$RawContentUrlBase = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$Version"
+$GitHubApiBaseUrl = "https://api.github.com/repos/$RepoOwner/$RepoName"
 
-$Green = "Green"; $Yellow = "Yellow"; $Red = "Red"; $Cyan = "Cyan"
+# ANSI Colors for better output
+$Reset = "$([char]27)[0m"
+$Red = "$([char]27)[91m"
+$Green = "$([char]27)[92m"
+$Yellow = "$([char]27)[93m"
+$Cyan = "$([char]27)[96m"
 
 # --- Functions ---
 function Show-Banner {
-    Write-Host "==============================================" -ForegroundColor $Cyan
-    Write-Host "  Nova System Core Installer for Roo Code     " -ForegroundColor $Cyan
-    Write-Host "  Downloading from branch/tag: $Version" -ForegroundColor $Yellow
-    Write-Host "==============================================" -ForegroundColor $Cyan
+    Write-Host "${Cyan}====================================================="
+    Write-Host "  Nova System - Modern Core Installer for Roo Code "
+    Write-Host "=====================================================${Reset}"
     Write-Host
-    Write-Host "This script will download and install the core Nova System files:"
-    Write-Host "- The entire .nova/ directory"
-    Write-Host "- The entire .roo/ directory"
-    Write-Host "- .roomodes"
-    Write-Host "- README.md"
-    Write-Host "Other files like /examples, /scripts, LICENSE, etc., will be ignored."
+    Write-Host "This script will download and install the core Nova System files into a"
+    Write-Host "directory of your choice. It selectively installs:"
+    Write-Host "- The entire .nova/ directory (workflows, docs, etc.)"
+    Write-Host "- The entire .roo/ directory (custom system prompts)"
+    Write-Host "- The .roomodes file"
+    Write-Host "- The main README.md"
     Write-Host
+}
+
+function Get-GitHubTarget {
+    param(
+        [string]$ReleaseType # "latest", "latest-prerelease", "main", "dev", or a specific tag
+    )
+    
+    if ($ReleaseType -in ("main", "dev")) {
+        return $ReleaseType
+    }
+    
+    if ($ReleaseType -eq "latest-prerelease") {
+        $apiUrl = "$GitHubApiBaseUrl/releases"
+        try {
+            Write-Host "${Yellow}Fetching all releases to find the latest pre-release...${Reset}"
+            $releases = Invoke-RestMethod -Uri $apiUrl -Method Get -Headers @{"Accept"="application/vnd.github.v3+json"}
+            $latestPrerelease = $releases | Where-Object { $_.prerelease -eq $true } | Sort-Object { $_.published_at } -Descending | Select-Object -First 1
+            if ($latestPrerelease) {
+                return $latestPrerelease.tag_name
+            } else {
+                Write-Warning "No pre-releases found. Falling back to the latest stable release."
+                $ReleaseType = "latest" # Fallback
+            }
+        } catch {
+            throw "Failed to fetch releases from GitHub API. Please check your connection and the repository details."
+        }
+    }
+    
+    if ($ReleaseType -eq "latest") {
+        $apiUrl = "$GitHubApiBaseUrl/releases/latest"
+        try {
+            Write-Host "${Yellow}Fetching latest stable release tag from GitHub API...${Reset}"
+            $releaseInfo = Invoke-RestMethod -Uri $apiUrl -Method Get -Headers @{"Accept"="application/vnd.github.v3+json"}
+            return $releaseInfo.tag_name
+        } catch {
+            throw "Failed to fetch the latest release tag. $_"
+        }
+    }
+
+    # If not a keyword, assume it's a specific tag
+    return $ReleaseType
 }
 
 # --- Main Script ---
 Clear-Host
 Show-Banner
 
-# Prompt for the target directory, allowing for a default
-$targetDirInput = Read-Host -Prompt "Enter the full path to your project directory (or press Enter to use the current directory)"
-
-if (-not $targetDirInput -or ($targetDirInput.Trim() -eq "")) {
-    $targetDir = Get-Location
-    Write-Host "No path entered. Using current directory as target:" -ForegroundColor $Yellow
-    Write-Host $targetDir
-} else {
-    $targetDir = $targetDirInput
-}
-
-if (-not (Test-Path -Path $targetDir -PathType Container)) {
-    Write-Host "Target directory '$targetDir' does not exist." -ForegroundColor $Yellow
-    $createChoice = Read-Host -Prompt "Do you want to create it? [y/n]"
-    if ($createChoice.ToLower() -eq 'y') {
-        try {
-            New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
-            Write-Host "Successfully created directory: $targetDir" -ForegroundColor $Green
-        } catch {
-            Write-Host "Error: Could not create directory." -ForegroundColor $Red; Write-Host $_.Exception.Message -ForegroundColor $Red; exit 1
-        }
-    } else {
-        Write-Host "Installation cancelled."; exit
+# Resolve the target version ref (tag or branch)
+$targetRef = $Version
+if ($Version -in ("latest", "latest-prerelease", "main", "dev")) {
+    try {
+        $targetRef = Get-GitHubTarget -ReleaseType $Version
+    } catch {
+        Write-Host "${Red}Error: $($_.Exception.Message)${Reset}"
+        exit 1
     }
 }
+Write-Host "${Cyan}Selected Version: ${Yellow}$Version${Reset} -> Resolved to Ref: ${Yellow}$targetRef${Reset}"
+Write-Host
+
+# Setup final URLs
+$TreeApiUrl = "$GitHubApiBaseUrl/git/trees/$targetRef`?recursive=1"
+$RawContentUrlBase = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/$targetRef"
+
+# Get target directory
+$targetDir = Read-Host -Prompt "Enter the full path to your project directory (or press Enter for current: '$(Get-Location)')"
+if (-not $targetDir) { $targetDir = Get-Location }
 
 Write-Host
-Write-Host "Core system files will be installed into:" -ForegroundColor $Yellow
-Write-Host "$targetDir"
-Write-Host
-$confirmChoice = Read-Host -Prompt "Are you sure you want to proceed? This may overwrite existing files. [y/n]"
-
-if ($confirmChoice.ToLower() -ne 'y') {
-    Write-Host "Installation cancelled."; exit
+Write-Host "${Yellow}Files will be installed into:${Cyan} $targetDir ${Reset}"
+$confirm = Read-Host "This may overwrite existing files. Proceed? [y/n]"
+if ($confirm.ToLower() -ne 'y') {
+    Write-Host "${Red}Installation cancelled.${Reset}"
+    exit
 }
 
 Write-Host
-Write-Host "Starting installation..." -ForegroundColor $Cyan
+Write-Host "${Cyan}Starting installation...${Reset}"
 
 try {
-    Write-Host "Fetching file list from GitHub for version '$Version'..."
-    $response = Invoke-WebRequest -Uri $ApiUrl -UseBasicParsing
-    $allFiles = ($response.Content | ConvertFrom-Json).tree
-    if (-not $allFiles) { throw "Could not retrieve file list from GitHub API. Ensure version '$Version' exists." }
+    Write-Host "Fetching file list from GitHub for ${Yellow}$targetRef${Reset}..."
+    $response = Invoke-RestMethod -Uri $TreeApiUrl
+    if (-not $response.tree) { throw "Could not retrieve file list from GitHub API for '$targetRef'. Please ensure the tag/branch exists." }
+    
+    $filesToDownload = $response.tree | Where-Object {
+        $_.type -eq 'blob' -and ($_.path -eq '.roomodes' -or $_.path -eq 'README.md' -or $_.path -like '.nova/*' -or $_.path -like '.roo/*')
+    }
 
-    # --- This is the filter logic ---
-    # It includes a file only if its path matches one of these patterns.
-    $filesToDownload = $allFiles | Where-Object {
-        $isBlob = $_.type -eq 'blob'
-        $path = $_.path
-        $isIncluded = ($path -eq '.roomodes' -or $path -eq 'README.md' -or $path -like '.nova/*' -or $path -like '.roo/*')
-        $isBlob -and $isIncluded
+    if ($filesToDownload.Count -eq 0) {
+        throw "No core system files found for version '$targetRef'. The repository structure might have changed."
     }
 
     Write-Host "Found $($filesToDownload.Count) core files to download."
@@ -93,22 +136,25 @@ try {
         $filePath = $file.path
         $destPath = Join-Path -Path $targetDir -ChildPath $filePath
         $destDir = Split-Path -Path $destPath -Parent
-        if (-not (Test-Path -Path $destDir)) { New-Item -ItemType Directory -Force -Path $destDir | Out-Null }
+        if (-not (Test-Path -Path $destDir)) { 
+            New-Item -ItemType Directory -Force -Path $destDir | Out-Null 
+        }
         
         $rawUrl = "$RawContentUrlBase/$($filePath.Replace('\', '/'))"
-        Write-Host " - Downloading: $filePath"
+        Write-Host " - Downloading: $filePath" -NoNewline
         Invoke-WebRequest -Uri $rawUrl -OutFile $destPath -UseBasicParsing
+        Write-Host " -> ${Green}Done${Reset}"
     }
 
     Write-Host
-    Write-Host "Installation complete!" -ForegroundColor $Green
-    Write-Host "The Nova System core files (version '$Version') have been successfully installed into:" -ForegroundColor $Green
-    Write-Host "$targetDir"
+    Write-Host "${Green}Installation Complete!${Reset}"
+    Write-Host "Nova System core files (version ${Yellow}$targetRef${Reset}) have been installed into:"
+    Write-Host "${Cyan}$targetDir${Reset}"
 
 } catch {
     Write-Host
-    Write-Host "An error occurred during installation:" -ForegroundColor $Red
-    Write-Host $_.Exception.Message -ForegroundColor $Red
-    Write-Host "Installation failed. Please check the version name and your internet connection."
+    Write-Host "${Red}An error occurred during installation:${Reset}"
+    Write-Host "${Red}$($_.Exception.Message)${Reset}"
+    Write-Host "Please check the version/ref name and your internet connection."
     exit 1
 }

@@ -1,33 +1,73 @@
 #!/bin/bash
+set -e # Exit immediately if a command exits with a non-zero status.
 
 # --- Configuration ---
-VERSION="${1:-v0.2.5-beta}" # Use first argument as version, otherwise default to latest stable beta
 REPO_OWNER="Siroopfles"
 REPO_NAME="NovaPort"
-API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/trees/${VERSION}?recursive=1"
-RAW_URL_BASE="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${VERSION}"
+GITHUB_API_BASE_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}"
 
-GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; RED='\033[0;31m'; NC='\033[0m'
+# --- Colors ---
+RESET='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 
 # --- Functions ---
 show_banner() {
-    echo -e "${CYAN}=============================================="
-    echo -e "${CYAN}  Nova System Core Installer for Roo Code     "
-    echo -e "${CYAN}  Downloading from branch/tag: ${VERSION}${NC}"
-    echo -e "${CYAN}=============================================="
+    echo -e "${CYAN}====================================================="
+    echo -e "  Nova System - Modern Core Installer for Roo Code "
+    echo -e "=====================================================${RESET}"
     echo
     echo "This script will download and install the core Nova System files:"
-    echo "- The entire .nova/ directory"
-    echo "- The entire .roo/ directory"
-    echo "- .roomodes"
-    echo "- README.md"
-    echo "Other files like /examples, /scripts, LICENSE, etc., will be ignored."
+    echo "- The entire .nova/ directory (workflows, docs, etc.)"
+    echo "- The entire .roo/ directory (custom system prompts)"
+    echo "- The .roomodes file and README.md"
     echo
 }
 
 check_deps() {
-    if ! command -v curl &> /dev/null; then echo -e "${RED}Error: 'curl' is required but not installed.${NC}"; exit 1; fi
-    if ! command -v jq &> /dev/null; then echo -e "${RED}Error: 'jq' is required. Please install it (e.g., 'brew install jq' or 'sudo apt-get install jq').${NC}"; exit 1; fi
+    command -v curl >/dev/null 2>&1 || { echo -e "${RED}Error: 'curl' is required but not installed.${RESET}"; exit 1; }
+    command -v jq >/dev/null 2>&1 || { echo -e "${RED}Error: 'jq' is required. Please install it (e.g., 'brew install jq' or 'sudo apt-get install jq').${RESET}"; exit 1; }
+}
+
+get_github_target() {
+    local release_type=$1
+    local api_url
+
+    if [[ "$release_type" == "main" || "$release_type" == "dev" ]]; then
+        # The keywords 'main' or 'dev' directly map to the respective branches
+        echo "$release_type"
+        return
+    fi
+    
+    if [[ "$release_type" == "latest-prerelease" ]]; then
+        api_url="${GITHUB_API_BASE_URL}/releases"
+        echo -e "${YELLOW}Fetching all releases to find the latest pre-release...${RESET}"
+        tag=$(curl -sL "$api_url" | jq -r '[.[] | select(.prerelease == true)][0].tag_name')
+        if [[ -n "$tag" && "$tag" != "null" ]]; then
+            echo "$tag"
+            return
+        else
+            echo -e "${YELLOW}Warning: No pre-releases found. Falling back to the latest stable release.${RESET}"
+            release_type="latest" # Fallback
+        fi
+    fi
+    
+    if [[ "$release_type" == "latest" ]]; then
+        api_url="${GITHUB_API_BASE_URL}/releases/latest"
+        echo -e "${YELLOW}Fetching latest stable release tag from GitHub API...${RESET}"
+        tag=$(curl -sL "$api_url" | jq -r '.tag_name')
+        if [[ -z "$tag" || "$tag" == "null" ]]; then
+            echo -e "${RED}Error: Could not fetch the latest release tag from GitHub.${RESET}" >&2
+            exit 1
+        fi
+        echo "$tag"
+        return
+    fi
+    
+    # If not a keyword, assume it's a specific tag
+    echo "$release_type"
 }
 
 # --- Main Script ---
@@ -35,62 +75,72 @@ clear
 show_banner
 check_deps
 
-read -p "Enter the full path to your project directory (or press Enter to use the current directory): " TARGET_DIR
+# Process argument for version
+VERSION_ARG="${1:-latest-prerelease}" # Default to latest-prerelease if no argument is given
 
-if [[ -z "$TARGET_DIR" ]]; then
-    TARGET_DIR=$(pwd)
-    echo -e "${YELLOW}No path entered. Using current directory as target:${NC}"
-    echo "$TARGET_DIR"
-else
-    # Expands tilde (~) to the home directory path
-    TARGET_DIR="${TARGET_DIR/#\~/$HOME}"
-fi
+# Resolve the target tag/branch
+TARGET_REF=$(get_github_target "$VERSION_ARG")
+echo -e "${CYAN}Selected Version: ${YELLOW}${VERSION_ARG}${RESET} -> Resolved to Ref: ${YELLOW}${TARGET_REF}${RESET}"
+echo
+
+# Get target directory
+read -p "Enter the full path for installation (or press Enter for current: '$(pwd)'): " TARGET_DIR
+TARGET_DIR="${TARGET_DIR:-$(pwd)}" # Default to current directory if empty
+TARGET_DIR="${TARGET_DIR/#\~/$HOME}" # Expand tilde
 
 if [ ! -d "$TARGET_DIR" ]; then
-    echo -e "${YELLOW}Target directory '$TARGET_DIR' does not exist.${NC}"
-    read -p "Do you want to create it? [y/n] " -n 1 -r; echo
+    echo -e "${YELLOW}Target directory '$TARGET_DIR' does not exist.${RESET}"
+    read -p "Create it? [y/n] " -n 1 -r; echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        mkdir -p "$TARGET_DIR" || { echo -e "${RED}Error: Could not create directory.${NC}"; exit 1; }
-        echo -e "${GREEN}Successfully created directory: $TARGET_DIR${NC}"
+        mkdir -p "$TARGET_DIR"
+        echo -e "${GREEN}Successfully created directory: $TARGET_DIR${RESET}"
     else
-        echo "Installation cancelled."; exit
+        echo -e "${RED}Installation cancelled.${RESET}"; exit 1
     fi
 fi
 
-echo -e "\n${YELLOW}Core system files will be installed into:${NC} $TARGET_DIR"
-read -p "Are you sure you want to proceed? This will overwrite existing files. [y/n] " -n 1 -r; echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then echo "Installation cancelled."; exit; fi
+echo -e "\n${YELLOW}Files will be installed into: ${CYAN}${TARGET_DIR}${RESET}"
+read -p "This may overwrite existing files. Proceed? [y/n] " -n 1 -r; echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "${RED}Installation cancelled.${RESET}"; exit 1
+fi
 
-echo -e "\n${CYAN}Starting installation...${NC}"
+echo -e "\n${CYAN}Starting installation...${RESET}"
 
-echo "Fetching file list from GitHub for version '${VERSION}'..."
-API_RESPONSE=$(curl -sL "$API_URL")
-# Use jq to get a list of all file paths from the API response
-FILE_PATHS=$(echo "$API_RESPONSE" | jq -r '.tree[]? | select(.type == "blob") | .path')
+TREE_API_URL="${GITHUB_API_BASE_URL}/git/trees/${TARGET_REF}?recursive=1"
+RAW_URL_BASE="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${TARGET_REF}"
 
-if [[ "$(echo "$API_RESPONSE" | jq -r '.message?')" == "Not Found" || -z "$FILE_PATHS" ]]; then
-    echo -e "${RED}Error: Could not retrieve file list from GitHub API. Ensure version '${VERSION}' exists.${NC}"
+echo "Fetching file list from GitHub for ${YELLOW}${TARGET_REF}${RESET}..."
+FILE_PATHS=$(curl -sL "$TREE_API_URL" | jq -r '.tree[]? | select(.type == "blob") | .path')
+
+if [[ -z "$FILE_PATHS" ]]; then
+    echo -e "${RED}Error: Could not retrieve file list for ref '${TARGET_REF}'. Ensure the tag/branch exists.${RESET}"
     exit 1
 fi
 
 DOWNLOAD_COUNT=0
 for FILE_PATH in $FILE_PATHS; do
-    # --- This is the filter logic ---
-    # It uses a case statement to include a file only if its path matches one of these patterns.
     case "$FILE_PATH" in
-        .roomodes|.nova/*|.roo/*|README.md)
-            DEST_PATH="$TARGET_DIR/$FILE_PATH"
+        .roomodes|README.md|.nova/*|.roo/*)
+            DEST_PATH="${TARGET_DIR}/${FILE_PATH}"
             mkdir -p "$(dirname "$DEST_PATH")"
-            echo " - Downloading: $FILE_PATH"
-            curl -sL -o "$DEST_PATH" "$RAW_URL_BASE/$FILE_PATH"
+            
+            echo -n " - Downloading: $FILE_PATH"
+            curl -sL -o "$DEST_PATH" "${RAW_URL_BASE}/${FILE_PATH}"
+            echo -e " -> ${GREEN}Done${RESET}"
             ((DOWNLOAD_COUNT++))
             ;;
     esac
 done
 
+if [[ $DOWNLOAD_COUNT -eq 0 ]]; then
+    echo -e "${RED}Error: No core system files were found for version '${TARGET_REF}'. The repository structure might have changed.${RESET}"
+    exit 1
+fi
+
 echo
-echo -e "${GREEN}Installation complete! Downloaded $DOWNLOAD_COUNT core files.${NC}"
-echo -e "${GREEN}The Nova System core files (version '${VERSION}') have been successfully installed into:${NC}"
-echo "$TARGET_DIR"
+echo -e "${GREEN}Installation Complete! Downloaded $DOWNLOAD_COUNT core files.${RESET}"
+echo -e "Nova System (version ${YELLOW}${TARGET_REF}${RESET}) has been installed into:"
+echo -e "${CYAN}${TARGET_DIR}${RESET}"
 
 exit 0
