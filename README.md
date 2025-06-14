@@ -61,7 +61,7 @@ The installer will automatically download the core system files: `.roomodes`, `R
 
 ### Choosing a Version
 
-*   **`latest-prerelease` (Recommended Default):** Installs the most recent pre-release version (e.g., `v0.3.0-beta`). This is the best choice for users who want access to the latest features that are in the final stages of testing.
+*   **`latest-prerelease` (Recommended Default):** Installs the most recent pre-release version (e.g., `v0.3.1-beta`). This is the best choice for users who want access to the latest features that are in the final stages of testing.
 *   **`latest`:** Installs the most recent **stable** release. This is the safest option, recommended for production-like environments or users who prioritize stability over the newest features.
 *   **`main`:** Installs the latest version from the `main` branch, which represents the stable base for the next release.
 *   **`dev`:** Installs the absolute latest commit from the `dev` branch. This version is potentially unstable and should only be used by developers contributing to the Nova System itself or those who need cutting-edge changes immediately.
@@ -95,9 +95,9 @@ Now, run the script with the desired version.
     ./install_nova_modes.sh dev
     ```
 
-*   **To Install a Specific Version (e.g., v0.3.0-beta):**
+*   **To Install a Specific Version (e.g., v0.3.1-beta):**
     ```bash
-    ./install_nova_modes.sh v0.3.0-beta
+    ./install_nova_modes.sh v0.3.1-beta
     ```
 
 > **Note:** The script requires `curl` and `jq` to be installed.
@@ -129,9 +129,9 @@ Now, run the script with the desired version using the `-Version` parameter.
     .\install_nova_modes.ps1 -Version dev
     ```
 
-*   **To Install a Specific Version (e.g., v0.3.0-beta):**
+*   **To Install a Specific Version (e.g., v0.3.1-beta):**
     ```powershell
-    .\install_nova_modes.ps1 -Version v0.3.0-beta
+    .\install_nova_modes.ps1 -Version v0.3.1-beta
     ```
 
 > **Note:** If you encounter an error about execution policies, you may need to run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
@@ -513,7 +513,8 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 *   **Structured Delegation:** Tasks are delegated top-down with clear, structured **`Subtask Briefing Objects`** to minimize ambiguity.
 *   **Granular, Single-Step Execution (v3):** Lead modes operate in a loop, delegating only one atomic sub-task at a time to specialists for increased reliability and predictability.
 *   **Auditable Reasoning (v3):** All agents must document their reasoning (`Goal`, `Justification`, `Expectation`) before every tool call, creating a transparent execution log.
-*   **Sequential Processing:** Only one AI mode is active at a time. Modes await `attempt_completion` from subordinates before proceeding.
+*   **Intelligent Batching and Verification (v3.1):** For multi-file operations (`read_file`, `apply_diff`), agents are instructed to operate on small, logical batches of files. After each `apply_diff` batch, a verification `read_file` step is mandatory to ensure changes were applied correctly, creating a robust, self-correcting loop.
+*   **Sequential Processing & Explicit Delegation Flow (v3.1):** Only one AI mode is active at a time. A delegating agent explicitly pauses after a `new_task` call and understands that the subordinate's `attempt_completion` will be the `tool_output` it receives to continue its own process, preventing confusion and stalled loops.
 *   **ConPort as Central Hub:** All significant information is logged to ConPort, serving as the collective memory.
 *   **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented in ConPort and `.nova/` files.
 *   **Specialization:** Modes have clearly defined roles and responsibilities.

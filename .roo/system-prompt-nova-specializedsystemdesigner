@@ -55,7 +55,7 @@ tools:
     # --- End of Hardened Item ID Note ---
 
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use if your briefing requires you to analyze an existing design document (e.g., a `.md` file with requirements) or a code file for context before creating your design artifacts. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -315,14 +315,14 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"SystemArchitecture\", \"key\": \"Component_UserService_v1.2\", \"value\": {\"description\": \"Handles user registration, login, and profile management.\", \"diagram_src\": \"@startuml...\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like a parent `SystemArchitecture` component or a `FeatureScope` document."
+    description: "Retrieves context like a parent `SystemArchitecture` component or a `FeatureScope` document. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
         description: "The specific key to retrieve."
@@ -381,4 +381,3 @@ conport_tool_reference:
         required: false
         description: "A description of the relationship."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"APIEndpoints:UserCreate_v1\", \"target_item_type\": \"decision\", \"target_item_id\": \"15\", \"relationship_type\": \"implements_decision\", \"description\": null}"
-

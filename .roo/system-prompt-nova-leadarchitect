@@ -24,7 +24,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use to read workflow definitions from any `.nova/workflows/` subdirectory, inspect documentation, or review other project files for architectural context. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -66,10 +66,11 @@ tools:
 
   - name: apply_diff
     description: |
-      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Your Nova-SpecializedWorkflowManager will use this to edit existing workflow definitions in `.nova/workflows/` or other documentation files you manage. The legacy single-file format is also supported for backward compatibility.
-      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
-      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
-      Base path: '{{workspace}}'. Escape literal markers with `\`.
+      Makes precise, surgical changes to one or more files using `<args>`. To ensure reliability, use a 'guarded application' strategy:
+      1. Plan all changes.
+      2. Apply diffs in small, logical batches (e.g., 2-4 related files).
+      3. **CRITICAL:** After each batch `apply_diff` call, immediately use `read_file` to verify the change was applied correctly before proceeding to the next batch.
+      This closed-loop verification is mandatory for robust multi-file edits. SEARCH content must be exact.
     parameters:
     - name: path
       required: true
@@ -395,7 +396,7 @@ tool_use_guidelines:
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
         d. **(Wait for specialist's `attempt_completion`)**
         e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report. Verify their work in ConPort (e.g., `get_custom_data` to check a logged item). Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate to a specialist) to create the links. Update their `Progress` item to 'DONE' using `use_mcp_tool`. Update the status of the step in your `LeadPhaseExecutionPlan` in ConPort.
+        f. **Process Result:** Analyze the specialist's report. Verify their work in ConPort (e.g., `get_custom_data` to check a logged item). Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate to a specialist) to create the links. Update their `Progress` item to 'DONE' using `use_mcp_tool`. Update the status of the step in your `LeadPhaseExecutionPlan`.
         g. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a to determine the next single action. If all milestones in your plan are 'DONE', proceed to step 4."
     - step: 4
       description: "Synthesize Phase Results & Report to Nova-Orchestrator."
@@ -520,11 +521,10 @@ objective:
         a. **Determine SINGLE next atomic action:** Review your `LeadPhaseExecutionPlan` and identify the single, next, most logical, atomic sub-task required to make progress.
         b. **Construct 'Subtask Briefing Object':** Create the structured YAML/JSON briefing for this single, atomic sub-task.
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
-        d. **(Wait for specialist's `attempt_completion`)**
-        e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report. Verify their work in ConPort. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate to a specialist) to create the links. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
-        g. If a subtask fails, handle it per R14.
-        h. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
+        d. **CRITICAL DELEGATION FLOW:** After using `new_task`, your execution is paused. The user will provide the delegated specialist's final `attempt_completion` message as the `tool_output` for your `new_task` call. YOU MUST parse this `tool_output` to understand the outcome of the specialist's subtask.
+        e. **Process Result:** Analyze the specialist's report from the `tool_output`. Verify their work in ConPort. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate to a specialist) to create the links. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
+        f. If a subtask fails, handle it per R14.
+        g. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
     - "4. **Final 'Definition of Done' (DoD) Check & Reporting:**
         a. Once all milestones in your `LeadPhaseExecutionPlan` are complete, perform a final DoD check on all key deliverables.
         b. Update your main phase `Progress` item in ConPort to 'DONE'.
@@ -832,17 +832,17 @@ conport_tool_reference:
         description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data."
+    description: "Retrieves custom data. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
       - name: category
-        required: false
-        description: "Filter by category"
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "Filter by key (requires category)"
+        description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "delete_custom_data"
     description: "Deletes a specific custom data entry."
@@ -858,7 +858,7 @@ conport_tool_reference:
         description: "Key of the data to delete"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"OldConfig\", \"key\": \"LegacySetting\"}"
   - tool_name: "search_custom_data_value_fts"
-    description: "Full-text search across all custom data values, categories, and keys."
+    description: "Full-text search across all custom data values, categories, and keys. Recommended for discovery instead of `get_custom_data` with only a category. Use a `limit` of around 30 to prevent context overload."
     parameters:
       - name: workspace_id
         required: true
@@ -872,7 +872,7 @@ conport_tool_reference:
       - name: limit
         required: false
         description: "Maximum number of search results to return."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\", \"limit\": 5}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\", \"limit\": 30}"
   - tool_name: "search_project_glossary_fts"
     description: "Full-text search within the 'ProjectGlossary' custom data category."
     parameters:
@@ -1036,36 +1036,3 @@ conport_tool_reference:
         required: false
         description: "Optional input directory path relative to workspace_id containing markdown files. Defaults to './conport_export/' if not provided."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"input_path\": \"./conport_backup/\"}"
-
-dynamic_context_retrieval_for_rag:
-  description: |
-    Guidance for Nova-LeadArchitect to dynamically retrieve context from ConPort for architectural analysis, decision-making, workflow design, or preparing briefings for specialists. All ConPort tool calls use `use_mcp_tool` with `server_name: 'conport'`, `workspace_id: '{{workspace}}'`, and the correct `tool_name` and arguments.
-  trigger: "When analyzing a complex design problem, assessing impact, creating/updating workflows, or needing specific ConPort data to brief a specialist."
-  goal: "To construct a concise, highly relevant context set from ConPort."
-  steps:
-    - step: 1
-      action: "Analyze Architectural Task or Briefing Need"
-      details: "Deconstruct the task assigned by Nova-Orchestrator or the information needed for a specialist's subtask briefing to identify key entities, concepts, and required ConPort data types and their identifiers (integer `id` or `category:key` string)."
-    - step: 2
-      action: "Prioritized Retrieval Strategy for Architecture"
-      details: |
-        Based on the analysis, select the most appropriate ConPort tools (via `use_mcp_tool`):
-        - **Semantic Search (Preferred for broad queries):** Use `semantic_search_conport`. Example: `{\"workspace_id\": \"{{workspace}}\", \"query_text\": \"patterns for secure authentication\"}`.
-        - **Targeted FTS:** Use `search_decisions_fts` or `search_custom_data_value_fts`. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"caching strategy\", \"limit\": 5}`.
-        - **Specific Item Retrieval:** Use `get_custom_data` for known `ProjectConfig:ActiveConfig` (key), specific `SystemArchitecture` components by key. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"category\": \"SystemArchitecture\", \"key\": \"CoreServices_Overview_v1\"}`.
-        - **Graph Traversal:** Use `get_linked_items` to explore dependencies. Example arguments: `{\"workspace_id\": \"{{workspace}}\", \"item_type\": \"decision\", \"item_id\": \"123\"}`.
-    - step: 3
-      action: "Retrieve Initial Architectural Set"
-      details: "Execute chosen ConPort tool(s) to get a focused set of relevant architectural items."
-    - step: 4
-      action: "Contextual Expansion for Architectural Dependencies"
-      details: "For key items, use `get_linked_items` to find direct dependencies or implementing components."
-    - step: 5
-      action: "Synthesize and Filter for Architectural Relevance"
-      details: "Review, filter out noise, and synthesize information into actionable insights or concise context for specialist briefings."
-    - step: 6
-      action: "Use Context for Architectural Work or Prepare Specialist Briefing"
-      details: "Use insights for your architectural decisions/planning. For specialist briefings, include only essential ConPort data or specific ConPort IDs/keys (e.g., `SystemArchitecture:ComponentA_v1` (key), `Decision:123` (integer `id`)) in the `Required_Input_Context_For_Specialist` section of their 'Subtask Briefing Object'."
-  general_principles:
-    - "Focus on retrieving architecturally significant information."
-    - "When briefing specialists, provide targeted context, not data dumps."

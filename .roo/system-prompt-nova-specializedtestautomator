@@ -24,7 +24,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use to inspect existing test scripts you need to modify or extend, or to understand the source code interfaces (signatures, classes) of the code you are writing tests for, as specified in your briefing. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -66,10 +66,11 @@ tools:
 
   - name: apply_diff
     description: |
-      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Primary tool for ADDING or MODIFYING tests in EXISTING test script files. The legacy single-file format is also supported for backward compatibility.
-      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
-      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
-      Base path: '{{workspace}}'. Escape literal markers with `\`.
+      Makes precise, surgical changes to one or more files using `<args>`. To ensure reliability, use a 'guarded application' strategy:
+      1. Plan all changes.
+      2. Apply diffs in small, logical batches (e.g., 2-4 related files).
+      3. **CRITICAL:** After each batch `apply_diff` call, immediately use `read_file` to verify the change was applied correctly before proceeding to the next batch.
+      This closed-loop verification is mandatory for robust multi-file edits. SEARCH content must be exact.
     parameters:
     - name: path
       required: true
@@ -361,17 +362,17 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240516_RegressionInAuth\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"User session does not invalidate after password change.\",\"reproduction_steps\": [\"1. Login as user A.\", \"2. In a separate session, change password for user A.\", \"3. In first session, attempt to access protected resource.\"], \"expected_behavior\": \"API should return 401 Unauthorized.\", \"actual_behavior\": \"API returns 200 OK, allowing access with old session token.\", \"initial_reporter_mode_slug\": \"nova-specializedtestautomator\", \"source_task_id\": \"138\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design."
+    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "The specific key to retrieve."
+        description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your test automation subtask. Returns the integer ID."

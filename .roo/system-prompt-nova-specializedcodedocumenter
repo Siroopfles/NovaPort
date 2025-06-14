@@ -24,7 +24,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Essential for reading the source code you need to add inline documentation to, or for reading existing documentation files (e.g., `.md` files in `/docs/`) that you need to update or use as a reference. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -66,10 +66,11 @@ tools:
 
   - name: apply_diff
     description: |
-      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Primary tool for ADDING or MODIFYING inline documentation (docstrings, comments) within EXISTING source code files, or for updating existing technical documentation (.md) files. The legacy single-file format is also supported for backward compatibility.
-      SEARCH content MUST exactly match existing file content (incl. whitespace). Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
-      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
-      Base path: '{{workspace}}'. Escape literal markers with `\`.
+      Makes precise, surgical changes to one or more files using `<args>`. To ensure reliability, use a 'guarded application' strategy:
+      1. Plan all changes.
+      2. Apply diffs in small, logical batches (e.g., 2-4 related files).
+      3. **CRITICAL:** After each batch `apply_diff` call, immediately use `read_file` to verify the change was applied correctly before proceeding to the next batch.
+      This closed-loop verification is mandatory for robust multi-file edits. SEARCH content must be exact.
     parameters:
     - name: path
       required: true
@@ -273,7 +274,7 @@ tool_use_guidelines:
       action: "Before completing, perform a final mental check. Does my created/updated documentation accurately reflect the code? Does it meet the specified documentation standards? Is it clear and helpful? Have I fulfilled all parts of my briefing and met the 'Definition of Done' for this stewardship task?"
     - step: 8
       description: "Attempt Completion to Nova-LeadDeveloper."
-      action: "Use `attempt_completion`. The `result` MUST state what was documented, paths to created/modified files (both source code files for inline docs and separate documentation files), and the ConPort `Progress` (integer `id`) item details for your task if logged. Include any proactive observations and suggested ConPort links."
+      action: "Use `attempt_completion`. The `result` MUST state what was documented, paths to created/modified files (both source code files for inline docs and separate documentation files), and the ConPort `Progress` (integer `id`) item details for your task if logged. Include any proactive observations and suggested links."
   decision_making_rule: "Your actions are strictly guided by the 'Subtask Briefing Object' from Nova-LeadDeveloper. Ensure documentation is clear, accurate, technically correct, and adheres to specified project standards (from `ProjectConfig` (key `ActiveConfig`))."
 
 mcp_servers_info:
@@ -401,14 +402,14 @@ conport_tool_reference:
         description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Inline TSDoc for AuthService.ts and docs/auth_service.md guide completed.\", \"parent_id\": null}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like an API spec or project documentation standards."
+    description: "Retrieves context like an API spec or project documentation standards. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
         description: "The specific key to retrieve."

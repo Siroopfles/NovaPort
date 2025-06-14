@@ -43,7 +43,7 @@ tools:
       </execute_command>
 
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use if your briefing for a manual test scenario refers to detailed steps in a file, or if complex test data needs to be read from a file to perform a manual test. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -300,17 +300,17 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240516_RegressionInAuth\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"User session does not invalidate after password change.\",\"reproduction_steps\": [\"1. Login as user A.\", \"2. In a separate session, change password for user A.\", \"3. In first session, attempt to access protected resource.\"], \"expected_behavior\": \"API should return 401 Unauthorized.\", \"actual_behavior\": \"API returns 200 OK, allowing access with old session token.\", \"initial_reporter_mode_slug\": \"nova-specializedtestexecutor\", \"source_task_id\": \"138\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design."
+    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "The specific key to retrieve."
+        description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your test execution subtask. Returns the integer ID."

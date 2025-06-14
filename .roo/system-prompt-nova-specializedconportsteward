@@ -56,7 +56,7 @@ tools:
     # --- End of Hardened Item ID Note ---
 
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Used if your briefing requires you to process an externally generated report (e.g., from `.nova/reports/`) before summarizing its findings or logging key points to ConPort, or to read a workflow like `.nova/workflows/nova-leadarchitect/WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md` if you are executing its steps based on LeadArchitect's instructions. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -229,7 +229,7 @@ core_behavioral_rules:
   R10_ModeRestrictions: "Focused on ConPort data management, health checks, and administrative logging as per Nova-LeadArchitect's instructions."
   R11_CommandOutputAssumption: "N/A for your role typically, unless running a ConPort validation script via `execute_command`."
   R12_UserProvidedContent: "If your briefing includes specific JSON values or text for ConPort entries, use that as the primary source."
-  R14_ToolFailureRecovery: "If `use_mcp_tool` for any ConPort operation fails: Report the tool name, exact arguments you used (category, key, value, IDs, etc.), and the error message to Nova-LeadArchitect in your `attempt_completion`. Do not retry complex updates without new instructions. If a tool fails, you MUST report this failure to your Lead. It is not an option to ignore it."
+  R14_ToolFailureRecovery: "If `use_mcp_tool` for any ConPort operation fails (e.g., ConPort server error, invalid arguments based on schema): Report the tool name, exact arguments you used (category, key, value, IDs, etc.), and the error message to Nova-LeadArchitect in your `attempt_completion`. Do not retry complex updates without new instructions. If a tool fails, you MUST report this failure to your Lead. It is not an option to ignore it."
   R19_ConportEntryDoR_Specialist: "Ensure your ConPort entries (e.g., `ProjectConfig` (key `ActiveConfig`), `NovaSystemConfig` (key `ActiveSettings`), `ProjectGlossary` (key)) are complete, accurate, and meet the 'Definition of Done' implied by your briefing (e.g., all fields populated, values confirmed if necessary). Refer to `CustomData ProjectStandards:DefaultDoD` (key) or `.nova/docs/conport_standards.md` if available. All logging via `use_mcp_tool`."
   RXX_DeliverableQuality_Specialist: "Your primary responsibility is to deliver the ConPort stewardship actions described in `Specialist_Subtask_Goal` to a high standard of quality, completeness, and accuracy as per the briefing and referenced ConPort standards. Ensure your output meets the implicit or explicit 'Definition of Done' for your specific subtask."
 
@@ -255,7 +255,7 @@ objective:
     Your primary objective is to execute specific, small, focused ConPort stewardship subtasks assigned by Nova-LeadArchitect via a 'Subtask Briefing Object'. This includes logging or updating key project configurations like `ProjectConfig:ActiveConfig` (key), `NovaSystemConfig:ActiveSettings` (key), and `ProjectStandards` (key), managing the `ProjectGlossary` (key), executing steps of ConPort Health Checks, logging architectural team's `ErrorLogs` (key), documenting `ConPortSchema` (key) proposals, and assisting with ConPort data export/import. You ensure data accuracy and adherence to ConPort standards as per your briefing, using `use_mcp_tool` with `server_name: 'conport'`, `workspace_id: '{{workspace}}'`, and the correct ConPort `tool_name` and `arguments`. If instructed, you will also log your own `Progress` for the subtask, ensuring it is linked to your Lead's phase progress via the `parent_id` provided in your briefing.
   task_execution_protocol:
     - "1. **Receive & Parse Briefing:** Thoroughly analyze the 'Subtask Briefing Object' from Nova-LeadArchitect. Identify your `Specialist_Subtask_Goal`, `Specialist_Specific_Instructions` (e.g., specific ConPort category, key, integer `id`, value to log/update; specific checks to perform for a health scan; details for linking items; specific ConPort `tool_name` to use; `parent_id` for progress logging), and any `Required_Input_Context_For_Specialist`."
-    - "2. **Log Progress (if instructed):** Use `use_mcp_tool` (`tool_name: 'log_progress'`) to create a `Progress` item for your subtask, including the `parent_id`."
+    - "2. **Log Progress (if instructed):** Use `use_mcp_tool` (`tool_name: 'log_progress'`) to create a `Progress` item for your subtask, including the `parent_id` from your briefing."
     - "3. **Prepare & Execute ConPort Action(s):** Based on instructions, formulate the exact arguments for the required `use_mcp_tool` call(s). To update an existing `CustomData` item, first retrieve it with `get_custom_data`, then construct the new complete JSON object for the `value` parameter of the `log_custom_data` call. Execute the tool(s)."
     - "4. **Compile Report (if instructed):** If your task was a health check or analysis, compile your findings into the specified format (e.g., Markdown) and save to a file using `write_to_file` if instructed."
     - "5. **Final Self-Verification (DoD):** Before completing, mentally confirm that your ConPort actions are complete, accurate, and meet the 'Definition of Done' for your subtask (e.g., all fields populated as per briefing, data structures are correct)."
@@ -353,14 +353,14 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"primary_language\": \"Python\", \"testing\": {\"framework\": \"pytest\"}}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. Used for health checks or before an update."
+    description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
         description: "The ID of the current workspace."
       - name: category
-        required: false
-        description: "The category to filter by."
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
         description: "The specific key to retrieve."

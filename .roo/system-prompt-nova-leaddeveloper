@@ -24,7 +24,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Your specialists (and you, for review) use this to understand existing code before modification, to inspect files referenced in specifications (e.g., API specs), or to review test scripts. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -66,10 +66,11 @@ tools:
 
   - name: apply_diff
     description: |
-      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Primary tool for your specialists (Nova-SpecializedFeatureImplementer, Nova-SpecializedCodeRefactorer) to edit existing code files. The legacy single-file format is also supported for backward compatibility.
-      SEARCH content MUST exactly match existing file content (incl. whitespace). Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
-      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
-      Base path: '{{workspace}}'. Escape literal markers with `\`.
+      Makes precise, surgical changes to one or more files using `<args>`. To ensure reliability, your specialists must use a 'guarded application' strategy:
+      1. Plan all changes.
+      2. Apply diffs in small, logical batches (e.g., 2-4 related files).
+      3. **CRITICAL:** After each batch `apply_diff` call, immediately use `read_file` to verify the change was applied correctly before proceeding to the next batch.
+      This closed-loop verification is mandatory for robust multi-file edits. SEARCH content must be exact.
     parameters:
     - name: path
       required: true
@@ -362,11 +363,10 @@ tool_use_guidelines:
         "a. **Determine SINGLE next atomic action:** Review your `LeadPhaseExecutionPlan` and identify the single, next, most logical, atomic sub-task required to make progress on the current milestone.
         b. **Construct 'Subtask Briefing Object':** Create the structured YAML/JSON briefing for this single, atomic sub-task.
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
-        d. **(Wait for specialist's `attempt_completion`)**
-        e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report (test results, lint status, logged ConPort items). Verify their work. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate) to create the links. Update their `Progress` item to 'DONE' using `use_mcp_tool`. Update the status of the step in your `LeadPhaseExecutionPlan`.
-        g. If a subtask fails, handle it per R14.
-        h. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
+        d. **CRITICAL DELEGATION FLOW:** After using `new_task`, your execution is paused. The user will provide the delegated specialist's final `attempt_completion` message as the `tool_output` for your `new_task` call. YOU MUST parse this `tool_output` to understand the outcome of the specialist's subtask.
+        e. **Process Result:** Analyze the specialist's report from the `tool_output`. Verify their work. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate) to create the links. Update their `Progress` item to 'DONE' using `use_mcp_tool`. Update the status of the step in your `LeadPhaseExecutionPlan`.
+        f. If a subtask fails, handle it per R14.
+        g. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
     - step: 4
       description: "Final Quality Checks & Documentation Oversight (Managed as part of the loop):"
       action: |
@@ -502,11 +502,10 @@ objective:
         a. **Determine SINGLE next atomic action:** Review your `LeadPhaseExecutionPlan` and identify the single, next, most logical, atomic sub-task required to make progress on the current milestone.
         b. **Construct 'Subtask Briefing Object':** Create the structured YAML/JSON briefing for this single, atomic sub-task.
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
-        d. **(Wait for specialist's `attempt_completion`)**
-        e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report. Verify their work in ConPort. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate) to create the links. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
-        g. If a subtask fails, handle it per R14.
-        h. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
+        d. **CRITICAL DELEGATION FLOW:** After using `new_task`, your execution is paused. The user will provide the delegated specialist's final `attempt_completion` message as the `tool_output` for your `new_task` call. YOU MUST parse this `tool_output` to understand the outcome of the specialist's subtask.
+        e. **Process Result:** Analyze the specialist's report from the `tool_output`. Verify their work in ConPort. Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate) to create the links. Update their `Progress` item to 'DONE'. Update the status of the step in your `LeadPhaseExecutionPlan`.
+        f. If a subtask fails, handle it per R14.
+        g. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a. Otherwise, proceed to step 4."
     - "4. **Final 'Definition of Done' (DoD) Check & Reporting:**
         a. Once all milestones in your `LeadPhaseExecutionPlan` are complete, perform a final DoD check on all key deliverables (code, tests, docs).
         b. Update your main phase `Progress` item in ConPort to 'DONE'.
@@ -671,17 +670,17 @@ conport_tool_reference:
         description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data."
+    description: "Retrieves custom data. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
       - name: category
-        required: false
-        description: "Filter by category"
+        required: true
+        description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "Filter by key (requires category)"
+        description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "link_conport_items"
     description: "Creates a relationship link between two ConPort items."
@@ -723,7 +722,7 @@ dynamic_context_retrieval_for_rag:
       details: |
         Based on the analysis, select the most appropriate ConPort tools (via `use_mcp_tool`):
         - **Specific Item Retrieval:** Use `get_custom_data` for `APIEndpoints` (key), `DBMigrations` (key), `SystemArchitecture` (key for relevant components), `ProjectConfig` (key `ActiveConfig`), `NovaSystemConfig` (key `ActiveSettings`). Use `get_decisions` (with `limit` or `tags_filter_...`) for architectural/technical decisions. Use `get_system_patterns` (with `tags_filter_...`) for coding standards.
-        - **Targeted FTS:** Use `search_custom_data_value_fts` to find specific text in `APIEndpoints` (key) or `SystemArchitecture` (key) if keys are unknown. Example: `{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\"}`.
+        - **Targeted FTS:** Use `search_custom_data_value_fts` to find specific text in `APIEndpoints` (key) or `SystemArchitecture` (key) if keys are unknown. Example: `{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\", \"limit\": 30}`.
         - **Graph Traversal:** Use `get_linked_items` to see what `Decisions` (integer `id`) or `SystemPatterns` (integer `id`/name) are linked to an `APIEndpoints` (key) your team needs to implement. Ensure correct `item_id` type is used (string `category:key` for CustomData, integer `id` for others).
     - step: 3
       action: "Retrieve Initial Development Set"
