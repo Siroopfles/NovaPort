@@ -54,7 +54,14 @@ This document outlines the next evolutionary steps for the Nova system, focusing
   - **Description:** Create a new workflow, `WF_ARCH_LEARNING_CYCLE_001_v1.md`, that guides `LeadArchitect` to periodically use `Nova-FlowAsk` to analyze patterns in `LessonsLearned` and recurring `ErrorLogs`. Based on the analysis, `LeadArchitect` will initiate a `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL` to fix the root cause of systemic issues directly in the prompts of the relevant agents, creating a closed-loop learning mechanism.
 
 - [ ] **1.2. Enable Specialist-Proposed Alternatives:**
+
   - **Description:** Update all Specialist prompts to include a new protocol allowing them to return an `attempt_completion` with a `Proposed_Alternative` section if a briefed task is deemed impossible or highly inefficient. Update Lead prompts to recognize and formally `APPROVE` or `REJECT` these proposals via a ConPort `Decision` before proceeding.
+
+- [ ] **1.3. Expand Specialist Teams with New Roles:**
+  - **Description:** Introduce new specialist modes to cover critical domains beyond the current scope. This involves creating their system prompts, adding them to `.roomodes`, updating the `README.md`, and creating initial workflows.
+    - **`Nova-SpecializedSecurityAnalyst`:** (Reports to LeadQA) To interpret security scan results, triage vulnerabilities, and log credible threats.
+    - **`Nova-SpecializedDevOpsEngineer`:** (Reports to LeadArchitect/LeadDeveloper) To manage CI/CD pipelines, Infrastructure-as-Code (IaC), and deployment scripts.
+    - **`Nova-SpecializedUXDesigner`:** (Reports to LeadArchitect) To create user flows, textual wireframes, and component interaction designs based on requirements.
 
 ### 2. Workflow & Process Optimization
 
@@ -63,12 +70,24 @@ This document outlines the next evolutionary steps for the Nova system, focusing
   - **Description:** Add a `quality_gate_level: 'strict' | 'moderate' | 'lean'` setting to the `ProjectConfig:ActiveConfig` schema. Update `LeadDeveloper` and `LeadQA` prompts to read this setting and adjust their team's "Definition of Done" checks accordingly, allowing for more flexible project governance.
 
 - [ ] **2.2. Implement Workflow Parameterization:**
+
   - **Description:** Refactor key orchestrator and architect workflows to replace hardcoded values with `{{placeholder}}` variables. Update the `new_task` briefing format for `Nova-Orchestrator` to include an optional `parameters` dictionary to dynamically populate these placeholders, making workflows more reusable.
+
+- [ ] **2.3. Implement Asynchronous Orchestration:**
+
+  - **Description:** Evolve `Nova-Orchestrator`'s logic to enable a faster, more autonomous workflow execution within the limits of the single-active-chat model. The Orchestrator will maintain a dependency graph of project phases. When a Lead Mode completes a phase, the Orchestrator will immediately check the graph for any unblocked, subsequent phases and delegate them without waiting for explicit user instruction, thus minimizing idle time.
+
+- [ ] **2.4. Introduce Modular Project Configuration:**
+  - **Description:** Refactor the `ProjectConfig:ActiveConfig` to allow references to other `CustomData` items (e.g., `testing_config_ref: "ProjectConfig:TestingSettings_v1"`). Update the prompts of relevant modes to first read the main config and then resolve any references to load the required specific sub-configurations. This improves the maintainability of complex project setups.
 
 ### 3. ConPort & Data Strategy
 
-- [ ] **3.1. Automated ConPort Compaction Workflow:**
-  - **Description:** Create `WF_ORCH_CONPORT_COMPACTION_001_v1.md` to orchestrate a scheduled task. The workflow will use `Nova-FlowAsk` to find old, completed `Progress` items, summarize them into a new `ArchivedProgressSummary` item, and upon user confirmation, delete the original items to keep the active database lean.
+- [ ] **3.1. Implement Automated ConPort Compaction/Archiving:**
+
+  - **Description:** Create a new workflow, `WF_ORCH_CONPORT_COMPACTION_001_v1.md`, to orchestrate a scheduled or user-triggered task. This workflow will use `Nova-FlowAsk` to find and summarize old, completed `Progress` items into a new `ArchivedProgressSummary` item. Upon user confirmation, `Nova-SpecializedConPortSteward` will be tasked with deleting the original items to keep the active database lean and performant.
+
+- [ ] **3.2. Formalize ConPort Schema Versioning:**
+  - **Description:** Introduce a central `CustomData ConPortSchemaVersions:Current` item in ConPort to track the active version of all major data schemas (e.g., `{ "ErrorLogs": "1.1", "LessonsLearned": "1.0" }`). Update the prompts of relevant specialists (e.g., `Nova-SpecializedTestExecutor`) to read this item and use the correct schema version when creating new entries, making data migrations and backward compatibility more robust and explicit.
 
 ### 4. Developer/User Experience (DX/UX)
 

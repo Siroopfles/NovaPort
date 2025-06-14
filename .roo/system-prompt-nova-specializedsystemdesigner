@@ -299,7 +299,7 @@ conport_tool_reference:
         description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"User Service API design complete and logged to ConPort.\", \"parent_id\": null}"
   - tool_name: "log_custom_data"
-    description: "Your primary tool. Logs a new design artifact (or overwrites an existing one) in a specified `CustomData` category. CRITICAL: Use ONLY for 'CustomData' items."
+    description: "Your primary tool. Logs a new design artifact (or overwrites an existing one) in a specified `CustomData` category. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use for `Decisions` or `Progress`; use `log_decision` or `log_progress` instead."
     parameters:
       - name: workspace_id
         required: true
@@ -314,6 +314,20 @@ conport_tool_reference:
         required: true
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"SystemArchitecture\", \"key\": \"Component_UserService_v1.2\", \"value\": {\"description\": \"Handles user registration, login, and profile management.\", \"diagram_src\": \"@startuml...\"}}"
+  - tool_name: "get_product_context"
+    description: "Retrieves the overall project goals, features, and architecture. CRITICAL: Use ONLY for the 'ProductContext' item."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
+  - tool_name: "get_active_context"
+    description: "Retrieves the current working focus, recent changes, and open issues. CRITICAL: Use ONLY for the 'ActiveContext' item."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "get_custom_data"
     description: "Retrieves context like a parent `SystemArchitecture` component or a `FeatureScope` document. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:

@@ -55,4 +55,19 @@ jobs:
           commit_message: "style: ✨ auto-format code"
           commit_user_name: "GitHub Actions Bot"
           commit_user_email: "actions@github.com"
-          commit_author: "GitHub Actions Bot <actions@github.com>"
+          commit_author: "GitHub Actions Bot <actions@github.com>"   
+  validate-nova-system:
+    name: Validate Nova System Integrity
+    runs-on: ubuntu-latest
+    needs: auto-format # Run after formatting
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Nova System Validation Script
+        run: python scripts/ci/validate_nova.py
