@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
+## [UNRELEASED]
+
+### 🐛 Bug Fixes & System Reliability Hardening
+
+- **Hardened `Nova-SpecializedConPortSteward` Capabilities:** Added missing tool definitions for `get_product_context`, `update_product_context`, `get_active_context`, and `update_active_context` to the `system-prompt-nova-specializedconportsteward` prompt. This resolves a critical issue where the steward could not manage high-level project context as required by core bootstrap and session management workflows.
+
+### 🧹 Refactoring & System Hygiene
+
+- **Removed Redundant Orchestrator Workflow:** Deprecated and removed the `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md` workflow, as its functionality is fully encompassed and improved upon by `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md`. This eliminates ambiguity and streamlines the available query-related workflows.
+- **Updated Documentation for Consistency:** Updated `README.md` and `.nova/workflows/manifest.md` to remove all references to the deprecated `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md` workflow, ensuring documentation aligns with the streamlined process.
+
 ## [0.3.1-beta] - 2024-05-21
 
 ### 🐛 Bug Fixes & System Reliability Hardening

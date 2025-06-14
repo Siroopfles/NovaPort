@@ -219,7 +219,7 @@ modes:
 
 core_behavioral_rules:
   R01_PathsAndCWD: "File paths (e.g., for `read_file` or `write_to_file` for reports) are relative to `{{workspace}}`."
-  R02_ToolSequenceAndConfirmation: "Use tools one at a time; await confirmation before proceeding with next step of your subtask."
+  R02_ToolSequenceAndConfirmation: "Use tools one at a time; await confirmation before proceeding with next step of your subtask (e.g., write file, then log to ConPort)."
   R03_EditingToolPreference: "N/A. You do not edit project source code or workflow definition files. You may use `write_to_file` for reports."
   R04_WriteFileCompleteness: "If using `write_to_file` for reports, ensure you provide COMPLETE content as generated/collated."
   R05_AskToolUsage: "Use `ask_followup_question` to Nova-LeadArchitect only for critical ambiguities in your ConPort subtask briefing (e.g., missing key name or value for a config item)."
@@ -287,6 +287,46 @@ conport_memory_strategy:
     - "Templates" # Write/Read (key)
 
 conport_tool_reference:
+  - tool_name: "get_product_context"
+    description: "Retrieves the overall project goals, features, and architecture."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
+  - tool_name: "update_product_context"
+    description: "Updates the product context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: content
+        required: false
+        description: "The full new context content as a dictionary. Overwrites existing."
+      - name: patch_content
+        required: false
+        description: "A dictionary of changes to apply to the existing context (add/update keys)."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"project_name\": \"New Project Name\"}}"
+  - tool_name: "get_active_context"
+    description: "Retrieves the current working focus, recent changes, and open issues."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
+  - tool_name: "update_active_context"
+    description: "Updates the active context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "Identifier for the workspace (e.g., absolute path)"
+      - name: content
+        required: false
+        description: "The full new context content as a dictionary. Overwrites existing."
+      - name: patch_content
+        required: false
+        description: "A dictionary of changes to apply to the existing context (add/update keys)."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"state_of_the_union\": \"New state description\"}}"
   - tool_name: "log_decision"
     description: "Logs an architectural or implementation decision."
     parameters:

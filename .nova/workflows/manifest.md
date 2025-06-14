@@ -14,7 +14,6 @@ _These workflows manage the high-level project lifecycle and coordinate between 
 | `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md` | Manages the lifecycle of adding a new feature to an existing project. |
 | `WF_ORCH_CRITICAL_BUG_RESOLUTION_PROCESS_001_v1.md` | Expedited process for investigating and resolving critical bugs. |
 | `WF_ORCH_MANAGE_TECH_DEBT_ITEM_001_v1.md`| Orchestrates the analysis, planning, and resolution of a prioritized technical debt item. |
-| `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md` | Handles complex user queries by delegating information retrieval and summarization to Nova-FlowAsk. |
 | `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md` | Guides the delegation of a complex, multi-hop analytical query to Nova-FlowAsk to traverse the ConPort knowledge graph. |
 | `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md` | Generates a high-level project summary report for stakeholders. |
 | `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` | Initializes a user session by loading the project context from ConPort. |
