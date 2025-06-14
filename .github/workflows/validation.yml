@@ -1,0 +1,38 @@
+name: Nova System Validation
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  lint-files:
+    name: Lint Repository Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run Super-Linter
+        uses: super-linter/super-linter@v6
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  validate-nova-structure:
+    name: Validate Nova Structure
+    runs-on: ubuntu-latest
+    needs: lint-files
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Nova Validation Script
+        run: python scripts/ci/validate_nova.py

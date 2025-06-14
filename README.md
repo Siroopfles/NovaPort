@@ -204,85 +204,39 @@ The following diagram illustrates this detailed communication flow:
 
 ```mermaid
 graph TD
-    subgraph "User Interaction"
-        User(👤 User)
+    subgraph "User & Environment Layer"
+        User(👤<br/>User)
+        RooEnv["Roo Code<br/>Execution Environment"]
     end
 
-    subgraph "Orchestration Layer"
-        Orchestrator(Nova-Orchestrator)
-    end
-
-    subgraph "Lead / Management Layer"
-        LeadArch(Nova-LeadArchitect)
-        LeadDev(Nova-LeadDeveloper)
-        LeadQA(Nova-LeadQA)
-    end
-    
-    subgraph "Execution Layer: Specialist Teams"
+    subgraph "Nova System Core"
         direction LR
-        subgraph "Architect Team"
-            S_Designer(SpecializedSystemDesigner)
-            S_ConPort(SpecializedConPortSteward)
-            S_Workflow(SpecializedWorkflowManager)
+        Orchestrator(Nova-Orchestrator)
+        subgraph "Lead & Specialist Teams"
+            LeadModes["Lead Modes<br/>(Architect, Dev, QA)"]
+            SpecializedModes["Specialized Modes<br/>(Implementer, Steward, etc.)"]
         end
-        subgraph "Developer Team"
-            S_Implementer(SpecializedFeatureImplementer)
-            S_Refactorer(SpecializedCodeRefactorer)
-            S_TestAutomator(SpecializedTestAutomator)
-            S_Doc(SpecializedCodeDocumenter)
-        end
-        subgraph "QA Team"
-            S_Investigator(SpecializedBugInvestigator)
-            S_Executor(SpecializedTestExecutor)
-            S_Verifier(SpecializedFixVerifier)
+    end
+
+    subgraph "Data & Knowledge Layer"
+        ConPort["Context Portal (ConPort)<br/><i>Project Memory</i>"]
+        subgraph "Database Backend"
+            SQLite["SQLite<br/><i>Structured Data</i>"]
+            ChromaDB["ChromaDB<br/><i>Vector Embeddings for RAG</i>"]
         end
     end
     
-    subgraph "Utility"
-        FlowAsk(Nova-FlowAsk)
-    end
-
-    %% Main Request Flow
-    User -- "Requests feature" --> Orchestrator
-    Orchestrator -- "Delegates Phase" --> LeadArch
-    Orchestrator -- "Delegates Phase" --> LeadDev
-    Orchestrator -- "Delegates Phase" --> LeadQA
-    Orchestrator -- "Reports Final Result" --> User
-
-    %% Architect Delegation & Feedback
-    LeadArch -- "Sub-task" --> S_Designer
-    LeadArch -- "Sub-task" --> S_ConPort
-    LeadArch -- "Sub-task" --> S_Workflow
-    S_Designer -.-> |attempt_completion| LeadArch
-    S_ConPort  -.-> |attempt_completion| LeadArch
-    S_Workflow -.-> |attempt_completion| LeadArch
-    LeadArch -.-> |Phase Complete| Orchestrator
-
-    %% Developer Delegation & Feedback
-    LeadDev -- "Sub-task" --> S_Implementer
-    LeadDev -- "Sub-task" --> S_Refactorer
-    LeadDev -- "Sub-task" --> S_TestAutomator
-    LeadDev -- "Sub-task" --> S_Doc
-    S_Implementer   -.-> |attempt_completion| LeadDev
-    S_Refactorer    -.-> |attempt_completion| LeadDev
-    S_TestAutomator -.-> |attempt_completion| LeadDev
-    S_Doc           -.-> |attempt_completion| LeadDev
-    LeadDev -.-> |Phase Complete| Orchestrator
+    User -- "User Prompt / Request" --> RooEnv
+    RooEnv -- "Activates & Executes" --> Orchestrator
+    Orchestrator -- "Delegates Phase" --> LeadModes
+    LeadModes -- "Delegates Sub-task" --> SpecializedModes
     
-    %% QA Delegation & Feedback
-    LeadQA -- "Sub-task" --> S_Investigator
-    LeadQA -- "Sub-task" --> S_Executor
-    LeadQA -- "Sub-task" --> S_Verifier
-    S_Investigator -.-> |attempt_completion| LeadQA
-    S_Executor     -.-> |attempt_completion| LeadQA
-    S_Verifier     -.-> |attempt_completion| LeadQA
-    LeadQA -.-> |Phase Complete| Orchestrator
-
-    %% FlowAsk Utility Calls
-    Orchestrator -- "Asks for analysis" --> FlowAsk
-    LeadArch -- "Asks for analysis" --> FlowAsk
-    LeadDev -- "Asks for analysis" --> FlowAsk
-    LeadQA -- "Asks for analysis" --> FlowAsk
+    SpecializedModes -- "Reads/Writes Project Data" --> ConPort
+    LeadModes -- "Reads/Writes Project Data" --> ConPort
+    Orchestrator -- "Reads/Writes Project Data" --> ConPort
+    
+    ConPort -- "Stores/Retrieves Structured Data" --> SQLite
+    ConPort -- "Stores/Retrieves Vectors" --> ChromaDB
 ```
 
 ### Context Portal (ConPort)
@@ -351,7 +305,22 @@ A fundamental change in v3 is how Lead Modes operate. They no longer create a la
     d. **Await** the specialist's `attempt_completion`, process the result, update ConPort `Progress`, and handle any new suggested links.
     e. **Return** to step (b) to determine the very next action.
 
-This "just-in-time" planning model makes the Lead agents more predictable, reduces the complexity of individual specialist tasks, and increases overall system reliability.
+This "just-in-time" planning model is visualized in the following flowchart:
+
+```mermaid
+flowchart TD
+    A["Start: Receive Phase-Task<br/>from Orchestrator"] --> B{"Create High-Level Plan<br/>in ConPort"};
+    B --> C["Start Loop: Focus on<br/>Next Milestone"];
+    C --> D["Determine SINGLE, next,<br/>most logical, atomic sub-task"];
+    D --> E["Delegate Sub-task to Specialist<br/>via `new_task`"];
+    E --> F["Await `attempt_completion`<br/>from Specialist"];
+    F --> G["Process Specialist's Result<br/>and Update ConPort (e.g., Progress)"];
+    G --> H{Phase Goal Met?};
+    H -- No --> C;
+    H -- Yes --> I[End Loop];
+    I --> J["Report Phase Completion<br/>to Orchestrator"];
+    J --> K[End];
+```
 
 #### Nova-LeadArchitect
 *   **Role:** Head of system design, project knowledge structure, and architectural strategy.
@@ -474,6 +443,55 @@ ConPort is the central nervous system of Nova, a workspace-specific knowledge gr
 *   **Communication:** Interacted with via an MCP server, accessible locally via STDIO or remotely via HTTP.
 *   **Knowledge Graph:** Stores structured entities and allows explicit, queryable relationships (`ContextLinks`) between them.
 *   **RAG Enablement:** Its rich querying (FTS, semantic search via vector embeddings, direct retrieval, graph traversal) provides the "Retrieval" mechanism for RAG, supplying AI modes with precise context.
+
+The following Entity Relationship Diagram (ERD) visualizes the core data entities within ConPort:
+
+```mermaid
+erDiagram
+    ProductContext {
+        string key PK
+        json content
+        timestamp created_at
+    }
+    ActiveContext {
+        string key PK
+        json value
+        timestamp created_at
+    }
+    Decisions {
+        int id PK
+        string summary
+        text rationale
+        text implementation_details
+        string tags
+    }
+    Progress {
+        int id PK
+        string description
+        string status
+        int parent_id FK
+    }
+    CustomData {
+        string category PK
+        string key PK
+        json value
+    }
+    ContextLinks {
+        int id PK
+        string source_item_type
+        string source_item_id
+        string target_item_type
+        string target_item_id
+        string relationship_type
+    }
+
+    Progress }|--o{ Progress : "is parent of"
+    ProductContext ||--o{ ContextLinks : "can be linked"
+    ActiveContext ||--o{ ContextLinks : "can be-linked"
+    Decisions ||--o{ ContextLinks : "can be linked"
+    Progress ||--o{ ContextLinks : "can be linked"
+    CustomData ||--o{ ContextLinks : "can be linked"
+```
 
 ### Core Data Entities
 ConPort structures project knowledge into several key entities stored in SQLite tables:
