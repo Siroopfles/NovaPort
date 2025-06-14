@@ -32,13 +32,13 @@ These are well-defined features and improvements that are our highest priority. 
 These are larger, more complex features that will significantly expand Nova's capabilities. They require more design and development effort.
 
 - [ ] **[Intelligence] Implement the Self-Improvement Cycle:**
-    - **Description:** Create a new workflow, `WF_ARCH_LEARNING_CYCLE_001_v1.md`, that guides `LeadArchitect` to periodically analyze patterns in `LessonsLearned` and recurring `ErrorLogs`. Based on the analysis, `LeadArchitect` will initiate a `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL` to fix the root cause of systemic issues directly in the prompts of the relevant agents, creating a closed-loop learning mechanism.
+  - **Description:** Create a new workflow, `WF_ARCH_LEARNING_CYCLE_001_v1.md`, that guides `LeadArchitect` to periodically analyze patterns in `LessonsLearned` and recurring `ErrorLogs`. Based on the analysis, `LeadArchitect` will initiate a `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL` to fix the root cause of systemic issues directly in the prompts of the relevant agents, creating a closed-loop learning mechanism.
 - [ ] **[DX] Implement User Command Alias System:**
-    - **Description:** Define a `CustomData UserCommands:Aliases` schema in ConPort to map short, user-defined strings (e.g., `nova test`) to full workflow file paths. Update `Nova-Orchestrator`'s initial logic to check if user input matches an alias and, if so, immediately initiate the corresponding workflow.
+  - **Description:** Define a `CustomData UserCommands:Aliases` schema in ConPort to map short, user-defined strings (e.g., `nova test`) to full workflow file paths. Update `Nova-Orchestrator`'s initial logic to check if user input matches an alias and, if so, immediately initiate the corresponding workflow.
 - [ ] **[Core] Expand Specialist Teams with New Roles:**
-    - **Description:** Introduce new specialist modes to cover critical domains. This involves creating their system prompts, adding them to `.roomodes`, updating the `README.md`, and creating initial workflows.
-    - **`Nova-SpecializedSecurityAnalyst`**: (Reports to LeadQA) To interpret security scan results and triage vulnerabilities.
-    - **`Nova-SpecializedDevOpsEngineer`**: (Reports to LeadArchitect/LeadDeveloper) To manage CI/CD pipelines and deployment scripts.
+  - **Description:** Introduce new specialist modes to cover critical domains. This involves creating their system prompts, adding them to `.roomodes`, updating the `README.md`, and creating initial workflows.
+  - **`Nova-SpecializedSecurityAnalyst`**: (Reports to LeadQA) To interpret security scan results and triage vulnerabilities.
+  - **`Nova-SpecializedDevOpsEngineer`**: (Reports to LeadArchitect/LeadDeveloper) To manage CI/CD pipelines and deployment scripts.
 
 ---
 
