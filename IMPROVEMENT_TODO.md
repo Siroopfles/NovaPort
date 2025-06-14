@@ -54,6 +54,7 @@ This document outlines the next evolutionary steps for the Nova system, focusing
   - **Description:** Create a new workflow, `WF_ARCH_LEARNING_CYCLE_001_v1.md`, that guides `LeadArchitect` to periodically use `Nova-FlowAsk` to analyze patterns in `LessonsLearned` and recurring `ErrorLogs`. Based on the analysis, `LeadArchitect` will initiate a `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL` to fix the root cause of systemic issues directly in the prompts of the relevant agents, creating a closed-loop learning mechanism.
 
 - [ ] **1.2. Enable Specialist-Proposed Alternatives:**
+
   - **Description:** Update all Specialist prompts to include a new protocol allowing them to return an `attempt_completion` with a `Proposed_Alternative` section if a briefed task is deemed impossible or highly inefficient. Update Lead prompts to recognize and formally `APPROVE` or `REJECT` these proposals via a ConPort `Decision` before proceeding.
 
 - [ ] **1.3. Expand Specialist Teams with New Roles:**
@@ -69,9 +70,11 @@ This document outlines the next evolutionary steps for the Nova system, focusing
   - **Description:** Add a `quality_gate_level: 'strict' | 'moderate' | 'lean'` setting to the `ProjectConfig:ActiveConfig` schema. Update `LeadDeveloper` and `LeadQA` prompts to read this setting and adjust their team's "Definition of Done" checks accordingly, allowing for more flexible project governance.
 
 - [ ] **2.2. Implement Workflow Parameterization:**
+
   - **Description:** Refactor key orchestrator and architect workflows to replace hardcoded values with `{{placeholder}}` variables. Update the `new_task` briefing format for `Nova-Orchestrator` to include an optional `parameters` dictionary to dynamically populate these placeholders, making workflows more reusable.
 
 - [ ] **2.3. Implement Asynchronous Orchestration:**
+
   - **Description:** Evolve `Nova-Orchestrator`'s logic to enable a faster, more autonomous workflow execution within the limits of the single-active-chat model. The Orchestrator will maintain a dependency graph of project phases. When a Lead Mode completes a phase, the Orchestrator will immediately check the graph for any unblocked, subsequent phases and delegate them without waiting for explicit user instruction, thus minimizing idle time.
 
 - [ ] **2.4. Introduce Modular Project Configuration:**
@@ -80,6 +83,7 @@ This document outlines the next evolutionary steps for the Nova system, focusing
 ### 3. ConPort & Data Strategy
 
 - [ ] **3.1. Implement Automated ConPort Compaction/Archiving:**
+
   - **Description:** Create a new workflow, `WF_ORCH_CONPORT_COMPACTION_001_v1.md`, to orchestrate a scheduled or user-triggered task. This workflow will use `Nova-FlowAsk` to find and summarize old, completed `Progress` items into a new `ArchivedProgressSummary` item. Upon user confirmation, `Nova-SpecializedConPortSteward` will be tasked with deleting the original items to keep the active database lean and performant.
 
 - [ ] **3.2. Formalize ConPort Schema Versioning:**
