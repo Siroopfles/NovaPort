@@ -183,6 +183,9 @@ The Roo Code extension will activate `Nova-Orchestrator`, which will begin its s
 - **For a Brand New Project:** `Nova-Orchestrator` will detect that ConPort is empty. It will initiate a setup workflow and ask you follow-up questions in the chat to define the project's core configuration.
 - **For an Existing Project:** The orchestrator will load the project's context from ConPort and provide a summary of the last session, ready for your next command.
 
+> **Want a step-by-step tutorial?**
+> For a guided "Hello, World!" experience, check out our [**Getting Started Guide**](./GETTING_STARTED.md).
+
 See the `examples/example-user-prompts.md` file for more ideas on how to interact with the system.
 
 ## Configuration
