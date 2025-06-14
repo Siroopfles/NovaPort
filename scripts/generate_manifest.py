@@ -159,5 +159,6 @@ def generate_manifest():
     except Exception as e:
         print(f"\n❌ An error occurred: {e}")
 
+
 if __name__ == "__main__":
     generate_manifest()
