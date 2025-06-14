@@ -22,23 +22,23 @@ This C4-style context diagram provides a bird's-eye view of the Nova System's ec
 graph TD
     subgraph "User & Environment Layer"
         User(👤<br/>User)
-        RooEnv[Roo Code<br/>Execution Environment]
+        RooEnv["Roo Code<br/>Execution Environment"]
     end
 
     subgraph "Nova System Core"
         direction LR
         Orchestrator(Nova-Orchestrator)
         subgraph "Lead & Specialist Teams"
-            LeadModes[Lead Modes<br/>(Architect, Dev, QA)]
-            SpecializedModes[Specialized Modes<br/>(Implementer, Steward, etc.)]
+            LeadModes["Lead Modes<br/>(Architect, Dev, QA)"]
+            SpecializedModes["Specialized Modes<br/>(Implementer, Steward, etc.)"]
         end
     end
 
     subgraph "Data & Knowledge Layer"
-        ConPort[Context Portal (ConPort)<br/><i>Project Memory</i>]
+        ConPort["Context Portal (ConPort)<br/><i>Project Memory</i>"]
         subgraph "Database Backend"
-            SQLite[SQLite<br/><i>Structured Data</i>]
-            ChromaDB[ChromaDB<br/><i>Vector Embeddings for RAG</i>]
+            SQLite["SQLite<br/><i>Structured Data</i>"]
+            ChromaDB["ChromaDB<br/><i>Vector Embeddings for RAG</i>"]
         end
     end
     
@@ -158,16 +158,16 @@ This flowchart illustrates the fundamental execution logic for all Lead Modes (`
 
 ```mermaid
 flowchart TD
-    A[Start: Receive Phase-Task<br/>from Orchestrator] --> B{Create High-Level Plan<br/>in ConPort};
-    B --> C[Start Loop: Focus on<br/>Next Milestone];
-    C --> D[Determine SINGLE, next,<br/>most logical, atomic sub-task];
-    D --> E[Delegate Sub-task to Specialist<br/>via `new_task`];
-    E --> F[Await `attempt_completion`<br/>from Specialist];
-    F --> G[Process Specialist's Result<br/>& Update ConPort (e.g., Progress)];
+    A["Start: Receive Phase-Task<br/>from Orchestrator"] --> B{"Create High-Level Plan<br/>in ConPort"};
+    B --> C["Start Loop: Focus on<br/>Next Milestone"];
+    C --> D["Determine SINGLE, next,<br/>most logical, atomic sub-task"];
+    D --> E["Delegate Sub-task to Specialist<br/>via `new_task`"];
+    E --> F["Await `attempt_completion`<br/>from Specialist"];
+    F --> G["Process Specialist's Result<br/>and Update ConPort (e.g., Progress)"];
     G --> H{Phase Goal Met?};
     H -- No --> C;
     H -- Yes --> I[End Loop];
-    I --> J[Report Phase Completion<br/>to Orchestrator];
+    I --> J["Report Phase Completion<br/>to Orchestrator"];
     J --> K[End];
 ```
 
@@ -213,17 +213,17 @@ This flowchart visualizes the "Auditable Rationale Protocol," a mandatory proces
 
 ```mermaid
 flowchart TD
-    A[Agent determines next action<br/>requires a tool call] --> B["Agent opens `<thinking>` block"];
+    A["Agent determines next action<br/>requires a tool call"] --> B["Agent opens `<thinking>` block"];
     B --> C["Agent writes `## Rationale` section"];
     subgraph "Rationale Content"
-        D[**Goal:** What to achieve]
-        E[**Justification:** Why this tool/params]
-        F[**Expectation:** What is the expected outcome]
+        D["**Goal:** What to achieve"]
+        E["**Justification:** Why this tool/params"]
+        F["**Expectation:** What is the expected outcome"]
     end
     C --> G["Agent formulates and writes<br/>the `<tool_name>` call"];
     G --> H["Agent closes `<thinking>` block"];
-    H --> I[Tool call is executed by<br/>Roo Code Environment];
-    I --> J[Agent receives `tool_output`];
+    H --> I["Tool call is executed by<br/>Roo Code Environment"];
+    I --> J["Agent receives `tool_output`"];
 ```
 
 ---
