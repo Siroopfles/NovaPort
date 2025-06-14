@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
+## [0.3.3-beta] - 2024-05-22
+
+### 🚀 Improvements & System Reliability Hardening
+
+- **Hardened ConPort Tool Specificity and Completeness:** Conducted a comprehensive audit and refactoring of the `conport_tool_reference` section across all 15 agent prompts. This system-wide hardening effort addresses a critical root cause of tool selection errors.
+    - **Explicit Tool Fencing:** Added `CRITICAL: Use ONLY for the '...' item.` warnings to all entity-specific data access tools (e.g., `get_decisions`, `get_product_context`, `log_progress`). This creates a strong "fence" around each tool, preventing the AI from misusing it for other data types.
+    - **Negative Constraints on Generic Tools:** Fortified the description of the generic `get_custom_data` tool with a strict negative constraint: `DO NOT use to get Decisions, Progress, ProductContext, or ActiveContext; use their specific get_* tools instead.` This directly mitigates the primary failure mode where the AI would default to this tool incorrectly.
+    - **Full Toolset Availability:** Ensured all relevant roles, especially specialist modes like `Nova-SpecializedSystemDesigner` and `Nova-SpecializedConPortSteward`, now have the complete and correct set of both read (`get_*`) and write (`log_*`, `update_*`) tools required to perform their duties as defined in their briefings and associated workflows.
+    - **Documentation Restoration:** Re-instated the important `__DELETE__` functionality detail in the descriptions for `update_product_context` and `update_active_context`, ensuring a complete and accurate tool reference.
+
+This holistic update significantly improves the reliability and predictability of all ConPort interactions by providing clear, unambiguous, and strict guidance for tool selection to every agent in the Nova system.
+
 ## [0.3.2-beta] - 2024-05-21
 
 ### 🚀 Improvements & System Reliability Hardening

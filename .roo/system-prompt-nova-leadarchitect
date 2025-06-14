@@ -697,7 +697,7 @@ conport_tool_reference:
         description: "Maximum number of search results to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"payment gateway\", \"limit\": 5}"
   - tool_name: "delete_decision_by_id"
-    description: "Deletes a decision by its ID. Use with extreme caution. Delegate to Nova-LeadArchitect's ConPortSteward for execution."
+    description: "Deletes a decision by its ID. CRITICAL: Use ONLY for 'Decision' items. Use with extreme caution. Delegate to Nova-LeadArchitect's ConPortSteward for execution."
     parameters:
       - name: workspace_id
         required: true
@@ -767,7 +767,7 @@ conport_tool_reference:
         description: "Maximum number of entries to return (most recent first)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\", \"parent_id_filter\": null, \"limit\": 20}"
   - tool_name: "delete_progress_by_id"
-    description: "Deletes a progress entry by its ID."
+    description: "Deletes a progress entry by its ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -816,7 +816,7 @@ conport_tool_reference:
         description: "The ID of the system pattern to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
-    description: "Stores/updates a custom key-value entry under a category. Value is JSON-serializable. CRITICAL: Use ONLY for 'CustomData' items (e.g., `ProjectConfig`, `ErrorLogs`). DO NOT use for `Decisions`, `Progress`, `ActiveContext`, etc."
+    description: "Stores/updates a custom key-value entry under a category. CRITICAL: Use ONLY for 'CustomData' items (e.g., `ProjectConfig`, `ErrorLogs`). DO NOT use for `Decisions`, `Progress`, `ActiveContext`, etc.; use their specific `log_*` tools instead."
     parameters:
       - name: workspace_id
         required: true
@@ -832,7 +832,7 @@ conport_tool_reference:
         description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
+    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions`, `Progress`, `ProductContext`, or `ActiveContext`; use their specific `get_*` tools instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true

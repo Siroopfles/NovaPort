@@ -347,7 +347,7 @@ conport_tool_reference:
         description: "Optional tags for categorization"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Decision to use PostgreSQL\", \"rationale\": \"Robustness and transactional support.\", \"tags\": [\"#database\"], \"implementation_details\": null}"
   - tool_name: "delete_decision_by_id"
-    description: "Deletes a decision by its ID. Use only when explicitly instructed by Nova-LeadArchitect to remove an obsolete or erroneous decision."
+    description: "Deletes a decision by its ID. CRITICAL: Use ONLY for 'Decision' items. Use only when explicitly instructed by Nova-LeadArchitect to remove an obsolete or erroneous decision."
     parameters:
       - name: workspace_id
         required: true
@@ -357,7 +357,7 @@ conport_tool_reference:
         description: "The ID of the decision to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 123}"
   - tool_name: "delete_progress_by_id"
-    description: "Deletes a progress entry by its ID. Use only when explicitly instructed by Nova-LeadArchitect to clean up incorrect or obsolete progress trackers."
+    description: "Deletes a progress entry by its ID. CRITICAL: Use ONLY for 'Progress' items. Use only when explicitly instructed by Nova-LeadArchitect to clean up incorrect or obsolete progress trackers."
     parameters:
       - name: workspace_id
         required: true
@@ -367,7 +367,7 @@ conport_tool_reference:
         description: "The ID of the progress item to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123}"
   - tool_name: "delete_system_pattern_by_id"
-    description: "Deletes a system pattern by its ID. Use only when explicitly instructed by Nova-LeadArchitect to remove a deprecated pattern."
+    description: "Deletes a system pattern by its ID. CRITICAL: Use ONLY for 'SystemPattern' items. Use only when explicitly instructed by Nova-LeadArchitect to remove a deprecated pattern."
     parameters:
       - name: workspace_id
         required: true
@@ -377,7 +377,7 @@ conport_tool_reference:
         description: "The ID of the pattern to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
-    description: "Your primary tool. Logs a new entry or updates an existing one in a specified `CustomData` category. CRITICAL: Use ONLY for 'CustomData' items."
+    description: "Your primary tool. Logs a new entry or updates an existing one in a specified `CustomData` category. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use for `Decisions`, `Progress`, `ProductContext`, or `ActiveContext`; use their specific `log_*` or `update_*` tools instead."
     parameters:
       - name: workspace_id
         required: true

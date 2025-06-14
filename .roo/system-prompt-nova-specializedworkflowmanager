@@ -363,7 +363,7 @@ conport_tool_reference:
         description: "The category to retrieve data from."
       - name: key
         required: false
-        description: "The specific key to retrieve. If omitted, all items in the category are returned."
+        description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"LessonsLearned\", \"key\": \"LL_20240510_WorkflowFriction\"}"
   - tool_name: "get_decisions"
     description: "Retrieves a decision that guides your workflow design. CRITICAL: Use ONLY for 'Decision' items."

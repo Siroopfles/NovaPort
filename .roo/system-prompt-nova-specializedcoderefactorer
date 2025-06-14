@@ -419,39 +419,7 @@ conport_tool_reference:
       - name: tags
         required: false
         description: "A list of tags for categorization."
-      - name: decision_id
-        required: false
-        description: "The ID of an existing decision to update."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Refactored ComplexClass to use Strategy Pattern\", \"rationale\": \"Addresses TechDebtCandidate TDC_XYZ by improving maintainability and testability.\", \"tags\": [\"#refactoring\", \"#design_pattern\", \"#ComplexClass\"], \"implementation_details\": null, \"decision_id\": null}"
-  - tool_name: "log_custom_data"
-    description: "Logs a new custom data entry, such as a CodeSnippet or a new TechDebtCandidate. CRITICAL: Use ONLY for 'CustomData' items."
-    parameters:
-      - name: workspace_id
-        required: true
-        description: "The ID of the current workspace."
-      - name: category
-        required: true
-        description: "The category for the data."
-      - name: key
-        required: true
-        description: "The key for the data."
-      - name: value
-        required: true
-        description: "The data to be stored (must be JSON-serializable)."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Refactored_Parser_v2\", \"value\": {\"code\": \"// new refactored code...\", \"language\": \"javascript\", \"description\": \"Refactored parser for performance.\"}}"
-  - tool_name: "get_custom_data"
-    description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
-    parameters:
-      - name: workspace_id
-        required: true
-        description: "The ID of the current workspace."
-      - name: category
-        required: true
-        description: "The category to retrieve data from."
-      - name: key
-        required: false
-        description: "The specific key to retrieve."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TechDebtCandidates\", \"key\": \"TDC_20240101_LegacyModule\"}"
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Refactored ComplexClass to use Strategy Pattern\", \"rationale\": \"Addresses TechDebtCandidate TDC_XYZ by improving maintainability and testability.\", \"tags\": [\"#refactoring\", \"#design_pattern\", \"#ComplexClass\"], \"implementation_details\": null}"
   - tool_name: "get_decisions"
     description: "Retrieves a decision that guides the refactoring. CRITICAL: Use ONLY for 'Decision' items."
     parameters:
@@ -468,19 +436,6 @@ conport_tool_reference:
         required: false
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#refactoring_strategy\"], \"tags_filter_include_any\": []}"
-  - tool_name: "get_system_patterns"
-    description: "Retrieves a system pattern to adhere to during refactoring. CRITICAL: Use ONLY for 'SystemPattern' items."
-    parameters:
-      - name: workspace_id
-        required: true
-        description: "The ID of the current workspace."
-      - name: tags_filter_include_all
-        required: false
-        description: "Filter: items must include ALL of these tags."
-      - name: tags_filter_include_any
-        required: false
-        description: "Filter: items must include AT LEAST ONE of these tags."
-    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#patterns\"], \"tags_filter_include_all\": []}"
   - tool_name: "log_progress"
     description: "Logs a new progress entry for your refactoring subtask. Returns the integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
@@ -522,3 +477,70 @@ conport_tool_reference:
         required: false
         description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Refactoring of LegacyModule.java complete, all tests passing.\", \"parent_id\": null}"
+  - tool_name: "get_system_patterns"
+    description: "Retrieves a system pattern to adhere to during refactoring. CRITICAL: Use ONLY for 'SystemPattern' items."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: tags_filter_include_all
+        required: false
+        description: "Filter: items must include ALL of these tags."
+      - name: tags_filter_include_any
+        required: false
+        description: "Filter: items must include AT LEAST ONE of these tags."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#patterns\"], \"tags_filter_include_all\": []}"
+  - tool_name: "log_custom_data"
+    description: "Logs a new custom data entry, such as a CodeSnippet or a new TechDebtCandidate. CRITICAL: Use ONLY for 'CustomData' items."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: true
+        description: "The category for the data."
+      - name: key
+        required: true
+        description: "The key for the data."
+      - name: value
+        required: true
+        description: "The data to be stored (must be JSON-serializable)."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Refactored_Parser_v2\", \"value\": {\"code\": \"// new refactored code...\", \"language\": \"javascript\", \"description\": \"Refactored parser for performance.\"}}"
+  - tool_name: "get_custom_data"
+    description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: category
+        required: true
+        description: "The category to retrieve data from."
+      - name: key
+        required: false
+        description: "The specific key to retrieve."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TechDebtCandidates\", \"key\": \"TDC_20240101_LegacyModule\"}"
+  - tool_name: "link_conport_items"
+    description: "Creates a typed link between two ConPort items."
+    parameters:
+      - name: workspace_id
+        required: true
+        description: "The ID of the current workspace."
+      - name: source_item_type
+        required: true
+        description: "The type of the source item."
+      - name: source_item_id
+        required: true
+        description: "The ID of the source item."
+      - name: target_item_type
+        required: true
+        description: "The type of the target item."
+      - name: target_item_id
+        required: true
+        description: "The ID of the target item."
+      - name: relationship_type
+        required: true
+        description: "The type of relationship."
+      - name: description
+        required: false
+        description: "A description of the relationship."
+    example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"custom_data\", \"source_item_id\": \"CodeSnippets:RefactoredParser_v2\", \"target_item_type\": \"decision\", \"target_item_id\": \"140\", \"relationship_type\": \"implements_decision\", \"description\": null}"

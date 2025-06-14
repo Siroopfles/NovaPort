@@ -654,7 +654,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#patterns\"], \"tags_filter_include_all\": []}"
   - tool_name: "log_custom_data"
-    description: "Stores/updates a custom key-value entry under a category. Value is JSON-serializable. CRITICAL: Use ONLY for 'CustomData' items (e.g., `ProjectConfig`, `ErrorLogs`). DO NOT use for `Decisions`, `Progress`, `ActiveContext`, etc."
+    description: "Stores/updates a custom key-value entry under a category. CRITICAL: Use ONLY for 'CustomData' items (e.g., `ProjectConfig`, `ErrorLogs`). DO NOT use for `Decisions`, `Progress`, `ActiveContext`, etc.; use their specific `log_*` tools instead."
     parameters:
       - name: workspace_id
         required: true
@@ -670,7 +670,7 @@ conport_tool_reference:
         description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
+    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions`, `Progress`, `ProductContext`, or `ActiveContext`; use their specific `get_*` tools instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
@@ -707,35 +707,3 @@ conport_tool_reference:
         required: false
         description: "Optional description for the link"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"progress_entry\", \"source_item_id\": \"124\", \"target_item_type\": \"decision\", \"target_item_id\": \"45\", \"relationship_type\": \"fulfills_decision\", \"description\": null}"
-
-dynamic_context_retrieval_for_rag:
-  description: |
-    Guidance for Nova-LeadDeveloper to dynamically retrieve context from ConPort for development planning, technical decision-making, or preparing briefings for specialists. All ConPort tool calls require `use_mcp_tool` with `server_name: 'conport'`, `workspace_id: '{{workspace}}'`, and the correct `tool_name` and arguments.
-  trigger: "When analyzing a complex implementation task, choosing a technical approach, or needing specific ConPort data (e.g., API specs (key), coding standards (integer `id` or name)) to brief a specialist."
-  goal: "To construct a concise, relevant context set from ConPort."
-  steps:
-    - step: 1
-      action: "Analyze Development Task or Briefing Need"
-      details: "Deconstruct the phase task from Nova-Orchestrator or the information needed for a specialist's subtask briefing to identify key entities, concepts, and required ConPort data types and their identifiers (integer `id` or `category:key` string)."
-    - step: 2
-      action: "Prioritized Retrieval Strategy for Development"
-      details: |
-        Based on the analysis, select the most appropriate ConPort tools (via `use_mcp_tool`):
-        - **Specific Item Retrieval:** Use `get_custom_data` for `APIEndpoints` (key), `DBMigrations` (key), `SystemArchitecture` (key for relevant components), `ProjectConfig` (key `ActiveConfig`), `NovaSystemConfig` (key `ActiveSettings`). Use `get_decisions` (with `limit` or `tags_filter_...`) for architectural/technical decisions. Use `get_system_patterns` (with `tags_filter_...`) for coding standards.
-        - **Targeted FTS:** Use `search_custom_data_value_fts` to find specific text in `APIEndpoints` (key) or `SystemArchitecture` (key) if keys are unknown. Example: `{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"user session timeout\", \"category_filter\": \"ConfigSettings\", \"limit\": 30}`.
-        - **Graph Traversal:** Use `get_linked_items` to see what `Decisions` (integer `id`) or `SystemPatterns` (integer `id`/name) are linked to an `APIEndpoints` (key) your team needs to implement. Ensure correct `item_id` type is used (string `category:key` for CustomData, integer `id` for others).
-    - step: 3
-      action: "Retrieve Initial Development Set"
-      details: "Execute tool(s) to get focused set of specs, decisions, patterns."
-    - step: 4
-      action: "Contextual Expansion (Optional)"
-      details: "Use `get_linked_items` for closely related items if needed."
-    - step: 5
-      action: "Synthesize and Filter for Development Relevance"
-      details: "Extract actionable technical details for planning or specialist briefings."
-    - step: 6
-      action: "Use Context for Development Work or Prepare Specialist Briefing"
-      details: "Use insights for your plan. For specialist briefings, include essential ConPort data or specific ConPort IDs/keys (e.g., `APIEndpoints:OrderSvc_v1` (key), `Decision:78` (integer `id`)) in `Required_Input_Context_For_Specialist`."
-  general_principles:
-    - "Focus on retrieving precise specifications and relevant technical precedents."
-    - "Provide specialists with just enough context for their small, focused task."

@@ -729,7 +729,7 @@ conport_tool_reference:
         description: "The ID of the system pattern to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
-    description: "Stores/updates a custom key-value entry under a category. Value is JSON-serializable. CRITICAL: Use ONLY for 'CustomData' items (e.g., `ProjectConfig`, `ErrorLogs`). DO NOT use for `Decisions`, `Progress`, `ActiveContext`, etc."
+    description: "Stores/updates a custom key-value entry under a category. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use for `Decisions`, `Progress`, `ActiveContext`, etc.; use their specific `log_*` tools instead."
     parameters:
       - name: workspace_id
         required: true
@@ -745,7 +745,7 @@ conport_tool_reference:
         description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
+    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions`, `Progress`, `ProductContext`, or `ActiveContext`; use their specific `get_*` tools instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
