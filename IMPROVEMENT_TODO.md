@@ -1,7 +1,27 @@
 # Nova System - Improvement TODO List
 
-## v3 Finalization Tasks
-**Rationale:** These tasks were identified during the final review of the v3 implementation. They refine agent interactions and ensure consistency with the new v3 protocols, thereby maximizing system robustness.
+## v3.1 Finalization Tasks
+**Rationale:** These tasks were identified during a deep-dive review of the v3.0 implementation. They harden agent interactions, make implicit protocols explicit, and optimize data flow to maximize system reliability and prevent common failure modes.
+
+- [x] **3.1.1. Harden Delegation Flow Protocol:**
+    - **Action Item:** Adjust the `task_execution_protocol` in all delegating agent prompts (Orchestrator, Leads). Add a "CRITICAL DELEGATION FLOW" instruction that explicitly states that after calling `new_task`, the agent's execution will pause and the sub-agent's `attempt_completion` result will be returned as the `tool_output` for the `new_task` call.
+    - **Benefit:** Prevents agent confusion and stalled loops where the agent would incorrectly state it was still waiting for a separate signal.
+
+- [x] **3.1.2. Mitigate Context Overload from ConPort:**
+    - **Action Item:** Harden the `get_custom_data` tool definition in all relevant prompts. Add a strong warning forbidding calls without at least a `category` argument. Instruct agents to use `search_custom_data_value_fts` with a `limit` for discovery.
+    - **Benefit:** Prevents accidental context window overloads from broad queries, a major source of instability.
+
+- [x] **3.1.3. Optimize Bulk File Operation Protocols:**
+    - **Action Item:** Harden the usage protocols for `read_file` and `apply_diff` across all system prompts. Instruct agents to follow an "Intelligent Batching and Verification" strategy (read/apply in small batches, with a `read_file` verification step after each `apply_diff` batch).
+    - **Benefit:** Creates a robust, self-correcting loop for multi-file edits, significantly improving reliability.
+
+- [x] **3.1.4. Harden ConPort Tool Specificity:**
+    - **Action Item:** Refactor the `conport_tool_reference` section in all relevant prompts to add explicit warnings to each `get_` tool, clarifying which entity type it is for (e.g., "Use `get_decisions` ONLY for 'Decision' items, not for `CustomData`").
+    - **Benefit:** Reduces the likelihood of agents using the wrong tool for a given ConPort entity type, a common source of errors.
+
+- [x] **3.1.5. Update `Nova-SpecializedConPortSteward` Prompt:**
+    - **Action Item:** Add the missing tool definitions for `get_product_context`, `update_product_context`, `get_active_context`, and `update_active_context` to the steward's prompt.
+    - **Benefit:** Restores the agent's ability to perform its core duties as required by key bootstrap and session management workflows.
 
 - [x] **3.2. Update Lead Mode Prompts for Link Processing:**
     - **Action Item:** Adjust the `task_execution_protocol` (specifically the 'Process Result' step) in all three Lead Mode prompts (`-LeadArchitect`, `-LeadDeveloper`, `-LeadQA`). Add an explicit instruction to process the `Suggested_ConPort_Links` section from a specialist's `attempt_completion`.

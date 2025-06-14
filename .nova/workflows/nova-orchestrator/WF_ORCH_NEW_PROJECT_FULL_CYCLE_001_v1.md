@@ -30,16 +30,13 @@
           "Phase_Goal": "Initialize ConPort, establish directory structure (if needed), define ProjectConfig & NovaSystemConfig, and draft initial ProductContext for Project [UserProvided_ProjectName].",
           "Lead_Mode_Specific_Instructions": [
             "This is for a new project: [UserProvided_ProjectName] - [UserProvided_MainGoal].",
-            "1. If ConPort DB was not present and you are performing initial bootstrap (as per Orchestrator's startup): Execute the workflow defined in `.nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md`. This includes creating basic root directory structure (e.g., `/src`, `/docs`, `/tests`, `.nova/`) if it doesn't exist, and bootstrapping initial ConPort `ProductContext` (key: 'product_context') based on user input/project brief, logging initial `Decisions` (integer `id`), `Progress` (integer `id`), and `CustomData ProjectRoadmap:[key]`.",
-            "2. Execute workflow `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` to guide the user (via Orchestrator relay if needed) through defining and logging `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) in ConPort.",
-            "3. Ensure your specialists (SystemDesigner, ConPortSteward, WorkflowManager) are utilized appropriately for these tasks.",
-            "4. To update `active_context`, instruct your team to first `get_active_context`, modify the `state_of_the_union` field to 'Project Initialized, Awaiting Design Phase', then use `log_custom_data` on the `ActiveContext` category with key `active_context`."
+            "Your goal for this phase is to fully initialize the project. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists.",
+            "You may consult `.nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md` and `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for reference processes.",
+            "Key sub-tasks for your specialists will include: creating the initial `ProductContext` and `ActiveContext`, logging foundational standards (`DoD`/`DoR`) and item templates, and guiding the user (via me) through the setup of `ProjectConfig:ActiveConfig` and `NovaSystemConfig:ActiveSettings`."
           ],
           "Required_Input_Context": {
             "UserProvided_ProjectName": "[UserProvided_ProjectName]",
-            "UserProvided_MainGoal": "[UserProvided_MainGoal]",
-            "Path_To_Bootstrap_Workflow": ".nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md",
-            "Path_To_Config_Setup_Workflow": ".nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md"
+            "UserProvided_MainGoal": "[UserProvided_MainGoal]"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
             "Confirmation of ConPort bootstrap completion (if performed).",
@@ -72,8 +69,7 @@
             "ProjectName": "[UserProvided_ProjectName]",
             "ConPort_ProductContext_Key": "product_context",
             "ConPort_ProjectConfig_Key": "ProjectConfig:ActiveConfig",
-            "ConPort_NovaSystemConfig_Key": "NovaSystemConfig:ActiveSettings",
-            "Path_To_System_Design_Workflow": ".nova/workflows/nova-leadarchitect/WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md"
+            "ConPort_NovaSystemConfig_Key": "NovaSystemConfig:ActiveSettings"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
             "Summary of the defined architecture.",

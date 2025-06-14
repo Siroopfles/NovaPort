@@ -1,145 +1,55 @@
 # Workflow: Release Candidate Validation (WF_QA_RELEASE_CANDIDATE_VALIDATION_001_v1)
 
-**Goal:** To perform comprehensive Quality Assurance validation on a designated Release Candidate build, including final regression, targeted feature testing, and checks against release criteria, to provide a go/no-go recommendation for release.
+**Goal:** To perform comprehensive QA validation on a Release Candidate build to provide a go/no-go recommendation for release.
 
-**Primary Actor:** Nova-LeadQA (receives task from Nova-Orchestrator when a release candidate is ready for final validation, often as part of `WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md`).
-**Primary Specialist Actors (delegated to by Nova-LeadQA):** Nova-SpecializedTestExecutor, Nova-SpecializedBugInvestigator (if new critical issues arise and need immediate, focused RCA).
+**Primary Actor:** Nova-LeadQA
+**Primary Specialist Actors:** Nova-SpecializedTestExecutor, Nova-SpecializedBugInvestigator
 
 **Trigger / Recognition:**
-- Nova-Orchestrator delegates: "Validate Release Candidate [RC_Version] for [TargetReleaseVersion]".
+- `Nova-Orchestrator` delegates: "Validate Release Candidate [RC_Version]".
 - Part of a parent workflow like `WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md`.
 
 **Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or ConPort):**
-- A specific Release Candidate build/version (e.g., `Build_Tag_RC_2.1.0-beta3`) is deployed to a stable, production-like QA environment (URL/access details from `CustomData ProjectConfig:ActiveConfig.testing.rc_validation_env_url`).
-- Scope of the release (`CustomData Releases:[TargetReleaseVersion]` (key) or `CustomData ReleaseNotesDraft:[TargetReleaseVersion]_Draft` (key)) is defined in ConPort, listing features and bug fixes.
-- All planned features/fixes for this release have passed prior development and feature-level QA cycles (status reflected in their respective `Progress` (integer `id`) items).
-- `CustomData TestPlans:[RelevantTestPlanKey]` (key) covering regression and key features for this release exists.
+- A specific RC build is deployed to a stable, production-like QA environment.
+- The scope of the release is defined (e.g., in `ReleaseNotesDraft`).
+- All planned features/fixes have passed prior development and feature-level QA cycles.
 
----
+**Reference Milestones for your Single-Step Loop:**
 
-**Phases & Steps (managed by Nova-LeadQA within its single active task from Nova-Orchestrator):**
+**Milestone RCV.0: Pre-flight & Readiness Check**
+*   **Goal:** Verify that the release scope is defined and the test environment is accessible and ready.
+*   **Suggested Lead Action:**
+    1.  Your first action MUST be a "Definition of Ready" check.
+    2.  Use `use_mcp_tool` to retrieve the `ReleaseNotesDraft` and `ProjectConfig` (for `rc_validation_env_url`).
+    3.  Use `execute_command` (e.g., `curl -I [url]`) to verify the test environment is accessible.
+    4.  Use `use_mcp_tool` (`get_active_context`) to check for open critical bugs that should have been fixed in this RC.
+    5.  **Gated Check:** If any check fails, immediately `attempt_completion` with a `BLOCKER:` status to `Nova-Orchestrator`. Do not proceed.
 
-**Phase RCV.0: Pre-flight Checks by Nova-LeadQA**
+**Milestone RCV.1: Test Execution (Iterative)**
+*   **Goal:** Execute a comprehensive set of tests to validate the release candidate's quality.
+*   **Suggested Specialist Sequence & Briefing Guidance (delegate these as sequential, atomic subtasks):**
+    1.  **Delegate to `Nova-SpecializedTestExecutor`:**
+        *   **Subtask Goal:** "Execute the full regression suite against RC [RC_Version]."
+        *   **Briefing Details:** Provide RC version, environment URL, and the regression command from `ProjectConfig`. Instruct to save detailed logs and report pass/fail counts.
+    2.  **LeadQA Action:** Analyze regression results. If critical blockers are found, this workflow may need to pause to allow for hotfixes.
+    3.  **Delegate to `Nova-SpecializedTestExecutor`:**
+        *   **Subtask Goal:** "Execute targeted tests for all new features and bug fixes included in this release."
+        *   **Briefing Details:** Provide the list of features/fixes from the `ReleaseNotesDraft`. Point to relevant `AcceptanceCriteria` or original `ErrorLogs` for test focus. Instruct to log any new bugs found as new `ErrorLogs`.
+    4.  **Delegate to `Nova-SpecializedTestExecutor`:**
+        *   **Subtask Goal:** "Perform key user scenario walkthroughs and exploratory testing on the RC."
+        *   **Briefing Details:** Provide 3-5 critical end-to-end scenarios and charters for exploratory testing around new/changed areas.
 
-1.  **Nova-LeadQA: Verify Readiness for RC Validation**
-    *   **Actor:** Nova-LeadQA
-    *   **Action:** Before creating a test plan or delegating any execution, perform these critical pre-flight checks using `use_mcp_tool` and `execute_command`.
-    *   **Checks:**
-        1.  **Retrieve Release Scope & Test Config:**
-            - Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve `CustomData ReleaseNotesDraft:[TargetReleaseVersion]_Draft` (key) and `CustomData ProjectConfig:ActiveConfig` (key).
-            - **Failure (Missing Scope):** If `ReleaseNotesDraft` is not found, report to Nova-Orchestrator: "BLOCKER: `ReleaseNotesDraft` for release `[TargetReleaseVersion]` is missing from ConPort. Cannot proceed with validation without knowing the scope." Halt workflow.
-            - **Failure (Missing Config):** If `ProjectConfig:ActiveConfig` or the specific `testing.rc_validation_env_url` within it is missing, report: "BLOCKER: Test environment URL (`rc_validation_env_url`) is not defined in `ProjectConfig:ActiveConfig`. Cannot proceed." Halt workflow.
-        2.  **Verify Test Environment Accessibility:**
-            - Extract the `testing.rc_validation_env_url` from the retrieved `ProjectConfig`.
-            - Use `execute_command` with a simple tool like `curl -I -s [rc_validation_env_url]` or `ping -c 1 [hostname]`.
-            - **Failure:** If the command fails or shows the environment is down, report to Nova-Orchestrator: "BLOCKER: The RC validation environment at `[rc_validation_env_url]` is not accessible. Please ensure the environment is stable and the build is deployed." Halt workflow.
-        3.  **Check for Open Critical Blockers:**
-            - Use `use_mcp_tool` (`tool_name: 'get_active_context'`) to check `open_issues`.
-            - Verify there are no open critical bugs that were *supposed* to be fixed in this RC.
-            - **Failure:** If such bugs are still open, report to Nova-Orchestrator: "BLOCKER: Critical bugs [ErrorLog Keys] intended for this release are still marked as OPEN. Cannot begin validation." Halt workflow.
-    *   **Output:** All pre-flight checks passed. The release scope is known, and the test environment is accessible and ready.
-
-**Phase RCV.1: Planning & Setup by Nova-LeadQA**
-
-2.  **Nova-LeadQA: Receive Task & Plan Validation Cycle**
-    *   **Actor:** Nova-LeadQA
-    *   **Action:**
-        *   Parse `Subtask Briefing Object` from Nova-Orchestrator. Identify `RC_Version` and `TargetReleaseVersion`.
-        *   Log main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"RC Validation: [RC_Version] for Release [TargetReleaseVersion]\"}`). Let this be `[RCValProgressID]`.
-        *   Create internal plan in `CustomData LeadPhaseExecutionPlan:[RCValProgressID]_QAPlan` (key) using `use_mcp_tool`. Plan items:
-            1.  Environment & Data Verification (Delegate to TestExecutor).
-            2.  Execute Full Regression Suite (Delegate to TestExecutor).
-            3.  Execute Targeted New Feature & Bug Fix Verification Tests (Delegate to TestExecutor).
-            4.  Execute Key User Scenario / Sanity / Exploratory Tests (Delegate to TestExecutor).
-            5.  Analyze Results, Triage & Log Critical Defects (LeadQA, delegate investigation to BugInvestigator if needed).
-            6.  Compile Validation Report & Formulate Go/No-Go Recommendation (LeadQA, may delegate report drafting to TestExecutor).
-    *   **ConPort Action:**
-        *   Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Commence Release Candidate [RC_Version] validation for Release [TargetReleaseVersion].\"}`). Link to `[RCValProgressID]`.
-    *   **Output:** Plan ready. `[RCValProgressID]` known.
-
-**Phase RCV.2: Test Execution by Nova-SpecializedTestExecutor (Sequentially Managed by Nova-LeadQA)**
-
-3.  **Nova-LeadQA -> Delegate to Nova-SpecializedTestExecutor: Environment Verification & Full Regression**
-    *   **Actor:** Nova-LeadQA
-    *   **Task:** "Verify RC environment is correct and stable, then execute the full regression suite against Release Candidate [RC_Version]."
-    *   **`new_task` message for Nova-SpecializedTestExecutor (schematic):**
-        ```json
-        {
-          "Context_Path": "[ProjectName] (RC_Validation_[RC_Version]) -> FullRegression (TestExecutor)",
-          "Overall_QA_Phase_Goal": "Validate RC [RC_Version] for Release [TargetReleaseVersion].",
-          "Specialist_Subtask_Goal": "Verify environment and execute full regression suite against RC [RC_Version].",
-          "Specialist_Specific_Instructions": [
-            "Log your own `Progress` (integer `id`), parented to `[RCValProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
-            "RC Version: [RC_Version_From_LeadQA]. Deployed to Env: [RC_Env_URL_From_ProjectConfig].",
-            "1. Verify correct build [RC_Version_From_LeadQA] is deployed and environment is stable.",
-            "2. Execute full regression suite using command from `ProjectConfig:ActiveConfig.testing.commands.run_regression` in CWD from `ProjectConfig:ActiveConfig.testing.paths.regression_suite_root`. Use `execute_command`.",
-            "3. Capture all output. Save detailed logs/reports to `.nova/reports/qa/RC_[RC_Version]_Regression_[Date]/` using `write_to_file` if output is large.",
-            "Report initial pass/fail counts and any critical execution failures immediately."
-          ],
-          "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_as_integer": "[RCValProgressID_as_integer]",
-            "RC_Version_From_LeadQA": "[...]",
-            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["testing"] }
-          },
-          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": ["Execution summary (pass/fail)", "Path to reports/logs if saved", "List of any new critical `ErrorLogs` (keys) found."]
-        }
-        ```
-    *   **Nova-LeadQA Action:** Monitor. If regression suite has critical failures, this workflow might pause. LeadQA will use `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md` for those new critical `ErrorLogs` (key), coordinating with Nova-Orchestrator for fixes.
-
-4.  **Nova-LeadQA -> Delegate to Nova-SpecializedTestExecutor: Targeted Feature/Fix Tests**
-    *   **Actor:** Nova-LeadQA
-    *   **DoR Check:** Full regression (or critical subset) shows acceptable stability OR critical regression blockers are being addressed.
-    *   **Task:** "Execute specific tests for all new features and bug fixes included in Release Candidate [RC_Version] as per `ReleaseNotesDraft`."
-    *   **Briefing for TestExecutor:** Provide list of features/fixes (from `ReleaseNotesDraft:[TargetReleaseVersion]_Draft` (key)). Point to relevant `AcceptanceCriteria` (key) or original `ErrorLogs` (key) for test case design/focus. Instruct TestExecutor to log any new bugs found as `ErrorLogs` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).
-    *   **Nova-LeadQA Action:** Monitor. New critical failures are blockers.
-
-5.  **Nova-LeadQA -> Delegate to Nova-SpecializedTestExecutor: Key Scenario & Exploratory Testing**
-    *   **Actor:** Nova-LeadQA
-    *   **DoR Check:** Targeted tests show reasonable stability.
-    *   **Task:** "Perform key user scenario walkthroughs and exploratory testing on Release Candidate [RC_Version]."
-    *   **Briefing for TestExecutor:** Define 3-5 critical end-to-end user scenarios (from `TestPlans` (key) or ad-hoc). Provide charters for exploratory testing around new/changed areas. Emphasize looking for unexpected issues. Instruct TestExecutor to log any new bugs found as `ErrorLogs` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).
-    *   **Nova-LeadQA Action:** Monitor.
-
-**Phase RCV.3: Results Analysis, Defect Management, and Reporting**
-
-6.  **Nova-LeadQA: Consolidate Test Results & Manage Defects**
-    *   **Actor:** Nova-LeadQA
-    *   **Action:**
-        *   Collect all `attempt_completion` results from Nova-SpecializedTestExecutor subtasks.
-        *   Review all newly logged `CustomData ErrorLogs:[key]` entries by TestExecutor. Triage them for severity and ensure they are R20 compliant.
-        *   If new critical blockers are found that were not caught earlier:
-            *   Ensure their `ErrorLogs:[key]` status is 'OPEN' or 'INVESTIGATING'.
-            *   This RC cannot pass. Prepare to report "NO_GO" to Nova-Orchestrator.
-            *   (Optional) If quick RCA is needed, delegate to Nova-SpecializedBugInvestigator for a high-priority investigation of the new critical blocker(s).
-        *   Coordinate update of `active_context.open_issues` (via Nova-Orchestrator to LeadArchitect/ConPortSteward).
-    *   **Output:** Consolidated list of test outcomes and all logged/triaged defects for this RC.
-
-7.  **Nova-LeadQA: Compile RC Validation Report**
-    *   **Actor:** Nova-LeadQA (may delegate drafting aspects to TestExecutor or ConPortSteward)
-    *   **Action:** Create a comprehensive report summarizing:
-        *   RC Version, Test Environment.
-        *   Scope of testing (link to `Releases:[TargetReleaseVersion]` (key)).
-        *   Summary of regression results, new feature tests, exploratory tests (pass/fail/skipped counts).
-        *   List of ALL new `ErrorLogs` (keys) found during RC validation, with severity and current status.
-        *   List of any critical pre-existing `ErrorLogs` (keys) that were expected to be fixed in this RC but are still present (status: FAILED_VERIFICATION).
-        *   Overall assessment: **Go / No-Go** recommendation for this RC to become the official release. Justify No-Go with specific critical `ErrorLogs` (keys).
-    *   **ConPort/File Action:** Log report as `CustomData TestExecutionReports:RC_[RC_Version]_ValidationReport_[Date]` (key) using `use_mcp_tool` or instruct specialist to save to `.nova/reports/qa/RC_[RC_Version]_ValidationReport_[Date].md` using `write_to_file`.
-
-8.  **Nova-LeadQA: Finalize & Report to Nova-Orchestrator**
-    *   **Actor:** Nova-LeadQA
-    *   **Action:**
-        *   Update main `Progress` (`[RCValProgressID]`) to 'DONE' (if GO) or 'FAILED_CRITICAL_BUGS_FOUND' (if NO_GO) using `use_mcp_tool` (`tool_name: 'update_progress'`). Update description with summary.
-        *   To update `active_context`, first `get_active_context` with `use_mcp_tool`, then construct a new value object with the modified `state_of_the_union`, and finally use `log_custom_data` with category `ActiveContext` and key `active_context` to overwrite.
-    *   **`attempt_completion` to Nova-Orchestrator:** Provide the Go/No-Go recommendation, summary of critical issues (if any) with their `ErrorLogs` (keys), and reference to the full validation report.
+**Milestone RCV.2: Results Analysis & Reporting**
+*   **Goal:** Consolidate all test results, manage defects, and formulate a go/no-go recommendation.
+*   **Suggested Lead Action:**
+    1.  **Consolidate & Triage:** Collect all results and new `ErrorLogs` from the `TestExecutor`. Triage new bugs for severity.
+    2.  **Check for Blockers:** If new critical/high severity bugs ("blockers") were found, the RC cannot pass. Prepare a 'NO_GO' recommendation.
+    3.  **Compile Report:** Create a comprehensive validation report summarizing the test scope, metrics (pass/fail counts), a list of all new `ErrorLogs` found, and the final go/no-go recommendation with clear justification. Log this as a `TestExecutionReports` item in ConPort.
+    4.  **Update Progress:** Update the main `Progress` item to 'DONE' (if GO) or 'FAILED_CRITICAL_BUGS_FOUND' (if NO_GO).
+    5.  **Report to Orchestrator:** Use `attempt_completion` to provide the go/no-go recommendation, a summary of any blocking `ErrorLogs` keys, and the key to the full validation report.
 
 **Key ConPort Items Involved:**
-- Progress (integer `id`): For overall cycle and specialist subtasks.
-- CustomData LeadPhaseExecutionPlan:[RCValProgressID]_QAPlan (key).
-- CustomData Releases:[TargetReleaseVersion]` (key) (Read).
-- CustomData ReleaseNotesDraft:[TargetReleaseVersion]_Draft (key) (Read for scope).
-- CustomData ErrorLogs:[key] (New ones created, existing ones potentially re-verified).
-- CustomData TestExecutionReports:[key] (or file path in `.nova/reports/`).
-- ActiveContext (`state_of_the_union`, `open_issues` updates).
-- Reads `ProjectConfig:ActiveConfig` (key) for test environment/commands.
-- Reads `FeatureScope` (key), `AcceptanceCriteria` (key), `TestPlans` (key) for targeted testing.
-- Decisions (integer `id`) (e.g., to accept minor issues for release, or to declare NO_GO).
+- Progress (integer `id`)
+- CustomData (`ReleaseNotesDraft`, `ErrorLogs`, `TestExecutionReports`)
+- ActiveContext (`open_issues`, `state_of_the_union` updates)
+- Reads `ProjectConfig`, `FeatureScope`, `AcceptanceCriteria`, `TestPlans`.

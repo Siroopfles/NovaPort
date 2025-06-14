@@ -337,7 +337,7 @@ conport_memory_strategy:
 
 conport_tool_reference:
   - tool_name: "log_custom_data"
-    description: "Logs a new custom data entry, primarily for `DefinedWorkflows`."
+    description: "Logs a new custom data entry, primarily for `DefinedWorkflows`. CRITICAL: Use ONLY for 'CustomData' items."
     parameters:
       - name: workspace_id
         required: true
@@ -353,7 +353,7 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"DefinedWorkflows\", \"key\": \"WF_ARCH_NEW_WORKFLOW_DEFINITION_001_v1_SumAndPath\", \"value\": {\"description\": \"Defines, documents, and registers a new standardized workflow for any mode.\", \"path\": \".nova/workflows/nova-leadarchitect/WF_ARCH_NEW_WORKFLOW_DEFINITION_001_v1.md\", \"version\": \"1.0\", \"primary_mode_owner\": \"nova-leadarchitect\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like `LessonsLearned` or existing `DefinedWorkflows` entries. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
+    description: "Retrieves context like `LessonsLearned` or existing `DefinedWorkflows` entries. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
@@ -366,7 +366,7 @@ conport_tool_reference:
         description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"LessonsLearned\", \"key\": \"LL_20240510_WorkflowFriction\"}"
   - tool_name: "get_decisions"
-    description: "Retrieves a decision that guides your workflow design."
+    description: "Retrieves a decision that guides your workflow design. CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -382,7 +382,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 5, \"tags_filter_include_any\": [\"#workflow_change\"], \"tags_filter_include_all\": []}"
   - tool_name: "log_progress"
-    description: "Logs a new progress entry for your workflow management subtask. Returns the integer ID."
+    description: "Logs a new progress entry for your workflow management subtask. Returns the integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -404,7 +404,7 @@ conport_tool_reference:
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Create new workflow file for code reviews (Assigned: nova-specializedworkflowmanager)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
-    description: "Updates your progress entry by its integer ID."
+    description: "Updates your progress entry by its integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true

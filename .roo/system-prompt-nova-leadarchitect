@@ -609,14 +609,14 @@ conport_memory_strategy:
 
 conport_tool_reference:
   - tool_name: "get_product_context"
-    description: "Retrieves the overall project goals, features, and architecture."
+    description: "Retrieves the overall project goals, features, and architecture. CRITICAL: Use ONLY for the 'ProductContext' item."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "update_product_context"
-    description: "Updates the product context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    description: "Updates the product context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key). CRITICAL: Use ONLY for the 'ProductContext' item. This is typically delegated."
     parameters:
       - name: workspace_id
         required: true
@@ -629,14 +629,14 @@ conport_tool_reference:
         description: "A dictionary of changes to apply to the existing context (add/update keys)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"project_name\": \"New Project Name\"}}"
   - tool_name: "get_active_context"
-    description: "Retrieves the current working focus, recent changes, and open issues."
+    description: "Retrieves the current working focus, recent changes, and open issues. CRITICAL: Use ONLY for the 'ActiveContext' item."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "update_active_context"
-    description: "Updates the active context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    description: "Updates the active context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key). CRITICAL: Use ONLY for the 'ActiveContext' item. This is typically delegated."
     parameters:
       - name: workspace_id
         required: true
@@ -649,7 +649,7 @@ conport_tool_reference:
         description: "A dictionary of changes to apply to the existing context (add/update keys)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"state_of_the_union\": \"New state description\"}}"
   - tool_name: "log_decision"
-    description: "Logs an architectural or implementation decision."
+    description: "Logs an architectural or implementation decision. CRITICAL: Use ONLY for 'Decision' items. To log other items, use the appropriate tool (e.g., `log_custom_data`)."
     parameters:
       - name: workspace_id
         required: true
@@ -668,7 +668,7 @@ conport_tool_reference:
         description: "Optional tags for categorization"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Use microservices architecture\", \"rationale\": \"Allows independent scaling and deployment.\", \"tags\": [\"#architecture\"], \"implementation_details\": \"To be implemented by the development team following this design.\"}"
   - tool_name: "get_decisions"
-    description: "Retrieves logged decisions."
+    description: "Retrieves logged decisions. CRITICAL: Use ONLY for 'Decision' items. To retrieve other items, use the appropriate tool."
     parameters:
       - name: workspace_id
         required: true
@@ -684,7 +684,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"], \"tags_filter_include_all\": []}"
   - tool_name: "search_decisions_fts"
-    description: "Full-text search across decision fields (summary, rationale, details, tags)."
+    description: "Full-text search across decision fields (summary, rationale, details, tags). CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -707,7 +707,7 @@ conport_tool_reference:
         description: "The ID of the decision to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"decision_id\": 123}"
   - tool_name: "log_progress"
-    description: "Logs a progress entry or task status."
+    description: "Logs a progress entry or task status. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -732,7 +732,7 @@ conport_tool_reference:
         description: "Relationship type for the automatic link, defaults to 'relates_to_progress'"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Orchestration: Implement 'User Profile' Feature E2E\", \"parent_id\": null, \"linked_item_type\": null, \"linked_item_id\": null, \"link_relationship_type\": null}"
   - tool_name: "update_progress"
-    description: "Updates an existing progress entry."
+    description: "Updates an existing progress entry. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -751,7 +751,7 @@ conport_tool_reference:
         description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123, \"status\": \"BLOCKED\", \"description\": \"Blocked pending architectural decision.\", \"parent_id\": null}"
   - tool_name: "get_progress"
-    description: "Retrieves progress entries."
+    description: "Retrieves progress entries. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -777,7 +777,7 @@ conport_tool_reference:
         description: "The ID of the progress entry to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 123}"
   - tool_name: "log_system_pattern"
-    description: "Logs or updates a system/coding pattern."
+    description: "Logs or updates a system/coding pattern. CRITICAL: Use ONLY for 'SystemPattern' items."
     parameters:
       - name: workspace_id
         required: true
@@ -793,7 +793,7 @@ conport_tool_reference:
         description: "Optional tags for categorization"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"name\": \"IdempotentAPIEndpoint_v1\", \"description\": \"Pattern for designing API endpoints that produce the same result if called multiple times with the same input.\", \"tags\": [\"#api\", \"#resilience\"]}"
   - tool_name: "get_system_patterns"
-    description: "Retrieves system patterns."
+    description: "Retrieves system patterns. CRITICAL: Use ONLY for 'SystemPattern' items."
     parameters:
       - name: workspace_id
         required: true
@@ -806,7 +806,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#api\"], \"tags_filter_include_all\": []}"
   - tool_name: "delete_system_pattern_by_id"
-    description: "Deletes a system pattern by its ID."
+    description: "Deletes a system pattern by its ID. CRITICAL: Use ONLY for 'SystemPattern' items."
     parameters:
       - name: workspace_id
         required: true
@@ -816,7 +816,7 @@ conport_tool_reference:
         description: "The ID of the system pattern to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
-    description: "Stores/updates a custom key-value entry under a category. Value is JSON-serializable."
+    description: "Stores/updates a custom key-value entry under a category. Value is JSON-serializable. CRITICAL: Use ONLY for 'CustomData' items (e.g., `ProjectConfig`, `ErrorLogs`). DO NOT use for `Decisions`, `Progress`, `ActiveContext`, etc."
     parameters:
       - name: workspace_id
         required: true
@@ -832,7 +832,7 @@ conport_tool_reference:
         description: "The custom data value (JSON serializable)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"language\": \"Python\", \"test_framework\": \"pytest\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
+    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
@@ -845,7 +845,7 @@ conport_tool_reference:
         description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "delete_custom_data"
-    description: "Deletes a specific custom data entry."
+    description: "Deletes a specific custom data entry. CRITICAL: Use ONLY for 'CustomData' items."
     parameters:
       - name: workspace_id
         required: true

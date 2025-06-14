@@ -49,11 +49,9 @@
                           "Overall_Project_Goal": "Initialize new project in workspace.",
                           "Phase_Goal": "Execute full ConPort and project initialization: Bootstrap, ProjectConfig, NovaSystemConfig.",
                           "Lead_Mode_Specific_Instructions": [
-                            "Execute WF_PROJ_INIT_001_NewProjectBootstrap.md (path: .nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md).",
-                            "After bootstrap, guide user (via Orchestrator relay) to define and log CustomData ProjectConfig:ActiveConfig.",
-                            "Then, define and log default CustomData NovaSystemConfig:ActiveSettings.",
-                            "Report completion of all three parts."
-                          ],
+                            "Your goal for this phase is to fully initialize the project. Create a high-level plan for this, log it, and use your standard single-step execution loop to delegate atomic tasks to your specialists.",
+                            "You should consult `.nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md` and `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for reference processes."
+                           ],
                           "Required_Input_Context": {
                             "Path_To_Bootstrap_Workflow": ".nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md",
                             "Path_To_Config_Setup_Workflow": ".nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md"
@@ -90,7 +88,7 @@
               "Context_Path": "SessionStartup -> SetupMissingConfigs (LeadArchitect)",
               "Overall_Project_Goal": "Ensure workspace is fully configured.",
               "Phase_Goal": "Define and log missing ProjectConfig:ActiveConfig and/or NovaSystemConfig:ActiveSettings.",
-              "Lead_Mode_Specific_Instructions": ["Execute WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md to guide user and log these configurations."],
+              "Lead_Mode_Specific_Instructions": ["Your goal is to set up the missing configurations. Consult `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for a reference process. Plan and delegate tasks to your specialists to guide the user and log the configurations."],
               "Required_Input_Context": {"Path_To_Architect_Config_Workflow": ".nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md"},
               "Expected_Deliverables_In_Attempt_Completion_From_Lead": ["Confirmation of logging"]
             }

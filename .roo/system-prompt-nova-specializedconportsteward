@@ -288,14 +288,14 @@ conport_memory_strategy:
 
 conport_tool_reference:
   - tool_name: "get_product_context"
-    description: "Retrieves the overall project goals, features, and architecture."
+    description: "Retrieves the overall project goals, features, and architecture. CRITICAL: Use ONLY for the 'ProductContext' item."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "update_product_context"
-    description: "Updates the product context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    description: "Updates the product context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key). CRITICAL: Use ONLY for the 'ProductContext' item."
     parameters:
       - name: workspace_id
         required: true
@@ -308,14 +308,14 @@ conport_tool_reference:
         description: "A dictionary of changes to apply to the existing context (add/update keys)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"project_name\": \"New Project Name\"}}"
   - tool_name: "get_active_context"
-    description: "Retrieves the current working focus, recent changes, and open issues."
+    description: "Retrieves the current working focus, recent changes, and open issues. CRITICAL: Use ONLY for the 'ActiveContext' item."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "update_active_context"
-    description: "Updates the active context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key)."
+    description: "Updates the active context. Accepts full `content` (object) or `patch_content` (object) for partial updates (use `__DELETE__` as a value in patch to remove a key). CRITICAL: Use ONLY for the 'ActiveContext' item."
     parameters:
       - name: workspace_id
         required: true
@@ -328,7 +328,7 @@ conport_tool_reference:
         description: "A dictionary of changes to apply to the existing context (add/update keys)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"patch_content\": {\"state_of_the_union\": \"New state description\"}}"
   - tool_name: "log_decision"
-    description: "Logs an architectural or implementation decision."
+    description: "Logs an architectural or implementation decision. CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -377,7 +377,7 @@ conport_tool_reference:
         description: "The ID of the pattern to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"pattern_id\": 123}"
   - tool_name: "log_custom_data"
-    description: "Your primary tool. Logs a new entry or updates an existing one in a specified `CustomData` category."
+    description: "Your primary tool. Logs a new entry or updates an existing one in a specified `CustomData` category. CRITICAL: Use ONLY for 'CustomData' items."
     parameters:
       - name: workspace_id
         required: true
@@ -393,7 +393,7 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\", \"value\": {\"primary_language\": \"Python\", \"testing\": {\"framework\": \"pytest\"}}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
+    description: "Retrieves a `CustomData` item by category and key, or all items in a category if key is omitted. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
@@ -406,7 +406,7 @@ conport_tool_reference:
         description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "delete_custom_data"
-    description: "Deletes a custom data entry by category and key."
+    description: "Deletes a custom data entry by category and key. CRITICAL: Use ONLY for 'CustomData' items."
     parameters:
       - name: workspace_id
         required: true
@@ -419,7 +419,7 @@ conport_tool_reference:
         description: "The key of the data to delete."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ObsoleteWorkflows\", \"key\": \"OldWF_v1\"}"
   - tool_name: "log_progress"
-    description: "Logs a new progress entry for your stewardship subtask. Returns the integer ID."
+    description: "Logs a new progress entry for your stewardship subtask. Returns the integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -441,7 +441,7 @@ conport_tool_reference:
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Log ProjectConfig (Assigned: nova-specializedconportsteward)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
-    description: "Updates your progress entry by its integer ID."
+    description: "Updates your progress entry by its integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -460,7 +460,7 @@ conport_tool_reference:
         description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"ProjectConfig:ActiveConfig logged successfully.\", \"parent_id\": null}"
   - tool_name: "get_progress"
-    description: "Retrieves progress entries for a health check."
+    description: "Retrieves progress entries for a health check. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -476,7 +476,7 @@ conport_tool_reference:
         description: "The maximum number of entries to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"BLOCKED\", \"parent_id_filter\": null, \"limit\": 10}"
   - tool_name: "get_decisions"
-    description: "Retrieves decisions for a health check."
+    description: "Retrieves decisions for a health check. CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -517,7 +517,7 @@ conport_tool_reference:
         description: "A description of the relationship."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"source_item_type\": \"decision\", \"source_item_id\": \"123\", \"target_item_type\": \"custom_data\", \"target_item_id\": \"SystemArchitecture:CompX_v1\", \"relationship_type\": \"guides_design\", \"description\": null}"
   - tool_name: "get_linked_items"
-    description: "Retrieves all items linked to a specific item for a health check."
+    description: "Retrieves all items linked to a specific item for a health check. CRITICAL: Use ONLY for retrieving linked items."
     parameters:
       - name: workspace_id
         required: true

@@ -3,80 +3,52 @@
 **Goal:** To systematically check for outdated dependencies, audit for known vulnerabilities, and safely apply updates.
 
 **Primary Actor:** Nova-LeadDeveloper
-**Delegated Specialist Actors:** Nova-SpecializedTestAutomator (to run audit tools), Nova-SpecializedFeatureImplementer (to apply updates)
+**Delegated Specialist Actors:** Nova-SpecializedTestAutomator, Nova-SpecializedFeatureImplementer
 
 **Trigger / Recognition:**
-- A scheduled task from `NovaSystemConfig:ActiveSettings` (e.g., `dependency_audit_frequency_days`).
-- Before a major release, as part of the `WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md` process.
+- A scheduled task from `NovaSystemConfig`.
+- Part of a pre-release workflow (`WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md`).
 - A user or Lead raises concerns about outdated or vulnerable dependencies.
 
-**Phases & Steps (managed by Nova-LeadDeveloper):**
+**Reference Milestones for your Single-Step Loop:**
 
-**Phase DU.1: Audit & Analysis**
+**Milestone DU.1: Audit & Analysis**
+*   **Goal:** Run audit tools to identify outdated and vulnerable dependencies and triage the findings.
+*   **Suggested Specialist Sequence & Lead Actions:**
+    1.  **LeadDeveloper Action:** Log a main `Progress` item for this audit cycle.
+    2.  **Delegate to `Nova-SpecializedTestAutomator`:**
+        *   **Subtask Goal:** "Run dependency vulnerability and outdated-check commands and report the full output."
+        *   **Briefing Details:**
+            *   Instruct the specialist to use `execute_command` to run the audit tools defined in `ProjectConfig:ActiveConfig.security.tools.dependency_scanner` and `ProjectConfig.dependency_management.commands`.
+            *   They should return the full, raw output from all commands.
+    3.  **LeadDeveloper Action: Triage Findings:**
+        *   Analyze the audit reports from the specialist.
+        *   For each critical vulnerability or major outdated package, log a `Decision` to update it.
+        *   If an update has significant breaking changes, coordinate an `ImpactAnalysis` with `Nova-LeadArchitect` via the `Orchestrator`.
+        *   Create a final, prioritized list of packages to update.
 
-1.  **Nova-LeadDeveloper: Plan Audit**
-    *   **Actor:** Nova-LeadDeveloper
-    *   **Action:**
-        *   Log a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Dependency Audit & Update Cycle - [Date]\"}`).
-        *   Identify dependency management files (e.g., `requirements.txt`, `package.json`) and audit commands from `ProjectConfig:ActiveConfig`.
+**Milestone DU.2: Update & Verification**
+*   **DoR Check:** A clear, prioritized list of packages to update is available.
+*   **Goal:** Apply the dependency updates and verify that the application remains stable.
+*   **Suggested Specialist Sequence & Lead Actions:**
+    1.  **Delegate to `Nova-SpecializedFeatureImplementer`:**
+        *   **Subtask Goal:** "Update the following dependencies to their specified versions: [List of packages]."
+        *   **Briefing Details:**
+            *   Provide the precise list of packages and target versions.
+            *   Instruct the specialist to use the project's package manager command (from `ProjectConfig`) to update the dependency files.
+            *   After updating, they must run the local unit test suite to catch immediate breakages.
+    2.  **Delegate to `Nova-SpecializedTestAutomator`:**
+        *   **Subtask Goal:** "Perform a full regression test cycle to ensure dependency updates have not introduced subtle regressions."
+        *   **Briefing Details:**
+            *   Instruct the specialist to run the full regression suite as defined in `ProjectConfig`.
+            *   They must report all failures. If new, independent bugs are found, they should be logged as new `ErrorLogs`.
 
-2.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Run Audit Tools**
-    *   **Actor:** Nova-LeadDeveloper
-    *   **Task:** "Run dependency audit tools and report all findings."
-    *   **`new_task` message for Nova-SpecializedTestAutomator:**
-        ```json
-        {
-          "Context_Path": "[ProjectName] (DepAudit) -> RunAudit (TestAutomator)",
-          "Overall_Developer_Phase_Goal": "Audit and update project dependencies.",
-          "Specialist_Subtask_Goal": "Execute dependency vulnerability and outdated-check commands and report the full output.",
-          "Specialist_Specific_Instructions": [
-            "Log your own detailed `Progress` (integer `id`), parented to `[ParentProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Run dependency audit tools\", \"parent_id\": [ParentProgressID_as_integer]} `).",
-            "1. **Run Vulnerability Audit:** Use `execute_command` to run the project's vulnerability audit tool. The command is defined in `ProjectConfig:ActiveConfig.security.tools.dependency_scanner.command`.",
-            "2. **Check for Outdated Packages:** Use `execute_command` to run the outdated-check tool. The command is defined in `ProjectConfig:ActiveConfig.dependency_management.commands.check_outdated` (if available).",
-            "3. **Compile Report:** Consolidate the full, raw output from both commands into your `attempt_completion` result."
-          ],
-          "Required_Input_Context_For_Specialist": {
-            "Parent_Progress_ID_as_integer": "[ParentProgressID_as_integer]",
-            "ProjectConfig_Ref": { "type": "custom_data", "category": "ProjectConfig", "key": "ActiveConfig", "fields_needed": ["security.tools.dependency_scanner", "dependency_management.commands"] }
-          },
-          "Expected_Deliverables_In_Attempt_Completion_From_Specialist": [
-            "Full, raw output from the audit command.",
-            "Full, raw output from the outdated-check command."
-          ]
-        }
-        ```
-    *   **Nova-LeadDeveloper Action after Specialist's `attempt_completion`:** Analyze the reports.
-
-3.  **Nova-LeadDeveloper: Triage Findings**
-    *   **Actor:** Nova-LeadDeveloper
-    *   **Action:**
-        *   Review the audit results.
-        *   For each critical/high vulnerability or significantly outdated package, log a `Decision` (integer `id`) to update it using `use_mcp_tool` (`tool_name: 'log_decision'`).
-        *   If an update has major breaking changes, delegate an `ImpactAnalyses` (key) task to Nova-LeadArchitect (via Orchestrator).
-        *   Log severe vulnerabilities as `RiskAssessment` (key) items.
-        *   Create a plan of which packages to update.
-
-**Phase DU.2: Update & Verification**
-
-4.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedFeatureImplementer: Apply Updates**
-    *   **Actor:** Nova-LeadDeveloper
-    *   **Task:** "Update the following dependencies to their specified versions: [List of packages and versions]."
-    *   **Briefing for FeatureImplementer:** Provide a precise list of packages and target versions. Instruct them to update dependency files (`requirements.txt`, etc.), run the update command (e.g., from `ProjectConfig:ActiveConfig.dependency_management.commands.update` or `add`), and then run the full test suite to catch immediate breakages.
-
-5.  **Nova-LeadDeveloper -> Delegate to Nova-SpecializedTestAutomator: Full Regression Test**
-    *   **Actor:** Nova-LeadDeveloper
-    *   **DoR Check:** Updates have been applied and basic tests passed.
-    *   **Task:** "Perform a full regression test cycle to ensure dependency updates have not introduced subtle regressions."
-    *   **Briefing for TestAutomator:** Instruct to run the full regression suite as defined in `ProjectConfig:ActiveConfig.testing.commands.run_regression`. Report all failures.
-
-**Phase DU.3: Closure**
-
-6.  **Nova-LeadDeveloper: Finalize Cycle**
-    *   **Actor:** Nova-LeadDeveloper
-    *   **Action:**
-        *   Ensure all new issues from regression tests are logged as `ErrorLogs` (key).
-        *   Update main `Progress` item to 'DONE' using `use_mcp_tool` (`tool_name: 'update_progress'`).
-        *   Report summary of updates and new risk/status to Nova-Orchestrator.
+**Milestone DU.3: Closure**
+*   **Goal:** Finalize the audit cycle and report the outcome.
+*   **Suggested Lead Action:**
+    1.  Ensure any new regressions found during verification are logged as `ErrorLogs`.
+    2.  Update the main `Progress` item for the audit cycle to 'DONE'.
+    3.  Report a summary of the updates, the new risk posture, and any new `ErrorLogs` to `Nova-Orchestrator`.
 
 **Key ConPort Items Involved:**
 - Progress (integer `id`)

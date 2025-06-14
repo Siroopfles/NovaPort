@@ -284,7 +284,7 @@ conport_memory_strategy:
 
 conport_tool_reference:
   - tool_name: "log_custom_data"
-    description: "Logs a new, independent `ErrorLogs` entry for a defect discovered during test execution."
+    description: "Logs a new, independent `ErrorLogs` entry for a defect discovered during test execution. CRITICAL: Use ONLY for 'CustomData' items."
     parameters:
       - name: workspace_id
         required: true
@@ -300,7 +300,7 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ErrorLogs\", \"key\": \"EL_20240516_RegressionInAuth\", \"value\": {\"schema_version\": \"1.0\", \"status\": \"OPEN\", \"severity\": \"HIGH\", \"summary\": \"User session does not invalidate after password change.\",\"reproduction_steps\": [\"1. Login as user A.\", \"2. In a separate session, change password for user A.\", \"3. In first session, attempt to access protected resource.\"], \"expected_behavior\": \"API should return 401 Unauthorized.\", \"actual_behavior\": \"API returns 200 OK, allowing access with old session token.\", \"initial_reporter_mode_slug\": \"nova-specializedtestexecutor\", \"source_task_id\": \"138\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
+    description: "Retrieves context like `ProjectConfig` for test commands or `AcceptanceCriteria` for test design. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
@@ -313,7 +313,7 @@ conport_tool_reference:
         description: "The specific key to retrieve. If omitted, all items in the category are returned."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "log_progress"
-    description: "Logs a new progress entry for your test execution subtask. Returns the integer ID."
+    description: "Logs a new progress entry for your test execution subtask. Returns the integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -335,7 +335,7 @@ conport_tool_reference:
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Execute regression suite for API v2 (Assigned: nova-specializedtestexecutor)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
-    description: "Updates your progress entry by its integer ID."
+    description: "Updates your progress entry by its integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true

@@ -18,6 +18,12 @@ _These workflows manage the high-level project lifecycle and coordinate between 
 | `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md` | Generates a high-level project summary report for stakeholders. |
 | `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` | Initializes a user session by loading the project context from ConPort. |
 | `WF_ORCH_SESSION_END_AND_SUMMARY_001_v1.md` | Properly ends a user session and generates a summary of the activities. |
+| `WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md` | Generates a comprehensive project briefing for new team members. |
+| `WF_ORCH_PROJECT_CONFIG_NOVA_CONFIG_SETUP_001_v1.md` | Orchestrates the setup of the core ProjectConfig and NovaSystemConfig items. |
+| `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md` | Analyzes system performance and proposes data-driven process improvements. |
+| `WF_ORCH_TRIAGE_NEW_ISSUE_REPORTED_BY_LEAD_001_v1.md` | Systematically processes and prioritizes new issues discovered by Lead modes. |
+| `WF_PROJ_INIT_001_NewProjectBootstrap.md` | Handles the very first setup of an empty workspace, including foundational ConPort entries. |
+
 
 ---
 
@@ -38,6 +44,9 @@ _These workflows focus on system design, architectural integrity, and ConPort ma
 | `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL_001_v1.md` | Manages a proposed change to a Nova system prompt file with formal approval. |
 | `WF_ARCH_CREATE_MODULE_TEMPLATE_001_v1.md` | Designs and creates a standardized, reusable module/service template. |
 | `WF_ARCH_RISK_ASSESSMENT_AND_MITIGATION_PLANNING_001_v1.md` | Systematically identifies, analyzes, and plans mitigation for project risks. |
+| `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md` | Generates a Mermaid diagram to visualize relationships between ConPort items. |
+| `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md` | Creates a summary of active ConPort categories and workflows for user reference. |
+| `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md` | Systematically identifies and manages stale or outdated data in ConPort. |
 
 ---
 

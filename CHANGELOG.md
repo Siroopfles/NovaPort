@@ -5,16 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
-## [UNRELEASED]
+## [0.3.2-beta] - 2024-05-21
 
-### 🐛 Bug Fixes & System Reliability Hardening
+### 🚀 Improvements & System Reliability Hardening
 
-- **Hardened `Nova-SpecializedConPortSteward` Capabilities:** Added missing tool definitions for `get_product_context`, `update_product_context`, `get_active_context`, and `update_active_context` to the `system-prompt-nova-specializedconportsteward` prompt. This resolves a critical issue where the steward could not manage high-level project context as required by core bootstrap and session management workflows.
+- **Hardened Agent Delegation Protocol:** Fortified the `task_execution_protocol` in all delegating agent prompts (Orchestrator, Leads) with a "CRITICAL DELEGATION FLOW" instruction. This explicitly defines that the `tool_output` of a `new_task` call is the `attempt_completion` result from the sub-agent, preventing agent confusion and stalled loops.
+- **Hardened ConPort Tool Specificity:** Refactored the `conport_tool_reference` section in all 16 agent prompts to add explicit `CRITICAL:` warnings to each data-access tool, clarifying which entity type it is designed for (e.g., "Use `get_decisions` ONLY for 'Decision' items"). This prevents agents from using incorrect tools for a given data type.
+- **Mitigated Context Overload from ConPort:** Hardened all prompts against context window overload by adding a strong warning to the `get_custom_data` tool definition. Agents are now explicitly forbidden from calling this tool without at least a `category` argument and are guided to use `search_custom_data_value_fts` with a `limit` for discovery.
+- **Optimized Bulk File Operation Protocols:** Hardened the usage protocols for `read_file` and `apply_diff` across all system prompts. Agents are now instructed to follow an "Intelligent Batching and Verification" strategy, reading files in small batches and, critically, performing an immediate `read_file` verification after each `apply_diff` batch to ensure robust multi-file edits.
+- **Activated `Suggested_ConPort_Links` Processing:** Updated all `Lead` mode prompts with an explicit instruction in their `task_execution_protocol` to process the `Suggested_ConPort_Links` section from a specialist's report, ensuring the knowledge graph is actively enriched.
+
+### 🐛 Bug Fixes
+
+- **Fixed `Nova-SpecializedConPortSteward` Capabilities:** Added missing tool definitions for `get_product_context`, `update_product_context`, `get_active_context`, and `update_active_context` to the `system-prompt-nova-specializedconportsteward` prompt. This resolves a critical issue where the steward could not manage high-level project context as required by core bootstrap and session management workflows.
 
 ### 🧹 Refactoring & System Hygiene
 
-- **Removed Redundant Orchestrator Workflow:** Deprecated and removed the `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md` workflow, as its functionality is fully encompassed and improved upon by `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md`. This eliminates ambiguity and streamlines the available query-related workflows.
-- **Updated Documentation for Consistency:** Updated `README.md` and `.nova/workflows/manifest.md` to remove all references to the deprecated `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md` workflow, ensuring documentation aligns with the streamlined process.
+- **Aligned All Workflows with V3 Agent Logic:** Refactored all `Lead` and `Orchestrator` workflow (`.md`) files to align with the v3 "Single-Step Loop" agent logic. Instructions now guide the agent towards a `Phase_Goal` using their own iterative protocol, rather than prescribing outdated, rigid steps.
+- **Removed Redundant Orchestrator Workflow:** Deprecated and removed the `WF_ORCH_CONPORT_QUERY_AND_SUMMARIZE_001_v1.md` workflow, as its functionality is fully encompassed and improved upon by `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md`.
+- **Updated Documentation for Consistency:** Updated `README.md` and `.nova/workflows/manifest.md` to remove all references to the deprecated workflow.
 
 ## [0.3.1-beta] - 2024-05-21
 

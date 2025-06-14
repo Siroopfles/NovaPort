@@ -34,17 +34,13 @@
           "Lead_Mode_Specific_Instructions": [
             "Project: [ProjectName].",
             "The following configurations need to be established/reviewed in ConPort: [List missing, e.g., 'ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings'].",
-            "1. Execute the workflow detailed in `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`.",
-            "   This workflow will guide your team (Nova-SpecializedConPortSteward) to:",
-            "   a. Prepare default values for all fields within `ProjectConfig:ActiveConfig` (e.g., `project_type_hint`, `primary_language`, `testing`, etc.).",
-            "   b. Prepare default values for all fields within `NovaSystemConfig:ActiveSettings` (e.g., `mode_behavior` overrides, `conport_integration` settings).",
-            "   c. Guide the user (simulated by you, LeadArchitect, asking me, Orchestrator, to relay `ask_followup_question` to user) through each key setting, presenting the default and allowing them to confirm or provide a project-specific value.",
-            "   d. Your Nova-SpecializedConPortSteward will then log the finalized JSON objects to `CustomData ProjectConfig:ActiveConfig` (key) and `CustomData NovaSystemConfig:ActiveSettings` (key) respectively, using `use_mcp_tool` (`tool_name: 'log_custom_data'`)."
+            "Your goal is to ensure these configurations are correctly defined and logged. Create a high-level plan for this, log it, and use your single-step loop to delegate atomic tasks to your ConPortSteward.",
+            "You may consult `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for a reference process.",
+            "Key sub-tasks for your specialists will include: preparing default values, guiding the user (via me) through key settings, and logging the final JSON objects to ConPort."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",
             "Missing_Configs_List": "['ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings']",
-            "Path_To_Architect_Config_Workflow": ".nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md",
             "User_Project_Type_Hint_From_Orchestrator": "[e.g., 'web_api_project']"
           },
           "Expected_Deliverables_In_Attempt_Completion_From_Lead": [

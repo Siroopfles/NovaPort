@@ -345,21 +345,21 @@ conport_memory_strategy:
 
 conport_tool_reference:
   - tool_name: "get_product_context"
-    description: "Retrieves the overall project goals, features, and architecture."
+    description: "Retrieves the overall project goals, features, and architecture. CRITICAL: Use ONLY for the 'ProductContext' item."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "get_active_context"
-    description: "Retrieves the current working focus, recent changes, and open issues."
+    description: "Retrieves the current working focus, recent changes, and open issues. CRITICAL: Use ONLY for the 'ActiveContext' item."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "get_decisions"
-    description: "Retrieves logged decisions."
+    description: "Retrieves logged decisions. CRITICAL: Use ONLY for 'Decision' items. To retrieve other items, use the appropriate tool."
     parameters:
       - name: workspace_id
         required: true
@@ -375,7 +375,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 10, \"tags_filter_include_any\": [\"#architecture\"], \"tags_filter_include_all\": []}"
   - tool_name: "search_decisions_fts"
-    description: "Full-text search across decision fields (summary, rationale, details, tags)."
+    description: "Full-text search across decision fields (summary, rationale, details, tags). CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -388,7 +388,7 @@ conport_tool_reference:
         description: "Maximum number of search results to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"payment gateway\", \"limit\": 5}"
   - tool_name: "get_progress"
-    description: "Retrieves progress entries."
+    description: "Retrieves progress entries. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -404,7 +404,7 @@ conport_tool_reference:
         description: "Maximum number of entries to return (most recent first)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status_filter\": \"IN_PROGRESS\", \"parent_id_filter\": null, \"limit\": 20}"
   - tool_name: "get_system_patterns"
-    description: "Retrieves system patterns."
+    description: "Retrieves system patterns. CRITICAL: Use ONLY for 'SystemPattern' items."
     parameters:
       - name: workspace_id
         required: true
@@ -417,7 +417,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#api\"], \"tags_filter_include_all\": []}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
+    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
@@ -443,7 +443,7 @@ conport_tool_reference:
         description: "Maximum number of search results to return."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"query_term\": \"Service Level Objective\", \"limit\": 1}"
   - tool_name: "get_linked_items"
-    description: "Retrieves items linked to a specific item."
+    description: "Retrieves items linked to a specific item. CRITICAL: Use ONLY for retrieving linked items. To retrieve an item itself, use its specific `get_*` tool."
     parameters:
       - name: workspace_id
         required: true

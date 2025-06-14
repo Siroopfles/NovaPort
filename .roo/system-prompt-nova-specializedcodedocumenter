@@ -361,7 +361,7 @@ conport_memory_strategy:
 
 conport_tool_reference:
   - tool_name: "log_progress"
-    description: "Logs a new progress entry for your documentation subtask. Returns the integer ID."
+    description: "Logs a new progress entry for your documentation subtask. Returns the integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -383,7 +383,7 @@ conport_tool_reference:
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Document public API of AuthService.ts (Assigned: nova-specializedcodedocumenter)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
-    description: "Updates your progress entry by its integer ID."
+    description: "Updates your progress entry by its integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -402,7 +402,7 @@ conport_tool_reference:
         description: "New ID of the parent task, if changing"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"progress_id\": 124, \"status\": \"DONE\", \"description\": \"Inline TSDoc for AuthService.ts and docs/auth_service.md guide completed.\", \"parent_id\": null}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like an API spec or project documentation standards. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
+    description: "Retrieves context like an API spec or project documentation standards. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
@@ -415,7 +415,7 @@ conport_tool_reference:
         description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}"
   - tool_name: "get_decisions"
-    description: "Retrieves a decision that explains the rationale behind the code you are documenting."
+    description: "Retrieves a decision that explains the rationale behind the code you are documenting. CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -431,7 +431,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#authentication\"], \"tags_filter_include_any\": []}"
   - tool_name: "get_system_patterns"
-    description: "Retrieves system patterns for context."
+    description: "Retrieves system patterns for context. CRITICAL: Use ONLY for 'SystemPattern' items."
     parameters:
       - name: workspace_id
         required: true

@@ -29,8 +29,8 @@
           "Phase_Goal": "Create a ConPort `Progress` item for the new `ErrorLogs:[ErrorLogKeyFromLead]`.",
           "Lead_Mode_Specific_Instructions": [
             "A new out-of-scope issue was reported by another Lead: `ErrorLogs:[ErrorLogKeyFromLead]` (key) - Summary: '[IssueSummaryFromLead]'.",
-            "Your Nova-SpecializedConPortSteward needs to log a new `Progress` (integer `id`) item in ConPort using `use_mcp_tool` (`tool_name: 'log_progress'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"TODO\", \"description\": \"Triage & Investigate New Issue: [IssueSummaryFromLead] (ref: ErrorLogs:[ErrorLogKeyFromLead])\"}`).",
-            "After logging the `Progress` item and getting its ID, link it to `CustomData ErrorLogs:[ErrorLogKeyFromLead]` (key) with relationship type 'tracks_errorlog' using `use_mcp_tool` (`tool_name: 'link_conport_items'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"source_item_type\": \"progress_entry\", \"source_item_id\": \"[NewProgressID_as_string]\", \"target_item_type\": \"custom_data\", \"target_item_id\": \"ErrorLogs:[ErrorLogKeyFromLead]\", \"relationship_type\": \"tracks_errorlog\"}`)."
+            "Your goal is to ensure this is tracked. Delegate the creation of a new `Progress` item to your ConPortSteward with status 'TODO' and an appropriate description.",
+            "After logging the `Progress` item, ensure it is linked to the `ErrorLogs` item with the relationship type 'tracks_errorlog'."
           ],
           "Required_Input_Context": {
             "ErrorLogKeyFromLead": "[The key of the ErrorLog, e.g., EL-KEY123]",

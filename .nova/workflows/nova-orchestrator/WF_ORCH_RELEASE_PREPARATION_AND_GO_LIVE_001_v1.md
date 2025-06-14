@@ -51,11 +51,8 @@
           "Phase_Goal": "Finalize scope for release [ReleaseVersion], create initial release artifacts in ConPort (Releases entry, draft release notes).",
           "Lead_Mode_Specific_Instructions": [
             "Target Release Version: [ReleaseVersion].",
-            "1. Your ConPortSteward should create/update `CustomData Releases:[ReleaseVersion]` (key) with initial data: `{\"status\": \"Planning\", \"target_date\": \"[UserProvidedDate or TBD]\", \"scope_summary_ref_key\": \"ReleaseNotesDraft:[ReleaseVersion]_Draft\"}` using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
-            "2. Review ConPort `Progress` (integer `id`) items (status DONE/RESOLVED since last release) and `CustomData ProjectFeatures:[key]` or `SprintGoals:[key]` to compile a list of features/fixes included in [ReleaseVersion]. Use `use_mcp_tool` (`tool_name: 'get_progress'`, `get_custom_data`).",
-            "3. Your ConPortSteward should draft initial release notes content based on this scope. Store as `CustomData ReleaseNotesDraft:[ReleaseVersion]_Draft` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). The value should be structured (e.g., {new_features: [], bug_fixes: [], known_issues: []}).",
-            "4. To update `CustomData Releases:[ReleaseVersion]` (key) with a summary of the scope, first `get_custom_data`, then modify the value, then `log_custom_data` to overwrite.",
-            "5. Identify key `Decisions` (integer `id`), `SystemPatterns` (integer `id`), `APIEndpoints` (key) changes relevant to this release for inclusion in technical release notes."
+            "Your goal is to finalize the release scope. Plan and delegate tasks to your specialists.",
+            "Key sub-tasks will include: creating/updating a `Releases:[ReleaseVersion]` item in ConPort; compiling a list of included features/fixes to draft `ReleaseNotesDraft:[ReleaseVersion]_Draft`; and identifying relevant technical changes (`Decisions`, `APIEndpoints`, etc.) for technical release notes."
           ],
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",
@@ -86,11 +83,9 @@
           "Phase_Goal": "Execute comprehensive final testing for release [ReleaseVersion] to ensure quality and stability.",
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion] (Ref: ConPort `CustomData Releases:[ReleaseVersion]` (key)).",
-            "Scope: Features/fixes listed in `CustomData ReleaseNotesDraft:[ReleaseVersion]_Draft` (key).",
-            "1. Your TestExecutor should execute the full regression test suite (command from `ProjectConfig:ActiveConfig.testing.commands.run_regression` or as defined in a QA workflow like `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md`).",
-            "2. Perform sanity checks on all key features/areas included in this release.",
-            "3. If critical/high severity issues found: Log detailed `CustomData ErrorLogs:[key]` (R20 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`). Coordinate with me (Nova-Orchestrator) to update `active_context.open_issues`. Report these immediately in your `attempt_completion` as BLOCKERS.",
-            "4. If only minor issues, or all tests pass: Document results."
+            "Your goal for this phase is to provide a final quality gate. Create a plan and delegate tasks to your specialists to perform full regression and targeted testing based on the release scope.",
+            "You may consult `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md` for a reference process.",
+            "Log all new defects as `ErrorLogs`. Critical/High severity issues are release blockers."
           ],
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",
@@ -123,9 +118,8 @@
           "Phase_Goal": "Finalize all documentation and release notes for [ReleaseVersion].",
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion].",
-            "1. Your ConPortSteward/WorkflowManager should ensure all user-facing documentation (e.g., in `/docs/` as per `ProjectConfig:ActiveConfig`) and technical documentation (`SystemArchitecture` (key), `APIEndpoints` (key) in ConPort) are updated for features/changes in this release. This may involve your SystemDesigner for technical content.",
-            "2. Your ConPortSteward should finalize the release notes based on `CustomData ReleaseNotesDraft:[ReleaseVersion]_Draft` (key) and any last-minute changes or minor issues from QA. Store final version in `CustomData ReleaseNotesFinal:[ReleaseVersion]` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
-            "3. To update `ProductContext` (key 'product_context') if it needs to reflect the state of this release (e.g., new major version), use `get_product_context`, modify the object, then use `log_custom_data` on category `ProductContext` and key `product_context` to overwrite."
+            "Your goal is to ensure all documentation is updated for the release. Plan and delegate tasks to your specialists.",
+            "Key sub-tasks will include: updating user-facing docs in `/docs/`, ensuring technical docs in ConPort (`SystemArchitecture`, `APIEndpoints`) are current, and finalizing the release notes based on the draft and QA results, storing the final version in `ReleaseNotesFinal:[ReleaseVersion]`."
           ],
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",
@@ -149,9 +143,9 @@
           "Phase_Goal": "Log conceptual version tagging for [ReleaseVersion] in ConPort.",
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion].",
-            "1. Identify the current commit hash in the main/release branch that represents this release state (this might require user input if no direct VCS tool access).",
-            "2. Log a `Decision` (integer `id`) in ConPort using `use_mcp_tool` (`tool_name: 'log_decision'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Commit [hash] designated for release [ReleaseVersion]. All tests passed, docs final.\", \"rationale\": \"Formal marker for release state.\", \"tags\": [\"#[ReleaseVersion]\"]}`).",
-            "3. (User will be instructed to perform actual git tag command separately based on this decision)."
+            "Identify the current commit hash that represents this release state (this might require user input).",
+            "Log a `Decision` in ConPort with the summary 'Commit [hash] designated for release [ReleaseVersion]' and tag it with the release version.",
+            "(The user will be instructed to perform the actual git tag command separately based on this decision)."
           ],
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",
@@ -172,9 +166,8 @@
           "Phase_Goal": "Update ConPort to reflect that [ReleaseVersion] is now considered 'Shipped' or 'Released'.",
           "Lead_Mode_Specific_Instructions": [
             "Release Version: [ReleaseVersion].",
-            "1. Your ConPortSteward should update `CustomData Releases:[ReleaseVersion]` (key) status to 'Shipped' and add `release_date: [current_date]` by first using `get_custom_data` and then `log_custom_data` to overwrite.",
-            "2. Update your main `Progress` (integer `id`) for this entire Release Prep workflow (which I, Nova-Orchestrator, will provide the ID for if you need to link or find it) to DONE.",
-            "3. To update `active_context`, instruct your team to first `get_active_context`, modify the `state_of_the_union` field to 'Project [ProjectName] version [ReleaseVersion] released on [Date].', then use `log_custom_data` on the `ActiveContext` category with key `active_context`."
+            "Your ConPortSteward should update `CustomData Releases:[ReleaseVersion]` (key) status to 'Shipped' and add `release_date`.",
+            "Update `active_context.state_of_the_union` to reflect the new release."
           ],
           "Required_Input_Context": {
             "ReleaseVersion": "[ReleaseVersion]",

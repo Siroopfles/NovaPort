@@ -34,9 +34,8 @@
                   "Overall_Project_Goal": "Resolve prioritized tech debt item [TechDebtKey].",
                   "Phase_Goal": "Assess architectural impact of [TechDebtKey] and define/refine refactoring design if needed.",
                   "Lead_Mode_Specific_Instructions": [
-                    "Review `TechDebtCandidates:[TechDebtKey]` and related code/ConPort items.",
-                    "Determine if fixing this requires architectural changes or a specific design pattern for refactoring.",
-                    "If so, your SystemDesigner should document these changes in `SystemArchitecture` (key) or as a `Decision` (integer `id`).",
+                    "Your goal is to assess the architectural impact of this tech debt. Create a high-level plan and delegate atomic tasks to your specialists as needed.",
+                    "Key sub-tasks may include: reviewing the `TechDebtCandidates` item, analyzing related code, determining if fixing this requires architectural changes or a specific design pattern, and documenting these changes in `SystemArchitecture` or as a `Decision`.",
                     "Provide an updated refactoring approach/specification for LeadDeveloper."
                   ],
                   "Required_Input_Context": { "TechDebtCandidate_Ref": { "type": "custom_data", "category": "TechDebtCandidates", "key": "[TechDebtKey]" } },
@@ -59,11 +58,9 @@
           "Overall_Project_Goal": "Resolve prioritized tech debt item [TechDebtKey].",
           "Phase_Goal": "Implement code refactoring to address `TechDebtCandidates:[TechDebtKey]`, ensuring all tests pass and quality standards are met.",
           "Lead_Mode_Specific_Instructions": [
-            "Target Tech Debt: `CustomData TechDebtCandidates:[TechDebtKey]` (key). Review its details and any architectural guidance from LeadArchitect (see `Refined_Refactoring_Spec_From_LeadArch`).",
-            "Execute your standard refactoring workflow (e.g., `.nova/workflows/nova-leaddeveloper/WF_DEV_TECHDEBT_REFACTOR_COMPONENT_001_v1.md`) to manage your team (CodeRefactorer, TestAutomator) for this task.",
-            "Key goals: Address the described debt, improve code quality/performance as specified, ensure no regressions by running all relevant tests.",
-            "Log any significant refactoring `Decisions` (integer `id`) or new `CodeSnippets` (key).",
-            "In your `attempt_completion`, provide a summary of changes and confirm test/linter status. Also indicate the new suggested status for `TechDebtCandidates:[TechDebtKey]` (e.g., 'RESOLVED', 'PARTIALLY_ADDRESSED')."
+            "Target Tech Debt: `CustomData TechDebtCandidates:[TechDebtKey]` (key).",
+            "Your goal is to resolve this tech debt. Create a high-level plan, log it, and use your single-step execution loop to manage your specialists (CodeRefactorer, TestAutomator). You may consult `.nova/workflows/nova-leaddeveloper/WF_DEV_TECHDEBT_REFACTOR_COMPONENT_001_v1.md` for a reference process.",
+            "Ensure you address the described debt, improve code quality/performance as specified, and ensure no regressions by running all relevant tests."
           ],
           "Required_Input_Context": {
             "TechDebtCandidate_Ref": { "type": "custom_data", "category": "TechDebtCandidates", "key": "[TechDebtKey]" },
@@ -94,11 +91,9 @@
           "Phase_Goal": "Verify that the refactoring for `TechDebtCandidates:[TechDebtKey]` was successful, introduced no regressions, and achieved its quality goals.",
           "Lead_Mode_Specific_Instructions": [
             "Target: Refactored code related to `TechDebtCandidates:[TechDebtKey]`. Dev changes summary: [From LeadDev's output].",
-            "1. Your TestExecutor should run targeted regression tests on areas affected by the refactoring.",
-            "2. If performance was a goal, execute relevant performance tests (`WF_QA_PERFORMANCE_TEST_EXECUTION_001_v1.md` for guidance).",
-            "3. If complexity reduction was a goal, review code (or delegate to FlowAsk for metrics if possible) for clarity improvements.",
-            "4. Log any new `ErrorLogs` (key) if regressions are found using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
-            "Report on whether the refactoring goals (from `TechDebtCandidates` item or `RefactorCriteria`) were met and if system stability is maintained."
+            "Your goal is to verify the refactoring. Plan and delegate tasks to your specialists to run targeted regression tests and performance tests (if applicable).",
+            "Log any new `ErrorLogs` (key) if regressions are found.",
+            "Report on whether the refactoring goals were met and if system stability is maintained."
           ],
           "Required_Input_Context": {
             "TechDebtCandidate_Ref": { "type": "custom_data", "category": "TechDebtCandidates", "key": "[TechDebtKey]" },

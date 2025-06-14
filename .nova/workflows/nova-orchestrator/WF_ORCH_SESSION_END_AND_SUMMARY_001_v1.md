@@ -19,8 +19,7 @@
 
 1.  **Nova-Orchestrator: Ensure Lead Mode Task Completion/Pause**
     *   **Actor:** Nova-Orchestrator
-    *   **Action:** If a Lead Mode was actively processing a phase, confirm with the user if that Lead should complete its current *smallest logical unit of work* (e.g., current specialist subtask) or if the work should pause immediately.
-    *   If Lead needs to complete a small step, await that `attempt_completion`.
+    *   **Action:** If a Lead Mode was actively processing a phase, confirm with the user if that Lead should attempt to complete its current *entire phase* and provide an `attempt_completion`. If not feasible, ask the Lead (via `new_task`) to reach a safe pause point and report their intermediate status.
     *   **Output:** Current primary delegated phase is at a stable point.
 
 2.  **Nova-Orchestrator: Delegate `active_context.state_of_the_union` Update**
@@ -33,10 +32,8 @@
           "Overall_Project_Goal": "Gracefully end current Nova session.",
           "Phase_Goal": "Update ConPort `active_context.state_of_the_union` with final session status.",
           "Lead_Mode_Specific_Instructions": [
-            "The user is ending the current session.",
-            "Review the overall project progress based on information from Nova-Orchestrator (see context below) and your knowledge of recent architectural/ConPort changes.",
-            "Formulate a concise `state_of_the_union` string (e.g., 'Development of Feature X 50% complete, awaiting API integration. QA blocked on Test Environment Setup.').",
-            "Instruct your Nova-SpecializedConPortSteward to update `active_context`. They must first use `use_mcp_tool` (`tool_name: 'get_active_context'`), modify the `state_of_the_union` field in the retrieved object, then use `use_mcp_tool` (`tool_name: 'update_active_context'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"patch_content\": {\"state_of_the_union\": \"[Your new state of the union string]\"}}`) to update the entry."
+            "The user is ending the current session. Your goal is to formulate a concise, accurate summary of the project's state and ensure it's logged.",
+            "Delegate to your ConPortSteward the task of updating `active_context`. They must first use `get_active_context`, formulate a new `state_of_the_union` string based on my context below and your own knowledge, then use `update_active_context` to log the change."
           ],
           "Required_Input_Context": {
             "Orchestrator_Current_Project_Status_View": "[Nova-Orchestrator's summary of ongoing main tasks and Lead Mode statuses]",

@@ -30,17 +30,14 @@
           "Phase_Goal": "Define detailed specifications for [FeatureName], analyze its impact on the existing architecture of Project [ProjectName], and update relevant ConPort documentation.",
           "Lead_Mode_Specific_Instructions": [
             "Feature to define: [FeatureName] - [UserProvidedFeatureDescription].",
-            "1. Work with the user (simulated via your `ask_followup_question` if needed, relayed by me, Nova-Orchestrator) to detail out user stories, acceptance criteria, and non-functional requirements for [FeatureName]. Your Nova-SpecializedConPortSteward or SystemDesigner should log these to ConPort `CustomData FeatureScope:[FeatureName_Scope_Key]` (key) and `CustomData AcceptanceCriteria:[FeatureName_AC_Key]` (key) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
-            "2. Execute the workflow `.nova/workflows/nova-leadarchitect/WF_ARCH_IMPACT_ANALYSIS_001_v1.md` to assess the impact of [FeatureName] on existing `SystemArchitecture` (key), `APIEndpoints` (key), `DBMigrations` (key), and other relevant ConPort items for Project [ProjectName]. Your team (SystemDesigner, ConPortSteward) should perform the detailed checks as outlined in that workflow.",
-            "3. Based on the impact analysis, propose necessary architectural changes or additions. Log these as new/updated `SystemArchitecture` (key) components and related `Decisions` (integer `id`) using `use_mcp_tool`.",
-            "4. If new APIs or DB changes are needed, ensure your SystemDesigner defines them in `APIEndpoints` (key) / `DBMigrations` (key) using `use_mcp_tool`.",
-            "5. To update `active_context`, instruct your team to use `use_mcp_tool` with `tool_name: 'update_active_context'` and provide a `patch_content` argument to set the `state_of_the_union` field to 'Feature [FeatureName] specified and impact assessed. Ready for development planning'."
+            "Your goal for this phase is to define the feature specifications and assess its impact. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists.",
+            "You may consult `.nova/workflows/nova-leadarchitect/WF_ARCH_IMPACT_ANALYSIS_001_v1.md` for a reference process for the impact analysis part.",
+            "Key sub-tasks for your specialists will include: detailing user stories, acceptance criteria, and non-functional requirements in ConPort (`FeatureScope` and `AcceptanceCriteria` categories); analyzing impact on existing architecture; and proposing/logging any necessary architectural changes or new design artifacts (`SystemArchitecture`, `APIEndpoints`, `DBMigrations`)."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",
             "FeatureName": "[FeatureName]",
             "UserProvidedFeatureDescription": "[UserProvidedFeatureDescription]",
-            "Path_To_Impact_Analysis_Workflow": ".nova/workflows/nova-leadarchitect/WF_ARCH_IMPACT_ANALYSIS_001_v1.md",
             "Existing_Project_ProductContext_Ref": { "type": "product_context", "id": "product_context"},
             "Existing_Project_SystemArchitecture_Ref_Pattern": { "type": "custom_data", "category": "SystemArchitecture", "key_pattern": "[ProjectName]_*" }
           },
@@ -107,7 +104,7 @@
           "Overall_Project_Goal": "Successfully integrate new feature [FeatureName] into Project [ProjectName].",
           "Phase_Goal": "Implement [FeatureName] for Project [ProjectName] according to provided specifications, ensuring code quality and comprehensive testing.",
           "Lead_Mode_Specific_Instructions": [
-            "Your goal for this phase is to implement the feature '[FeatureName]'. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` for a reference process. Ensure all code is tested and quality standards are met."
+            "Your goal for this phase is to implement the feature '[FeatureName]'. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` for a reference process. Ensure all code is implemented according to specifications, is fully tested, and meets quality standards."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",
@@ -153,12 +150,9 @@
           "Phase_Goal": "Thoroughly test the new [FeatureName] within Project [ProjectName], including integration with existing functionalities. Identify and track defects, verify fixes.",
           "Lead_Mode_Specific_Instructions": [
             "Feature to test: [FeatureName].",
-            "Refer to `FeatureScope:[FeatureName_Scope_Key]` (key) and `AcceptanceCriteria:[FeatureName_AC_Key]` (key) (retrieve using `use_mcp_tool`).",
-            "Develop and execute test cases covering functional requirements, AC, and integration points with existing system parts.",
-            "Log all defects as structured `CustomData ErrorLogs:[key]` (R20 compliant) using `use_mcp_tool` (`tool_name: 'log_custom_data'`).",
-            "Manage bug lifecycle: investigation, coordination for fixes (via me, Nova-Orchestrator, to Nova-LeadDeveloper), verification.",
-            "Coordinate with me to ensure `active_context.open_issues` is updated.",
-            "At the end of this phase, coordinate with me to update `active_context.state_of_the_union` to 'Feature [FeatureName] QA Completed. Quality Status: [e.g., Ready for Integration, Blocked by X bugs]'."
+            "Your goal for this phase is to ensure the quality of feature '[FeatureName]'. Create a high-level test plan, log it to ConPort, and then use your standard single-step execution loop to delegate atomic testing and bug investigation tasks to your specialists.",
+            "You may consult `.nova/workflows/nova-leadqa/` for reference processes, such as `WF_QA_TEST_CASE_DESIGN_FROM_SPECS_001_v1.md` or `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md`.",
+            "Key sub-tasks for your specialists will include: developing and executing test cases based on `AcceptanceCriteria`, logging all defects as structured `ErrorLogs`, managing the bug lifecycle, and verifying fixes."
           ],
           "Required_Input_Context": {
             "ProjectName": "[ProjectName]",

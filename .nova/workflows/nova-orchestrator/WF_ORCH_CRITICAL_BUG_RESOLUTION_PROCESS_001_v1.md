@@ -51,12 +51,10 @@
           "Phase_Goal": "Perform rapid root cause analysis for `ErrorLogs:[ErrorLogKey]`, document findings, and propose an immediate mitigation or investigation path.",
           "Lead_Mode_Specific_Instructions": [
             "CRITICAL BUG: `ErrorLogs:[ErrorLogKey]` - [Symptom from ErrorLog].",
-            "1. Assign Nova-SpecializedBugInvestigator to perform immediate, prioritized root cause analysis. They should leverage all available ConPort data (code links, related decisions, past errors) and system logs, using `use_mcp_tool` for ConPort access.",
-            "2. Goal for BugInvestigator: Identify root cause or narrow down possibilities significantly within [e.g., 2-4 hours, from NovaSystemConfig if available, otherwise your best estimate].",
-            "3. Ensure BugInvestigator meticulously updates `ErrorLogs:[ErrorLogKey]` (key) value object with all findings (investigation_notes, reproduction_steps, environment_snapshot, evolving_hypothesis) using `use_mcp_tool` (first `get_custom_data`, then `log_custom_data` to overwrite).",
-            "4. If a temporary workaround/mitigation is identifiable, document it clearly in the `ErrorLogs:[ErrorLogKey]` notes.",
-            "5. Update your LeadQA phase `Progress` (integer `id`) frequently using `use_mcp_tool` (`tool_name: 'update_progress'`).",
-            "6. Coordinate with me (Nova-Orchestrator) to ensure `active_context.open_issues` is updated (I will delegate actual update to LeadArchitect)."
+            "Your goal for this phase is to perform rapid RCA. Create a high-level plan for this, log it to ConPort, and then use your single-step execution loop to delegate tasks to your specialists, primarily Nova-SpecializedBugInvestigator.",
+            "You may consult `.nova/workflows/nova-leadqa/WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md` for a reference process.",
+            "Ensure BugInvestigator meticulously updates `ErrorLogs:[ErrorLogKey]` with findings.",
+            "If a temporary workaround is identifiable, document it clearly in the `ErrorLogs` item."
           ],
           "Required_Input_Context": {
             "ConPort_ErrorLog_Key_To_Investigate": "[ErrorLogKey]",
@@ -86,13 +84,10 @@
           "Phase_Goal": "Develop, unit test, and document a robust fix for `ErrorLogs:[ErrorLogKey]`.",
           "Lead_Mode_Specific_Instructions": [
             "CRITICAL FIX REQUIRED for `ErrorLogs:[ErrorLogKey]`. Root cause identified by Nova-LeadQA: [Summary from ErrorLog].",
-            "1. Assign Nova-SpecializedFeatureImplementer or Nova-SpecializedCodeRefactorer to implement the fix with highest priority.",
-            "2. Ensure the fix is as targeted as possible to minimize regression risk.",
-            "3. CRITICAL: Comprehensive unit tests MUST accompany the fix.",
-            "4. Code must pass all linters as per `ProjectConfig:ActiveConfig`.",
-            "5. Log any technical `Decisions` (integer `id`) made for the fix (e.g., specific algorithm change, library patch usage) using `use_mcp_tool` (`tool_name: 'log_decision'`).",
-            "6. Update your LeadDeveloper phase `Progress` (integer `id`) frequently using `use_mcp_tool` (`tool_name: 'update_progress'`).",
-            "7. If fix requires minor, safe, related refactoring for stability, perform it and document in `TechDebtCandidates` (key) if larger refactoring is out of scope."
+            "Your goal for this phase is to implement the fix. Create a high-level plan, log it, and use your single-step execution loop to delegate tasks to your specialists (e.g., FeatureImplementer for the fix, TestAutomator for unit tests).",
+            "Ensure the fix is as targeted as possible to minimize regression risk.",
+            "CRITICAL: Comprehensive unit tests MUST accompany the fix.",
+            "Code must pass all linters as per `ProjectConfig:ActiveConfig`."
           ],
           "Required_Input_Context": {
             "ConPort_ErrorLog_To_Fix_Key": "[ErrorLogKey]",
@@ -125,13 +120,9 @@
           "Phase_Goal": "Verify that the fix implemented by Nova-LeadDeveloper for `ErrorLogs:[ErrorLogKey]` effectively resolves the issue without regressions.",
           "Lead_Mode_Specific_Instructions": [
             "VERIFY FIX for `ErrorLogs:[ErrorLogKey]`. Fix details from Nova-LeadDeveloper: [Summary of fix, modified files/PR].",
-            "1. Assign Nova-SpecializedFixVerifier.",
-            "2. Verifier must execute original reproduction steps from `ErrorLogs:[ErrorLogKey]` (retrieved via `use_mcp_tool`).",
-            "3. Verifier must execute any specific verification test cases defined for this bug or feature area.",
-            "4. Perform targeted regression testing around the fix area.",
-            "5. If fix confirmed: Update `ErrorLogs:[ErrorLogKey]` status to RESOLVED using `use_mcp_tool` (`get_custom_data` then `log_custom_data`). Add verification notes. Consider logging a `LessonsLearned` (key) entry with your team for this critical bug.",
-            "6. If fix NOT confirmed: Update `ErrorLogs:[ErrorLogKey]` status back to OPEN (or FAILED_VERIFICATION) using `use_mcp_tool` (`get_custom_data` then `log_custom_data`), add detailed failure notes, and specify what still fails.",
-            "7. Coordinate with me (Nova-Orchestrator) to ensure `active_context.open_issues` is updated."
+            "Your goal is to verify the fix. Plan and delegate tasks to your FixVerifier to execute the original repro steps and targeted regression tests.",
+            "Ensure the final status of the `ErrorLogs` item (RESOLVED or REOPENED) is updated in ConPort.",
+            "Coordinate with me to ensure `active_context.open_issues` is updated."
           ],
           "Required_Input_Context": {
             "ConPort_ErrorLog_To_Verify_Key": "[ErrorLogKey]",

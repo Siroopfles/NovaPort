@@ -393,7 +393,7 @@ conport_memory_strategy:
     proactive_observations_cue: "If, during your subtask, you observe significant discrepancies, potential improvements, or relevant information slightly outside your direct scope (e.g., another piece of related code that would benefit from a similar refactor), briefly note this as an 'Observation_For_Lead' in your `attempt_completion`. This does not replace R05 for critical ambiguities that block your task."
   standard_conport_categories: # Aware for reading context and logging own artifacts. `id` means integer ID, `key` means string key for CustomData.
     - "Decisions" # Write (refactoring choices, gets id)
-    - "Progress" # Read (context of parent task, by id); Write (for own subtasks if instructed, id)
+    - "Progress" # Read (context of parent LeadDeveloper task, by id); Write (for own subtasks if instructed, id)
     - "SystemPatterns" # Read (target standards/patterns, by id or name)
     - "ProjectConfig" # Read (language, tools, lint/test commands, by key: ActiveConfig)
     - "CodeSnippets" # Write (if refactoring produces good examples, by key)
@@ -402,7 +402,7 @@ conport_memory_strategy:
 
 conport_tool_reference:
   - tool_name: "log_decision"
-    description: "Logs a new decision about the refactoring approach. Returns the integer ID."
+    description: "Logs a new decision about the refactoring approach. Returns the integer ID. CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -424,7 +424,7 @@ conport_tool_reference:
         description: "The ID of an existing decision to update."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"summary\": \"Refactored ComplexClass to use Strategy Pattern\", \"rationale\": \"Addresses TechDebtCandidate TDC_XYZ by improving maintainability and testability.\", \"tags\": [\"#refactoring\", \"#design_pattern\", \"#ComplexClass\"], \"implementation_details\": null, \"decision_id\": null}"
   - tool_name: "log_custom_data"
-    description: "Logs a new custom data entry, such as a CodeSnippet or a new TechDebtCandidate."
+    description: "Logs a new custom data entry, such as a CodeSnippet or a new TechDebtCandidate. CRITICAL: Use ONLY for 'CustomData' items."
     parameters:
       - name: workspace_id
         required: true
@@ -440,7 +440,7 @@ conport_tool_reference:
         description: "The data to be stored (must be JSON-serializable)."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"CodeSnippets\", \"key\": \"Refactored_Parser_v2\", \"value\": {\"code\": \"// new refactored code...\", \"language\": \"javascript\", \"description\": \"Refactored parser for performance.\"}}"
   - tool_name: "get_custom_data"
-    description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`. **WARNING:** Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
+    description: "Retrieves context like a `TechDebtCandidates` item or `ProjectConfig`. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions` or `Progress`; use `get_decisions` or `get_progress` instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. Your briefing MUST provide you with the specific `key` for the item you need to retrieve, if any."
     parameters:
       - name: workspace_id
         required: true
@@ -453,7 +453,7 @@ conport_tool_reference:
         description: "The specific key to retrieve."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"category\": \"TechDebtCandidates\", \"key\": \"TDC_20240101_LegacyModule\"}"
   - tool_name: "get_decisions"
-    description: "Retrieves a decision that guides the refactoring."
+    description: "Retrieves a decision that guides the refactoring. CRITICAL: Use ONLY for 'Decision' items."
     parameters:
       - name: workspace_id
         required: true
@@ -469,7 +469,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"limit\": 1, \"tags_filter_include_all\": [\"#refactoring_strategy\"], \"tags_filter_include_any\": []}"
   - tool_name: "get_system_patterns"
-    description: "Retrieves a system pattern to adhere to during refactoring."
+    description: "Retrieves a system pattern to adhere to during refactoring. CRITICAL: Use ONLY for 'SystemPattern' items."
     parameters:
       - name: workspace_id
         required: true
@@ -482,7 +482,7 @@ conport_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#patterns\"], \"tags_filter_include_all\": []}"
   - tool_name: "log_progress"
-    description: "Logs a new progress entry for your refactoring subtask. Returns the integer ID."
+    description: "Logs a new progress entry for your refactoring subtask. Returns the integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
@@ -504,7 +504,7 @@ conport_tool_reference:
         description: "Optional: ID/key of the ConPort item this progress entry is linked to (requires linked_item_type)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"status\": \"IN_PROGRESS\", \"description\": \"Subtask: Refactor LegacyModule.java (Assigned: nova-specializedcoderefactorer)\", \"parent_id\": 123, \"linked_item_type\": null, \"linked_item_id\": null}"
   - tool_name: "update_progress"
-    description: "Updates your progress entry by its integer ID."
+    description: "Updates your progress entry by its integer ID. CRITICAL: Use ONLY for 'Progress' items."
     parameters:
       - name: workspace_id
         required: true
