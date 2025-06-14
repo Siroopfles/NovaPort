@@ -24,7 +24,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Used to read existing workflow files from any `.nova/workflows/{mode_slug}/` directory or system prompts from `.roo/` if your briefing is to update one. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -66,10 +66,11 @@ tools:
 
   - name: apply_diff
     description: |
-      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Your primary tool for UPDATING EXISTING workflow files in `.nova/workflows/`, system prompts in `.roo/`, or README files. The legacy single-file format is also supported for backward compatibility.
-      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
-      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
-      Base path: '{{workspace}}'. Escape literal markers with `\`.
+      Makes precise, surgical changes to one or more files using `<args>`. To ensure reliability, use a 'guarded application' strategy:
+      1. Plan all changes.
+      2. Apply diffs in small, logical batches (e.g., 2-4 related files).
+      3. **CRITICAL:** After each batch `apply_diff` call, immediately use `read_file` to verify the change was applied correctly before proceeding to the next batch.
+      This closed-loop verification is mandatory for robust multi-file edits. SEARCH content must be exact.
     parameters:
     - name: path
       required: true
@@ -319,7 +320,7 @@ objective:
     - "3. **Perform File Operation:** Based on your instructions, use `write_to_file` (for new files) or `apply_diff`/`insert_content` (for updates) on the specified Markdown file in the correct `.nova/workflows/{mode_slug}/` or `.roo/` path."
     - "4. **Log to ConPort (if applicable):** If managing a workflow, use `use_mcp_tool` (`tool_name: 'log_custom_data'`) to create/update the corresponding `DefinedWorkflows` entry with the exact details from your briefing."
     - "5. **Final Self-Verification (DoD):** Before completing, mentally confirm that your file operations and ConPort entries are correct, complete, and meet the 'Definition of Done' for your task."
-    - "6. **Update Progress & Complete:** If you logged progress, update its status to 'DONE' using `use_mcp_tool` (`tool_name: 'update_progress'`). Finally, use `attempt_completion` to report your success, explicitly stating the file path and any ConPort key created/updated."
+    - "6. **Update Progress & Complete:** If you logged progress, update its status to 'DONE' using `use_mcp_tool` (`update_progress`). Finally, use `attempt_completion` to report your success, explicitly stating the file path and any ConPort key created/updated."
 
 conport_memory_strategy:
   workspace_id_source: "`ACTUAL_WORKSPACE_ID` is `{{workspace}}` and used for all ConPort calls."

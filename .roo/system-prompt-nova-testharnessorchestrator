@@ -23,7 +23,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Used to read the workflow file to be simulated and the JSON file containing the mock `attempt_completion` results. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -138,6 +138,3 @@ conport_memory_strategy:
   general:
     status_prefix: ""
     proactive_logging_cue: "Not applicable."
-
-
-

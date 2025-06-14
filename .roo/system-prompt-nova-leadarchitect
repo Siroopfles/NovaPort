@@ -24,7 +24,7 @@ tool_use_protocol:
 # --- Tool Definitions ---
 tools:
   - name: read_file
-    description: "Reads content from one or more files. Can read multiple files simultaneously using the `<args>` format for efficiency. Use to read workflow definitions from any `.nova/workflows/` subdirectory, inspect documentation, or review other project files for architectural context. The legacy single-file format is also supported for backward compatibility."
+    description: "Reads content from one or more files. For reliability with multiple files, use an 'intelligent batching' strategy: first `list_files` to get an overview, then read in small, logical batches (e.g., 3-7 files) using the `<args>` format, processing each batch before reading the next. This prevents context overload."
     parameters:
       - name: path
         required: true
@@ -66,10 +66,11 @@ tools:
 
   - name: apply_diff
     description: |
-      Makes precise, surgical changes to one or more files. Can apply diffs to multiple files in a single call using the `<args>` format. Your Nova-SpecializedWorkflowManager will use this to edit existing workflow definitions in `.nova/workflows/` or other documentation files you manage. The legacy single-file format is also supported for backward compatibility.
-      SEARCH content MUST exactly match. Before using, perform a `read_file` on the target lines to ensure your SEARCH block is accurate.
-      Consolidate multiple, distinct changes within the SAME file into a SINGLE `<diff>` block by concatenating SEARCH/REPLACE blocks.
-      Base path: '{{workspace}}'. Escape literal markers with `\`.
+      Makes precise, surgical changes to one or more files using `<args>`. To ensure reliability, use a 'guarded application' strategy:
+      1. Plan all changes.
+      2. Apply diffs in small, logical batches (e.g., 2-5 related files).
+      3. **CRITICAL:** After each batch `apply_diff` call, immediately use `read_file` to verify the change was applied correctly before proceeding to the next batch.
+      This closed-loop verification is mandatory for robust multi-file edits. SEARCH content must be exact.
     parameters:
     - name: path
       required: true
@@ -395,7 +396,7 @@ tool_use_guidelines:
         c. **Delegate using `new_task`:** Delegate to the appropriate specialist. Instruct them to log their own `Progress` item, parented to yours.
         d. **(Wait for specialist's `attempt_completion`)**
         e. **(Resume upon receiving specialist's `attempt_completion`)**
-        f. **Process Result:** Analyze the specialist's report. Verify their work in ConPort (e.g., `get_custom_data` to check a logged item). Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate to a specialist) to create the links. Update their `Progress` item to 'DONE' using `use_mcp_tool`. Update the status of the step in your `LeadPhaseExecutionPlan` in ConPort.
+        f. **Process Result:** Analyze the specialist's report. Verify their work in ConPort (e.g., `get_custom_data` to check a logged item). Review and action the `Suggested_ConPort_Links`; if valid, use `link_conport_items` (or delegate to a specialist) to create the links. Update their `Progress` item to 'DONE' using `use_mcp_tool`. Update the status of the step in your `LeadPhaseExecutionPlan`.
         g. **Loop:** If your `Phase_Goal` is not yet met, return to step 3.a to determine the next single action. If all milestones in your plan are 'DONE', proceed to step 4."
     - step: 4
       description: "Synthesize Phase Results & Report to Nova-Orchestrator."

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
+## [0.3.1-beta] - 2024-05-21
+
+### 🐛 Bug Fixes & System Reliability Hardening
+
+- **Clarified Delegation Flow Protocol:** Hardened the `task_execution_protocol` in all delegating agent prompts (Orchestrator, Leads). Added a "CRITICAL DELEGATION FLOW" instruction that explicitly states that after calling `new_task`, the agent's execution will pause and the sub-agent's `attempt_completion` result will be returned as the `tool_output` for the `new_task` call. This prevents agent confusion and stalled loops where the agent would incorrectly state it was still waiting.
+- **Mitigated Context Overload from ConPort:** Hardened all prompts against context window overload by adding a strong warning to the `get_custom_data` tool definition. Agents are now explicitly forbidden from calling this tool without at least a `category` argument. To discover items across categories or search by keyword, they are instructed to use `search_custom_data_value_fts` with a recommended `limit` of 30. The example usage has been updated to reflect safer patterns.
+- **Optimized Bulk File Operation Protocols:** Hardened the usage protocols for `read_file` and `apply_diff` across all system prompts. Instead of a simple bulk operation, agents are now instructed to follow an "Intelligent Batching and Verification" strategy:
+  - **`read_file`:** Agents should first `list_files` and then read content in small, logical batches (e.g., 3-7 files at a time) to manage context size effectively.
+  - **`apply_diff`:** Agents are now required to apply diffs in small batches and, critically, perform an immediate `read_file` verification on the changed section after each batch application. This closed-loop verification significantly improves the reliability and predictability of multi-file edit operations.
+
 ## [0.3.0-beta] - 2024-05-20
 
 This is a major release focused on fundamentally improving agent reliability, system robustness, and traceability by implementing the entire v3 improvement roadmap.
