@@ -1,0 +1,28 @@
+# Configuration file for GitHub Super-Linter
+# Docs: https://github.com/super-linter/super-linter/
+
+# This configuration disables specific, noisy markdownlint rules for the .roo/ directory,
+# where YAML-like indentation often conflicts with standard Markdown linting rules.
+# This helps focus the linter output on more critical issues.
+#
+# How to run locally for testing:
+# docker run --rm \
+#   -e RUN_LOCAL=true \
+#   -e VALIDATE_ALL_CODEBASE=true \
+#   -v "$(pwd)":/tmp/lint \
+#   ghcr.io/super-linter/super-linter:v6
+
+# Linters to run
+VALIDATE_MARKDOWN: true
+VALIDATE_YAML: true
+VALIDATE_BASH: true
+VALIDATE_PYTHON_BLACK: true
+VALIDATE_PYTHON_FLAKE8: true
+VALIDATE_PYTHON_ISORT: true
+VALIDATE_PYTHON_MYPY: true
+# ... add other linters you want to keep enabled
+
+# Disable specific rules for Markdown files within the .roo/ directory
+MARKDOWN_CUSTOM_RULES_FILE: .github/linters/markdownlint-roo-config.json
+MARKDOWN_FILTER_REGEX_INCLUDE:
+  - \.roo/.*

@@ -1,4 +1,4 @@
-name: Nova System Validation
+name: Nova System Validation CI
 
 on:
   push:
@@ -7,32 +7,45 @@ on:
     branches: [ main, dev ]
 
 jobs:
-  lint-files:
-    name: Lint Repository Files
+  validate:
+    name: Lint & Format Check
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Run Super-Linter
-        uses: super-linter/super-linter@v6
-        env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # --- Stap 1: Logische validatie (faalt als er echte fouten zijn) ---
+      - name: Set up Python for Validation Script
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Run Nova Validation Script
+        run: python scripts/ci/validate_nova.py
+        
+      # --- Stap 2: Setup voor formatteertools ---
+      - name: Setup Node.js for Prettier
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-  validate-nova-structure:
-    name: Validate Nova Structure
-    runs-on: ubuntu-latest
-    needs: lint-files
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - name: Install Prettier and dependencies
+        run: npm install
 
-      - name: Set up Python
+      - name: Set up Python for Formatters
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Run Nova Validation Script
-        run: python scripts/ci/validate_nova.py
+      - name: Install Python formatters
+        run: pip install black isort
+
+      # --- Stap 3: Formattering CHECK (faalt als opmaak niet correct is) ---
+      - name: Check formatting with Prettier
+        run: ./node_modules/.bin/prettier --check .
+
+      - name: Check import sorting with isort
+        run: isort --check-only .
+
+      - name: Check formatting with black
+        run: black --check .

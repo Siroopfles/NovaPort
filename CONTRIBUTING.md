@@ -29,6 +29,16 @@ When proposing an enhancement:
     *   **Potential Impact:** Discuss how this change might affect existing modes or workflows. For example, a new workflow might require a minor clarification in a Lead Mode's system prompt.
     *   **Alternative Solutions:** If you've considered other ways to solve the problem, please mention them.
 
+## Code Formatting & Style
+
+To maintain a consistent style across the repository, we use automated formatters for various file types. A Continuous Integration (CI) check will run on every Pull Request to ensure that all files are correctly formatted.
+
+**Before submitting a Pull Request, please run the auto-formatting script locally:**
+
+```bash
+./scripts/format.sh
+```
+
 This structured approach helps us understand the full context of your proposal and have a productive discussion.
 
 Thank you for helping make the Nova System better!
