@@ -4,6 +4,13 @@ on:
   push:
     branches: [ main, dev ]
 
+# ===================================================================
+# NIEUWE SECTIE: Verleen schrijfrechten aan de workflow
+# ===================================================================
+permissions:
+  contents: write
+# ===================================================================
+
 jobs:
   auto-format:
     name: Auto-Format & Fix Styling
@@ -14,6 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # We need the token to be able to push changes back to the repository
+          # Het GITHUB_TOKEN heeft nu de juiste permissies dankzij de 'permissions' sectie hierboven.
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js for Prettier
@@ -22,11 +30,9 @@ jobs:
           node-version: '18'
 
       - name: Install Prettier and dependencies
-        # This assumes package.json exists from our previous step
         run: npm install
 
       - name: Run Prettier to format Markdown, YAML, and Shell Scripts
-        # The --write flag modifies the files in place
         run: ./node_modules/.bin/prettier --write .
 
       - name: Set up Python for Black and isort
