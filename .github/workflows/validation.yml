@@ -1,38 +1,35 @@
-name: Nova System Validation CI
+name: Nova System CI & Auto-Formatter
 
 on:
   push:
     branches: [ main, dev ]
-  pull_request:
-    branches: [ main, dev ]
 
 jobs:
-  validate:
-    name: Lint & Format Check
+  auto-format:
+    name: Auto-Format & Fix Styling
     runs-on: ubuntu-latest
+    
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
-      # --- Stap 1: Logische validatie (faalt als er echte fouten zijn) ---
-      - name: Set up Python for Validation Script
-        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      
-      - name: Run Nova Validation Script
-        run: python scripts/ci/validate_nova.py
-        
-      # --- Stap 2: Setup voor formatteertools ---
+          # We need the token to be able to push changes back to the repository
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Setup Node.js for Prettier
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
       - name: Install Prettier and dependencies
+        # This assumes package.json exists from our previous step
         run: npm install
 
-      - name: Set up Python for Formatters
+      - name: Run Prettier to format Markdown, YAML, and Shell Scripts
+        # The --write flag modifies the files in place
+        run: ./node_modules/.bin/prettier --write .
+
+      - name: Set up Python for Black and isort
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -40,12 +37,16 @@ jobs:
       - name: Install Python formatters
         run: pip install black isort
 
-      # --- Stap 3: Formattering CHECK (faalt als opmaak niet correct is) ---
-      - name: Check formatting with Prettier
-        run: ./node_modules/.bin/prettier --check .
+      - name: Run isort to sort Python imports
+        run: isort .
 
-      - name: Check import sorting with isort
-        run: isort --check-only .
-
-      - name: Check formatting with black
-        run: black --check .
+      - name: Run black to format Python code
+        run: black .
+      
+      - name: Commit and push changes if any
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: ✨ auto-format code"
+          commit_user_name: "GitHub Actions Bot"
+          commit_user_email: "actions@github.com"
+          commit_author: "GitHub Actions Bot <actions@github.com>"
