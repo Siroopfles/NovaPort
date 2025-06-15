@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
+## [0.3.4-beta] - 2024-05-23
+
+### ✨ New Features & Capabilities
+
+- **Enabled Specialist-Proposed Alternatives:** System-wide update to empower `Specialist` modes to propose alternative solutions if a briefed task is flawed or inefficient.
+  - Updated all 10 specialist prompts to include a rule (`R26`) allowing them to return a `Proposed_Alternative` block in their `attempt_completion`.
+  - Hardened all 3 `Lead` mode prompts to recognize and handle the `Proposed_Alternative` block from specialists, requiring the Lead to log a formal `Decision` to approve or reject the proposal before proceeding.
+- **Implemented Configurable Quality Gates:** Introduced a new project-level setting for flexible quality governance.
+  - Added `testing.quality_gate_level` (`'strict' | 'moderate' | 'lean'`) to the example `ProjectConfig:ActiveConfig` file.
+  - Updated `Nova-LeadDeveloper` and `Nova-LeadQA` prompts to read this setting and adjust the rigor of their 'Definition of Done' checks and delegated testing tasks accordingly.
+
+### 📖 Documentation & Prompts
+
+- **Updated `ROADMAP.md`:** Marked the "Enable Specialist-Proposed Alternatives" and "Implement Configurable Quality Gates" short-term goals as complete.
+
 ## [0.3.3-beta] - 2024-05-22
 
 ### 🚀 Improvements & System Reliability Hardening

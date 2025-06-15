@@ -25,6 +25,8 @@
   "testing": {
     "_comment": "Crucial for all QA and Developer workflows. Defines paths, commands, and target environments.",
     "framework": "pytest",
+    "_quality_gate_comment": "Defines the rigor of DoD checks. Can be 'strict', 'moderate', or 'lean'.",
+    "quality_gate_level": "strict",
     "paths": {
       "unit_tests": "tests/unit/",
       "integration_tests": "tests/integration/",
