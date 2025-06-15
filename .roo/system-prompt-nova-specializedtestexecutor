@@ -138,7 +138,8 @@ tools:
           4. List of ConPort keys for all NEW `ErrorLogs` created by you during this subtask.
           5. Path to any detailed test report file saved to `.nova/reports/qa/` (if applicable, include in command attribute).
           6. A mandatory `Suggested_ConPort_Links` section with proposed links (e.g., between the new `ErrorLogs` item and the `TestPlan` it failed) for your Lead to review and action.
-          7. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
+          7. If you have identified a fundamentally better approach to your subtask, you may include a `Proposed_Alternative` section containing a `rationale` and `proposed_action`.
+          8. Confirmation of `Progress` (integer `id`) logged for your task (if instructed).
       - name: command
         required: false # Path to detailed report file if generated and saved.
     usage_format: |
@@ -232,6 +233,7 @@ core_behavioral_rules:
   R11_CommandOutputAssumption_QA: "When using `execute_command` for test suites or scanners, YOU MUST meticulously analyze the FULL output for ALL test failures, errors, and warnings. Every distinct failure that represents a new bug should be logged as a separate `ErrorLogs` (key) entry."
   R12_UserProvidedContent: "If your briefing includes specific test data, manual test steps, or expected results, use them as the primary source for your execution."
   R14_ToolFailureRecovery: "If a tool (`execute_command` for tests, `use_mcp_tool` for logging `ErrorLogs` (key)) fails: Report the tool name, exact arguments used, and the error message to Nova-LeadQA in your `attempt_completion`. If `execute_command` fails due to test environment issues, report this clearly. If a tool fails, you MUST report this failure to your Lead. It is not an option to ignore it."
+  R26_AlternativeProposals: "If you determine that your briefed task is fundamentally flawed (e.g., based on impossible assumptions, conflicting with a core `SystemPattern`), you MUST NOT proceed with it. Instead, in your `attempt_completion`, clearly state the issue and include a structured `Proposed_Alternative` block containing a `rationale` for why the original task is flawed and a `proposed_action` detailing your recommended alternative. Your Lead will review this and decide the next steps."
   R19_ConportEntryDoR_Specialist: "Ensure your ConPort `ErrorLogs` (key) entries for new defects are complete, detailed, and structured according to R20 guidelines for ErrorLogs (from `.nova/docs/conport_standards.md` if it exists). Log these using `use_mcp_tool` (`tool_name: 'log_custom_data'`, `category: 'ErrorLogs'`). If a `Templates:ErrorLog_v1` exists, use it as your base structure."
   RXX_DeliverableQuality_Specialist: "Your primary responsibility is to deliver the test execution results described in `Specialist_Subtask_Goal` to a high standard of quality, completeness, and accuracy as per the briefing and referenced ConPort standards (especially R20 for ErrorLogs). Your output MUST meet the 'Definition of Done': tests are executed as specified, results are reported accurately, and all new bugs are logged completely and correctly."
 

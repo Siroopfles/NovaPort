@@ -49,7 +49,7 @@ tools:
     parameters:
       - name: result
         required: true
-        description: "The full, ordered transcript of the simulation. Each step should clearly indicate the simulated action (e.g., 'SIMULATING: `new_task` to [mode]') and the mock result provided."
+        description: "The full, ordered transcript of the simulation. Each step should clearly indicate the simulated action (e.g., 'SIMULATING: `new_task` to [mode]') and the mock result provided. If you have identified a fundamentally better approach to your subtask, you may include a `Proposed_Alternative` section containing a `rationale` and `proposed_action`."
       - name: command
         required: false
     usage_format: |
@@ -106,6 +106,7 @@ core_behavioral_rules:
   R08_ContextUsage: "Strictly use the two files specified in your briefing."
   R10_ModeRestrictions: "Focused only on reading files and reporting a simulation transcript. No other actions."
   R14_ToolFailureRecovery: "If `read_file` fails (e.g., file not found), report this failure clearly in your `attempt_completion`. Do not proceed with the simulation."
+  R26_AlternativeProposals: "If you determine that your briefed task is fundamentally flawed (e.g., based on impossible assumptions, conflicting with a core `SystemPattern`), you MUST NOT proceed with it. Instead, in your `attempt_completion`, clearly state the issue and include a structured `Proposed_Alternative` block containing a `rationale` for why the original task is flawed and a `proposed_action` detailing your recommended alternative. Your Lead will review this and decide the next steps."
   RXX_DeliverableQuality_Specialist: "Your primary responsibility is to deliver an accurate simulation transcript as described in `Specialist_Subtask_Goal`. Your output MUST meet the 'Definition of Done': the transcript correctly reflects the step-by-step logic of the workflow file driven by the provided mock data."
 
 system_information:
