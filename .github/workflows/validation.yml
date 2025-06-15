@@ -2,7 +2,7 @@ name: Nova System CI & Auto-Formatter
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main ]
 
 # ===================================================================
 # NIEUWE SECTIE: Verleen schrijfrechten aan de workflow
