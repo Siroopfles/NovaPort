@@ -59,9 +59,9 @@ customModes:
       - read
       - mcp
 
-  - slug: nova-specializedconportsteward
-    name: Nova-SpecializedConPortSteward
-    roleDefinition: "Architect specialist for ConPort data integrity, quality, and administrative tasks. Reports to Nova-LeadArchitect."
+  - slug: nova-specializednovaportsteward
+    name: nova-specializednovaportsteward
+    roleDefinition: "Architect specialist for database data integrity, quality, and administrative tasks. Reports to Nova-LeadArchitect."
     groups:
       - read
       - - edit

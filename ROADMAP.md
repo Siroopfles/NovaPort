@@ -16,14 +16,32 @@ Interested in helping us build the future of Nova? We'd love to have you!
 
 ---
 
-## Short-Term Goals (Next 1-2 Releases)
+## Next Release: v0.4.0-beta (Finalizing the `novaport-mcp` Transition)
 
-These are well-defined features and improvements that are our highest priority. They focus on enhancing system reliability, developer experience (DX), and core agent intelligence.
+These are the final tasks required to complete the transition to the new `novaport-mcp` backend and finalize the v0.4.0-beta release.
 
-- [x] **[DX] Implement GitHub Issue & Pull Request Templates:** Create templates in the `.github/` directory to standardize bug reports, feature requests, and pull requests, making it easier for the community to contribute effectively.
-- [x] **[DX] Create a "Getting Started" Tutorial:** Develop a new `GETTING_STARTED.md` file with a "Hello World" style tutorial that guides new users through building a very simple project from scratch.
-- [x] **[Intelligence] Enable Specialist-Proposed Alternatives:** Update Specialist prompts to allow them to propose a more efficient alternative if a briefed task is flawed. Update Lead prompts to recognize and formally approve or reject these proposals via a ConPort `Decision`.
-- [x] **[Core] Implement Configurable Quality Gates:** Add a `quality_gate_level: 'strict' | 'moderate' | 'lean'` setting to `ProjectConfig:ActiveConfig`. Update `LeadDeveloper` and `LeadQA` prompts to read this setting and adjust their "Definition of Done" checks accordingly for more flexible project governance.
+- **Completed Tasks:**
+    - [x] **[Prompts] Update All System Prompts:** Replaced all "ConPort" references with "NovaPort-MCP" and updated the MCP server name to `novaport-mcp` across all files in the `.roo/` directory.
+    - [x] **[Config] Update `.roomodes`:** Renamed `nova-specializedconportsteward` to `nova-specializednovaportsteward` for consistency.
+
+- **Remaining Tasks:**
+    - [ ] **[Documentation] Update `README.md`:** Rewrite the "Dependencies & Setup" section with instructions for installing `novaport-mcp`. Update all other relevant sections to reference the new backend.
+    - [ ] **[Documentation] Update `GETTING_STARTED.md`:** Align the "Prerequisites" section with the new `novaport-mcp` setup process.
+    - [ ] **[Documentation] Update `NOVA_SYSTEM_ARCHITECTURE.md`:** Revise diagrams and text to explicitly name and link to `novaport-mcp`.
+    - [ ] **[Workflows] Update All Workflow Files:** Systematically review every `.md` file in the `.nova/workflows/` subdirectories. Replace all remaining mentions of "ConPort" with "NovaPort-MCP" or "the database" where appropriate.
+    - [ ] **[Final Review] Finalize `CHANGELOG.md`:** Update the `[Unreleased]` section to include all changes for this release, then rename the tag to `[0.4.0-beta]` and add the final release date.
+    - [ ] **[Release] Create GitHub Release:** Tag the final commit with `v0.4.0-beta` and publish the release on GitHub.
+
+---
+
+## Short-Term Goals (Post v0.4.0)
+
+These are well-defined features and improvements that are our highest priority after the current release.
+
+- [x] **[DX] Implement GitHub Issue & Pull Request Templates:** Create templates in the `.github/` directory to standardize bug reports, feature requests, and pull requests.
+- [x] **[DX] Create a "Getting Started" Tutorial:** Develop a new `GETTING_STARTED.md` file with a "Hello World" style tutorial.
+- [x] **[Intelligence] Enable Specialist-Proposed Alternatives:** Update Specialist prompts to allow them to propose a more efficient alternative.
+- [x] **[Core] Implement Configurable Quality Gates:** Add a `quality_gate_level` setting to `ProjectConfig:ActiveConfig`.
 
 ---
 

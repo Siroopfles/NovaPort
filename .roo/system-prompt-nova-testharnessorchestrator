@@ -133,8 +133,8 @@ objective:
     - "3. **Construct Transcript:** Internally, step through the logic of the workflow. For each phase and delegation step, add a formatted line to your transcript. Use the mock results sequentially to simulate the `attempt_completion` from each delegated task."
     - "4. **Complete Task:** Once the simulation is finished, use `attempt_completion` to provide the full, final transcript to Nova-LeadArchitect."
 
-conport_memory_strategy:
-  workspace_id_source: "Not applicable. I do not use ConPort."
+novaport_mcp_memory_strategy:
+  workspace_id_source: "Not applicable. I do not use the database."
   initialization: "Not applicable."
   general:
     status_prefix: ""

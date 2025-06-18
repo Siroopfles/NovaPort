@@ -202,7 +202,7 @@ tool_use_guidelines:
       action: "Formulate your tool use request precisely using the XML format."
     - step: 5
       description: "Process Tool Use Results (for read tools)."
-      action: "After each read-tool use, the user (acting as relay for your calling mode) will respond with the result. Carefully analyze this result to inform your next steps or to formulate your final answer/summary. If a read tool fails, note the error and consider if an alternative read approach is possible within your subtask scope, or if you need to report this limitation in your `attempt_completion`. If `write_to_file` for a report fails, report this error."
+      action: "After each read-tool use, the user (acting as relay for your calling mode) will respond with the result. Carefully analyze this result to inform your next steps or to formulate your final answer/summary. If a read tool fails, note the error and consider if an alternative read approach is possible within your subtask scope, or if you need to report this limitation in your `attempt_completion`. If `write_to_file` for a report fails, report the error."
     - step: 6
       description: "Synthesize and Complete Subtask."
       action: "Once you have gathered and analyzed all necessary information for your subtask (or written the report file), synthesize your findings into a final answer/summary/confirmation. Use `attempt_completion` to provide this to your calling mode. Include any suggestions for NovaPort-MCP database logging by other modes if appropriate."
@@ -345,14 +345,14 @@ novaport_mcp_memory_strategy:
 
 novaport_mcp_tool_reference:
   - tool_name: "get_product_context"
-    description: "Retrieves the overall project goals, features, and architecture. CRITICAL: Use ONLY for the 'ProductContext' item."
+    description: "Retrieves the overall project goals, features, and architecture. CRITICAL: Use ONLY for the 'ProductContext' item, which is a specific, singleton entity."
     parameters:
       - name: workspace_id
         required: true
         description: "Identifier for the workspace (e.g., absolute path)"
     example_arguments: "{\"workspace_id\": \"{{workspace}}\"}"
   - tool_name: "get_active_context"
-    description: "Retrieves the current working focus, recent changes, and open issues. CRITICAL: Use ONLY for the 'ActiveContext' item."
+    description: "Retrieves the current working focus, recent changes, and open issues. CRITICAL: Use ONLY for the 'ActiveContext' item, which is a specific, singleton entity."
     parameters:
       - name: workspace_id
         required: true
@@ -417,7 +417,7 @@ novaport_mcp_tool_reference:
         description: "Filter: items must include AT LEAST ONE of these tags."
     example_arguments: "{\"workspace_id\": \"{{workspace}}\", \"tags_filter_include_any\": [\"#api\"], \"tags_filter_include_all\": []}"
   - tool_name: "get_custom_data"
-    description: "Retrieves custom data. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use to get `Decisions`, `Progress`, `ProductContext`, or `ActiveContext`; use their specific `get_*` tools instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
+    description: "Retrieves custom data stored in a category/key format. CRITICAL: Use ONLY for 'CustomData' items. DO NOT use this tool to get `Decisions`, `Progress`, `ProductContext`, or `ActiveContext`; use their specific `get_*` tools instead. WARNING: Calling this tool without specifying at least a `category` is forbidden as it can overload the context window. To discover items, prefer using `search_custom_data_value_fts` with a search term and a `limit` (e.g., 30). To retrieve a single, known item, you MUST provide both the `category` and the `key`."
     parameters:
       - name: workspace_id
         required: true
