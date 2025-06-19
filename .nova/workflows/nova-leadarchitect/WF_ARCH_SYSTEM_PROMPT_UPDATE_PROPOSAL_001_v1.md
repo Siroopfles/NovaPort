@@ -18,7 +18,7 @@
 - **Goal:** Formally document the proposed prompt change and obtain user approval.
 - **Suggested Lead Action:**
   1.  **Log Intent:** Log a main `Progress` item for this update task.
-  2.  **Define Proposal:** Log a formal `Decision` in ConPort. The `Decision` must contain:
+  2.  **Define Proposal:** Log a formal `Decision` in NovaPort-MCP. The `Decision` must contain:
       - A `summary` describing the change and the problem it solves.
       - A `rationale` explaining why the change is needed.
       - An `implementation_details` section with a diff-like representation of the exact change.
@@ -44,11 +44,11 @@
 - **Goal:** Finalize the update process and report completion.
 - **Suggested Lead Action:**
   1.  **Verify:** Use `read_file` to verify the specialist's file change.
-  2.  **Delegate Status Update:** Instruct `Nova-SpecializedConPortSteward` to update the status of the approval `Decision` to 'IMPLEMENTED'.
+  2.  **Delegate Status Update:** Instruct `Nova-SpecializedNovaPortSteward` to update the status of the approval `Decision` to 'IMPLEMENTED'.
   3.  **Update Progress:** Update the main `Progress` item for the update cycle to 'DONE'.
   4.  **Report:** In your `attempt_completion` to `Nova-Orchestrator`, confirm the successful implementation of the prompt update, referencing the `Decision` ID.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

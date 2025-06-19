@@ -11,7 +11,7 @@
 
 **Pre-requisites by Nova-Orchestrator:**
 
-- The project is established and ConPort contains sufficient data (`SystemArchitecture`, `ProjectConfig`, `Decisions`, `Progress`, `ErrorLogs`).
+- The project is established and NovaPort-MCP contains sufficient data (`SystemArchitecture`, `ProjectConfig`, `Decisions`, `Progress`, `ErrorLogs`).
 
 **Phases & Steps (managed by Nova-Orchestrator):**
 
@@ -25,14 +25,14 @@
 
 2.  **Nova-Orchestrator -> Delegate to Nova-FlowAsk: Query & Generate Guide**
     - **Actor:** Nova-Orchestrator
-    - **Task:** "Query ConPort for key project information and synthesize it into a comprehensive Markdown onboarding guide. Save the guide to `.nova/reports/onboarding/`."
+    - **Task:** "Query NovaPort-MCP for key project information and synthesize it into a comprehensive Markdown onboarding guide. Save the guide to `.nova/reports/onboarding/`."
     - **`new_task` message for Nova-FlowAsk:**
       ```json
       {
         "Context_Path": "UserRequest (Orchestrator) -> OnboardingGuide (FlowAsk)",
-        "Subtask_Goal": "Generate a developer onboarding guide by querying ConPort and save it to a file.",
+        "Subtask_Goal": "Generate a developer onboarding guide by querying NovaPort-MCP and save it to a file.",
         "Mode_Specific_Instructions": [
-          "1. **Query ConPort:** Use `use_mcp_tool` with `server_name: 'conport'` and `workspace_id: 'ACTUAL_WORKSPACE_ID'` to retrieve the following information:",
+          "1. **Query NovaPort-MCP:** Use `use_mcp_tool` with `server_name: 'novaport-mcp'` and `workspace_id: 'ACTUAL_WORKSPACE_ID'` to retrieve the following information:",
           "   - **System Architecture:** Get the main `SystemArchitecture` summary (e.g., from key `[ProjectName]_Overall_v1`).",
           "   - **Project Config:** Get the full JSON content of `ProjectConfig:ActiveConfig` and `NovaSystemConfig:ActiveSettings`.",
           "   - **Recent Decisions:** Get the 5 most recent `Decisions` using `get_decisions` with a `limit`.",
@@ -67,8 +67,8 @@
       - Inform the user: "The New Developer Onboarding Guide has been generated and saved to `[.nova/reports/onboarding/OnboardingGuide_YYYYMMDD.md]`."
     - **Output:** User is informed and has access to the onboarding guide.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Reads: SystemArchitecture, ProjectConfig, NovaSystemConfig, Decisions, ErrorLogs, ActiveContext.
-- (Writes to file system, not ConPort)
+- (Writes to file system, not the database)

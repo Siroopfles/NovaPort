@@ -1,23 +1,23 @@
 # Workflow: New Project Bootstrap (WF_PROJ_INIT_001_NewProjectBootstrap.md)
 
-**Goal:** To establish the foundational ConPort entries and basic directory structure for an entirely new project, guided by Nova-LeadArchitect based on initial user input.
+**Goal:** To establish the foundational NovaPort-MCP entries and basic directory structure for an entirely new project, guided by Nova-LeadArchitect based on initial user input.
 
-**Primary Orchestrator Actor:** Nova-LeadArchitect (Tasked by Nova-Orchestrator, typically during `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` if no ConPort DB exists and user agrees to initialize).
-**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedConPortSteward, Nova-SpecializedSystemDesigner (for initial dir structure thoughts).
+**Primary Orchestrator Actor:** Nova-LeadArchitect (Tasked by Nova-Orchestrator, typically during `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` if no database exists and user agrees to initialize).
+**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedNovaPortSteward, Nova-SpecializedSystemDesigner (for initial dir structure thoughts).
 
 **Trigger / Recognition:**
 
-- Nova-Orchestrator delegates this task to Nova-LeadArchitect when initializing a brand-new workspace where `context_portal/context.db` does not exist, and the user has agreed to proceed with a new project setup.
+- Nova-Orchestrator delegates this task to Nova-LeadArchitect when initializing a brand-new workspace where a database does not exist, and the user has agreed to proceed with a new project setup.
 
 **Pre-requisites by Nova-LeadArchitect (from Nova-Orchestrator's briefing):**
 
 - `ACTUAL_WORKSPACE_ID` is known.
 - User has provided a `UserProvided_ProjectName` and `UserProvided_MainGoal`.
-- ConPort DB has just been (or is about to be) created by the ConPort server itself upon first tool use.
+- The database has just been (or is about to be) created by the NovaPort-MCP server itself upon first tool use.
 
 **Phases & Steps (managed by Nova-LeadArchitect within its single active task from Nova-Orchestrator):**
 
-**Phase BS.1: Initial ConPort Entry Creation & Standardization**
+**Phase BS.1: Initial Database Entry Creation & Standardization**
 
 1.  **Nova-LeadArchitect: Plan Bootstrap & Log Initial Progress**
 
@@ -25,25 +25,25 @@
       - Parse `Subtask Briefing Object` from Nova-Orchestrator.
       - Log main `Progress` (integer `id`) for this bootstrap phase: "Project Bootstrap: [ProjectName]" using `use_mcp_tool` (`tool_name: 'log_progress'`). Let this be `[BootstrapProgressID]`.
       - Create internal plan (`CustomData LeadPhaseExecutionPlan:[BootstrapProgressID]_ArchitectPlan` (key)). Plan items:
-        1.  Create Initial ProductContext (Delegate to ConPortSteward).
-        2.  Create Initial ActiveContext (Delegate to ConPortSteward).
+        1.  Create Initial ProductContext (Delegate to NovaPortSteward).
+        2.  Create Initial ActiveContext (Delegate to NovaPortSteward).
         3.  Log Initial High-Level Decisions (LeadArchitect self-action).
-        4.  Log Initial Project Standards (DoD/DoR) (Delegate to ConPortSteward).
-        5.  Log Item Templates (ErrorLog, LessonsLearned, Decision) (Delegate to ConPortSteward).
-        6.  Log System Retrospective Heuristics (Delegate to ConPortSteward).
+        4.  Log Initial Project Standards (DoD/DoR) (Delegate to NovaPortSteward).
+        5.  Log Item Templates (ErrorLog, LessonsLearned, Decision) (Delegate to NovaPortSteward).
+        6.  Log System Retrospective Heuristics (Delegate to NovaPortSteward).
         7.  Draft Initial ProjectRoadmap (Delegate to SystemDesigner).
         8.  Trigger Project & Nova System Configuration Setup (This step will execute the WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md workflow).
     - **Output:** Plan ready. `[BootstrapProgressID]` known.
 
-2.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Create Initial `ProductContext`**
+2.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedNovaPortSteward: Create Initial `ProductContext`**
 
     - **Actor:** Nova-LeadArchitect
-    - **Task:** "Create the initial `ProductContext` entry in ConPort for [ProjectName]."
-    - **`new_task` message for Nova-SpecializedConPortSteward:**
+    - **Task:** "Create the initial `ProductContext` entry in NovaPort-MCP for [ProjectName]."
+    - **`new_task` message for Nova-SpecializedNovaPortSteward:**
       ```json
       {
-        "Context_Path": "[ProjectName] (Bootstrap) -> Create ProductContext (ConPortSteward)",
-        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
+        "Context_Path": "[ProjectName] (Bootstrap) -> Create ProductContext (NovaPortSteward)",
+        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in NovaPort-MCP.",
         "Specialist_Subtask_Goal": "Create and log the initial ProductContext for Project [ProjectName].",
         "Specialist_Specific_Instructions": [
           "Log your own detailed `Progress` (integer `id`) for this subtask, parented to `[BootstrapProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
@@ -62,15 +62,15 @@
       ```
     - **Nova-LeadArchitect Action after Specialist's `attempt_completion`:** Verify. Update plan/progress.
 
-3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Create Initial `ActiveContext`**
+3.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedNovaPortSteward: Create Initial `ActiveContext`**
 
     - **Actor:** Nova-LeadArchitect
-    - **Task:** "Create the initial `ActiveContext` entry in ConPort."
-    - **`new_task` message for Nova-SpecializedConPortSteward:**
+    - **Task:** "Create the initial `ActiveContext` entry in NovaPort-MCP."
+    - **`new_task` message for Nova-SpecializedNovaPortSteward:**
       ```json
       {
-        "Context_Path": "[ProjectName] (Bootstrap) -> Create ActiveContext (ConPortSteward)",
-        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
+        "Context_Path": "[ProjectName] (Bootstrap) -> Create ActiveContext (NovaPortSteward)",
+        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in NovaPort-MCP.",
         "Specialist_Subtask_Goal": "Create and log the initial ActiveContext.",
         "Specialist_Specific_Instructions": [
           "Log your own detailed `Progress` (integer `id`) for this subtask, parented to `[BootstrapProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
@@ -95,15 +95,15 @@
       - Example Decision 2: `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"summary\": \"Prioritize Core Feature X for MVP\", \"rationale\": \"Based on user's stated main goal.\"}`
     - **Output:** Initial `Decision` (integer `id`s) logged.
 
-5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Log Initial Project Standards**
+5.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedNovaPortSteward: Log Initial Project Standards**
 
     - **Actor:** Nova-LeadArchitect
     - **Task:** "Create the initial `ProjectStandards` entries for DoD and DoR."
-    - **`new_task` message for Nova-SpecializedConPortSteward:**
+    - **`new_task` message for Nova-SpecializedNovaPortSteward:**
       ```json
       {
-        "Context_Path": "[ProjectName] (Bootstrap) -> Create ProjectStandards (ConPortSteward)",
-        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
+        "Context_Path": "[ProjectName] (Bootstrap) -> Create ProjectStandards (NovaPortSteward)",
+        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in NovaPort-MCP.",
         "Specialist_Subtask_Goal": "Create and log initial ProjectStandards for DoD and DoR.",
         "Specialist_Specific_Instructions": [
           "Log your own detailed `Progress` (integer `id`) for this subtask, parented to `[BootstrapProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
@@ -122,16 +122,16 @@
       ```
     - **Nova-LeadArchitect Action:** Verify. Update plan/progress.
 
-6.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Log Item Templates**
+6.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedNovaPortSteward: Log Item Templates**
 
     - **Actor:** Nova-LeadArchitect
-    - **Task:** "Create standard item templates in ConPort."
-    - **`new_task` message for Nova-SpecializedConPortSteward:**
+    - **Task:** "Create standard item templates in NovaPort-MCP."
+    - **`new_task` message for Nova-SpecializedNovaPortSteward:**
       ```json
       {
-        "Context_Path": "[ProjectName] (Bootstrap) -> LogItemTemplates (ConPortSteward)",
-        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
-        "Specialist_Subtask_Goal": "Log standard JSON object templates for common ConPort items.",
+        "Context_Path": "[ProjectName] (Bootstrap) -> LogItemTemplates (NovaPortSteward)",
+        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in NovaPort-MCP.",
+        "Specialist_Subtask_Goal": "Log standard JSON object templates for common NovaPort-MCP items.",
         "Specialist_Specific_Instructions": [
           "Log your own detailed `Progress` (integer `id`) for this subtask, parented to `[BootstrapProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
           "Create a new `CustomData` category named `Templates`. Log the following items into this category using `use_mcp_tool` (`tool_name: 'log_custom_data'`). The structures MUST match those in `.nova/docs/conport_standards.md`.",
@@ -149,15 +149,15 @@
       ```
     - **Nova-LeadArchitect Action:** Verify. Update plan/progress.
 
-7.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedConPortSteward: Log System Retrospective Heuristics**
+7.  **Nova-LeadArchitect -> Delegate to Nova-SpecializedNovaPortSteward: Log System Retrospective Heuristics**
 
     - **Actor:** Nova-LeadArchitect
-    - **Task:** "Create the initial `ProcessFrictionHeuristics_v1` entry in ConPort."
-    - **`new_task` message for Nova-SpecializedConPortSteward:**
+    - **Task:** "Create the initial `ProcessFrictionHeuristics_v1` entry in NovaPort-MCP."
+    - **`new_task` message for Nova-SpecializedNovaPortSteward:**
       ```json
       {
-        "Context_Path": "[ProjectName] (Bootstrap) -> LogRetrospectiveConfig (ConPortSteward)",
-        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
+        "Context_Path": "[ProjectName] (Bootstrap) -> LogRetrospectiveConfig (NovaPortSteward)",
+        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in NovaPort-MCP.",
         "Specialist_Subtask_Goal": "Log the default configuration for process friction analysis.",
         "Specialist_Specific_Instructions": [
           "Log your own detailed `Progress` (integer `id`) for this subtask, parented to `[BootstrapProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
@@ -184,8 +184,8 @@
       ```json
       {
         "Context_Path": "[ProjectName] (Bootstrap) -> DraftRoadmap (SystemDesigner)",
-        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in ConPort.",
-        "Specialist_Subtask_Goal": "Create a high-level, initial Project Roadmap in ConPort.",
+        "Overall_Architect_Phase_Goal": "Bootstrap new project [ProjectName] in NovaPort-MCP.",
+        "Specialist_Subtask_Goal": "Create a high-level, initial Project Roadmap in NovaPort-MCP.",
         "Specialist_Specific_Instructions": [
           "Log your own detailed `Progress` (integer `id`) for this subtask, parented to `[BootstrapProgressID_as_integer]`, using `use_mcp_tool` (`tool_name: 'log_progress'`).",
           "Based on the `ProductContext` (main goal, envisioned features), create a simple roadmap.",
@@ -206,8 +206,8 @@
 **Phase BS.2: Basic Configuration Setup**
 
 9.  **Nova-LeadArchitect: Trigger Project & Nova System Configuration Setup**
-    - **Action:** Now that the bootstrap is done, the LeadArchitect executes the full process detailed in `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`. This involves creating a new internal plan for that specific workflow, delegating to `Nova-SpecializedConPortSteward`, and potentially asking the user for input via `Nova-Orchestrator`. This is a self-contained process within this larger bootstrap phase.
-    - **Output:** `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) are created in ConPort.
+    - **Action:** Now that the bootstrap is done, the LeadArchitect executes the full process detailed in `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`. This involves creating a new internal plan for that specific workflow, delegating to `Nova-SpecializedNovaPortSteward`, and potentially asking the user for input via `Nova-Orchestrator`. This is a self-contained process within this larger bootstrap phase.
+    - **Output:** `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) are created in NovaPort-MCP.
 
 **Phase BS.3: Finalize Bootstrap & Report to Orchestrator**
 
@@ -225,12 +225,12 @@
       <attempt_completion>
       <result>
       Phase 'Project Bootstrap: [ProjectName]' completed.
-      - Initial ConPort entries for ProductContext, ActiveContext, high-level Decisions, and ProjectRoadmap have been created.
+      - Initial NovaPort-MCP entries for ProductContext, ActiveContext, high-level Decisions, and ProjectRoadmap have been created.
       - Foundational project standards (DoD/DoR) and item templates (ErrorLog, LessonsLearned, Decision) have been logged.
       - The default configuration for the System Retrospective Cycle has been logged.
       - The process for setting up `ProjectConfig:ActiveConfig` and `NovaSystemConfig:ActiveSettings` has been completed via the sub-workflow.
 
-      Key ConPort Items Created:
+      Key NovaPort-MCP Items Created:
       - ProductContext: product_context (key)
       - ActiveContext: active_context (key)
       - Decisions: [List of initial integer IDs, e.g., '1', '2']

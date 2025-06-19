@@ -1,9 +1,9 @@
 # Workflow: Generate Knowledge Graph Visualization (WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1)
 
-**Goal:** To generate a Mermaid.js diagram representing a slice of the ConPort knowledge graph, centered on a specific item, to help visualize dependencies and relationships.
+**Goal:** To generate a Mermaid.js diagram representing a slice of the NovaPort-MCP knowledge graph, centered on a specific item, to help visualize dependencies and relationships.
 
 **Primary Actor:** Nova-LeadArchitect
-**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedConPortSteward
+**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedNovaPortSteward
 
 **Trigger / Recognition:**
 
@@ -17,8 +17,8 @@
 - **Goal:** Recursively fetch all items linked to a specified root item.
 - **Suggested Specialist Sequence & Briefing Guidance:**
   1.  **LeadArchitect Action:** Log a main `Progress` item for this task.
-  2.  **Delegate to `Nova-SpecializedConPortSteward`:**
-      - **Subtask Goal:** "Fetch all linked ConPort items for a given root item, up to 2 levels deep."
+  2.  **Delegate to `Nova-SpecializedNovaPortSteward`:**
+      - **Subtask Goal:** "Fetch all linked NovaPort-MCP items for a given root item, up to 2 levels deep."
       - **Briefing Details:**
         - Provide the `root_item_type` and `root_item_id` to start the traversal.
         - Instruct the specialist to use `get_linked_items` recursively (up to 2 levels).
@@ -30,7 +30,7 @@
 - **DoR Check:** The structured list of links is available from the previous milestone.
 - **Goal:** Convert the link data into a Mermaid.js diagram and save it.
 - **Suggested Specialist Sequence & Briefing Guidance:**
-  1.  **Delegate to `Nova-SpecializedConPortSteward`:**
+  1.  **Delegate to `Nova-SpecializedNovaPortSteward`:**
       - **Subtask Goal:** "Generate a Mermaid.js diagram from the provided link data and save it to a file."
       - **Briefing Details:**
         - Provide the structured list of links from the previous step.
@@ -45,7 +45,7 @@
   1.  Update the main `Progress` item to 'DONE'.
   2.  Report completion to `Nova-Orchestrator`, providing the path to the diagram file.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Reads many different item types via `get_linked_items`.

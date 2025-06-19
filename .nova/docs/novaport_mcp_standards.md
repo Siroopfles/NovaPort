@@ -1,6 +1,6 @@
-# Nova System - ConPort Data Standards
+# Nova System - NovaPort-MCP Data Standards
 
-This document defines the standard structures and guidelines for key `CustomData` entities within the Context Portal (ConPort). Adherence to these standards is mandatory for all Nova modes to ensure data consistency, quality, and interoperability.
+This document defines the standard structures and guidelines for key `CustomData` entities within the NovaPort-MCP database. Adherence to these standards is mandatory for all Nova modes to ensure data consistency, quality, and interoperability.
 
 ## 1. `ErrorLogs` (R20)
 
@@ -143,9 +143,8 @@ This document defines the standard structures and guidelines for key `CustomData
     "All tests (unit, integration, regression) are passing.",
     "All new/modified code has been peer-reviewed (simulated via `WF_DEV_CODE_REVIEW_SIMULATION_001_v1.md`).",
     "Technical documentation (inline and module-level) is complete and accurate.",
-    "All related ConPort items (Decisions, CodeSnippets, etc.) are logged.",
+    "All related NovaPort-MCP items (Decisions, CodeSnippets, etc.) are logged.",
     "Feature passes all QA tests and meets `AcceptanceCriteria`.",
     "No new CRITICAL or HIGH severity bugs have been introduced."
   ]
 }
-```

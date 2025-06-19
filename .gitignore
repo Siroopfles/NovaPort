@@ -3,3 +3,4 @@ Copyfile.md
 
 /logs/
 node_modules/
+.novaport_data/

@@ -1,6 +1,6 @@
 # Workflow: Manage Prioritized Technical Debt Item (WF_ORCH_MANAGE_TECH_DEBT_ITEM_001_v1)
 
-**Goal:** To orchestrate the analysis, planning, and resolution of a prioritized technical debt item logged in ConPort.
+**Goal:** To orchestrate the analysis, planning, and resolution of a prioritized technical debt item logged in NovaPort-MCP.
 
 **Primary Orchestrator Actor:** Nova-Orchestrator
 **Primary Lead Mode Actors (delegated to by Nova-Orchestrator):** Nova-LeadDeveloper (for refactoring), Nova-LeadArchitect (for impact/design if TD is architectural), Nova-LeadQA (for verifying fix).
@@ -13,7 +13,7 @@
 
 **Pre-requisites by Nova-Orchestrator:**
 
-- ConPort is `[CONPORT_ACTIVE]`.
+- The database is `[DATABASE_ACTIVE]`.
 - A specific `CustomData TechDebtCandidates:[TechDebtKey]` (key) has been identified and prioritized.
 - The `TechDebtCandidates` item contains a reasonable description of the debt, its location, and potential impact.
 
@@ -37,8 +37,7 @@
             "Phase_Goal": "Assess architectural impact of [TechDebtKey] and define/refine refactoring design if needed.",
             "Lead_Mode_Specific_Instructions": [
               "Your goal is to assess the architectural impact of this tech debt. Create a high-level plan and delegate atomic tasks to your specialists as needed.",
-              "Key sub-tasks may include: reviewing the `TechDebtCandidates` item, analyzing related code, determining if fixing this requires architectural changes or a specific design pattern, and documenting these changes in `SystemArchitecture` or as a `Decision`.",
-              "Provide an updated refactoring approach/specification for LeadDeveloper."
+              "Key sub-tasks may include: reviewing the `TechDebtCandidates` item, analyzing related code, determining if fixing this requires architectural changes or a specific design pattern, and documenting these changes in `SystemArchitecture` or as a `Decision`."
             ],
             "Required_Input_Context": {
               "TechDebtCandidate_Ref": {
@@ -89,7 +88,7 @@
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
           "Summary of refactoring performed.",
           "Confirmation of all relevant tests passing and linters clean.",
-          "List of key ConPort items created (Decisions, CodeSnippets).",
+          "List of key NovaPort-MCP items created (Decisions, CodeSnippets).",
           "Suggested new status and outcome notes for `TechDebtCandidates:[TechDebtKey]`."
         ]
       }
@@ -140,13 +139,13 @@
 4.  **Nova-Orchestrator: Finalize Tech Debt Item**
     - **DoR Check:** LeadQA confirms successful verification.
     - **Action:**
-      - Delegate to `Nova-LeadArchitect` (ConPortSteward) to update the `CustomData TechDebtCandidates:[TechDebtKey]` (key) entry. Briefing: "Update TD item `[TechDebtKey]`. First `get_custom_data`, then modify the `value` to set status to 'RESOLVED' and add resolution date and summary of outcome (from LeadDeveloper/LeadQA reports). Then use `log_custom_data` to save the updated object."
+      - Delegate to `Nova-LeadArchitect` (NovaPortSteward) to update the `CustomData TechDebtCandidates:[TechDebtKey]` (key) entry. Briefing: "Update TD item `[TechDebtKey]`. First `get_custom_data`, then modify the `value` to set status to 'RESOLVED' and add resolution date and summary of outcome (from LeadDeveloper/LeadQA reports). Then use `log_custom_data` to save the updated object."
       - Update `[TechDebtProgressID]` to "COMPLETED_RESOLVED" using `use_mcp_tool` (`tool_name: 'update_progress'`).
       - Update `active_context.state_of_the_union` if the resolution was significant.
       - Inform user of resolution.
     - **Output:** Tech debt item formally closed.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - CustomData TechDebtCandidates:[key] (Read, and its status eventually updated).
 - Progress (integer `id`) (Overall orchestration, Lead phases, Specialist subtasks).

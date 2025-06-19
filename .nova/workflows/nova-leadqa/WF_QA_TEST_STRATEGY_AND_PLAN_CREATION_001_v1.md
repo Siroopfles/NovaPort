@@ -22,7 +22,7 @@
       - What are the main quality goals?
       - What types of testing are critical (functional, performance, security)?
       - What is the balance between manual and automated testing?
-  4.  Log the high-level strategy as a formal `Decision` in ConPort.
+  4.  Log the high-level strategy as a formal `Decision` in NovaPort-MCP.
 
 **Milestone TSP.2: Detailed Plan Development (Iterative)**
 
@@ -40,18 +40,18 @@
 
 **Milestone TSP.3: Documentation & Finalization**
 
-- **Goal:** Compile the final test plan and log it to ConPort.
+- **Goal:** Compile the final test plan and log it to NovaPort-MCP.
 - **Suggested Lead Action & Specialist Sequence:**
   1.  **LeadQA Action: Compile Draft:** Consolidate all defined sections into a comprehensive test plan document.
   2.  **LeadQA Action: Review:** Review the draft for completeness, clarity, and feasibility. If required, share with `Nova-Orchestrator` for stakeholder review.
-  3.  **Delegate Logging to `Nova-SpecializedConPortSteward` (via LeadArchitect) or self-action:**
-      - **Subtask Goal:** "Log the finalized Test Plan for [ScopeName] into ConPort `TestPlans` category."
+  3.  **Delegate Logging to `Nova-SpecializedNovaPortSteward` (via LeadArchitect) or self-action:**
+      - **Subtask Goal:** "Log the finalized Test Plan for [ScopeName] into NovaPort-MCP `TestPlans` category."
       - **Briefing Details:** Provide the final, consolidated test plan content. Instruct to use `log_custom_data` to create a `CustomData TestPlans:[ScopeName]_TestPlan_v[Version]` entry. Ensure the new item is linked to the main `Progress` item for this planning cycle.
   4.  **LeadQA Action:** Finalize the cycle by updating the main `Progress` to 'DONE' and reporting completion to `Nova-Orchestrator`, providing the key of the new `TestPlans` entry.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)
 - CustomData TestPlans:[Key] (key)
-- Reads various specs, configs, and risk assessments from ConPort.
+- Reads various specs, configs, and risk assessments from NovaPort-MCP.

@@ -1,6 +1,6 @@
 # Workflow: System Retrospective and Improvement Proposal (WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1)
 
-**Goal:** To systematically analyze ConPort data for signs of process friction, generate a structured analysis, and formulate a data-driven proposal for system improvement (e.g., workflow or prompt modifications) for user approval.
+**Goal:** To systematically analyze NovaPort-MCP data for signs of process friction, generate a structured analysis, and formulate a data-driven proposal for system improvement (e.g., workflow or prompt modifications) for user approval.
 
 **Primary Orchestrator Actor:** Nova-Orchestrator
 **Delegated Actors:** Nova-FlowAsk, Nova-LeadArchitect
@@ -12,8 +12,8 @@
 
 **Pre-requisites by Nova-Orchestrator:**
 
-- A sufficient amount of project history (Progress, Decisions, ErrorLogs) exists in ConPort for meaningful analysis.
-- `CustomData NovaSystemConfig:ProcessFrictionHeuristics_v1` is defined in ConPort. If not, this workflow cannot proceed and the Orchestrator should inform the user.
+- A sufficient amount of project history (Progress, Decisions, ErrorLogs) exists in NovaPort-MCP for meaningful analysis.
+- `CustomData NovaSystemConfig:ProcessFrictionHeuristics_v1` is defined in NovaPort-MCP. If not, this workflow cannot proceed and the Orchestrator should inform the user.
 
 ---
 
@@ -28,12 +28,12 @@
       ```json
       {
         "Context_Path": "SystemRetrospective (Orchestrator) -> FrictionAnalysis (FlowAsk)",
-        "Subtask_Goal": "Analyze ConPort for signs of process friction based on heuristics and return a structured JSON analysis object.",
+        "Subtask_Goal": "Analyze NovaPort-MCP for signs of process friction based on heuristics and return a structured JSON analysis object.",
         "Mode_Specific_Instructions": [
           "1. **Retrieve Heuristics:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the analysis queries from `CustomData NovaSystemConfig:ProcessFrictionHeuristics_v1`. If this item does not exist, immediately fail your subtask and report this in your `attempt_completion`.",
-          "2. **Execute Analysis:** Sequentially execute the analysis steps defined in the `heuristics` array of the retrieved object. This will involve using various ConPort `use_mcp_tool` read/search calls (e.g., `get_progress`, `search_custom_data_value_fts` on `ErrorLogs`).",
+          "2. **Execute Analysis:** Sequentially execute the analysis steps defined in the `heuristics` array of the retrieved object. This will involve using various NovaPort-MCP `use_mcp_tool` read/search calls (e.g., `get_progress`, `search_custom_data_value_fts` on `ErrorLogs`).",
           "3. **Synthesize Findings:** Consolidate your findings from all heuristic queries into a single, structured JSON object with the keys `analysis_summary`, `key_findings` (an array of objects, where each object details a specific finding), and `potential_root_cause_hypothesis`.",
-          "4. **Return Result:** Your final `attempt_completion` result MUST be this structured JSON object. Do NOT log it to ConPort yourself. Do NOT add any conversational text, only the JSON object."
+          "4. **Return Result:** Your final `attempt_completion` result MUST be this structured JSON object. Do NOT log it to the database yourself. Do NOT add any conversational text, only the JSON object."
         ],
         "Required_Input_Context": {
           "Heuristics_Config_Ref": {
@@ -54,19 +54,19 @@
     - **Action:**
       - Receive the JSON analysis object from Nova-FlowAsk's `attempt_completion`.
       - Generate a timestamp (e.g., `20240517_103000`).
-      - Use `use_mcp_tool` (`tool_name: 'log_custom_data'`) to log this object to ConPort as `CustomData RetrospectiveAnalysis:[Timestamp]`. Let the key be `[AnalysisKey]`.
+      - Use `use_mcp_tool` (`tool_name: 'log_custom_data'`) to log this object to NovaPort-MCP as `CustomData RetrospectiveAnalysis:[Timestamp]`. Let the key be `[AnalysisKey]`.
     - **Task:** "Delegate the creation of a formal improvement proposal to Nova-LeadArchitect based on the logged analysis."
     - **`new_task` message for Nova-LeadArchitect:**
       ```json
       {
         "Context_Path": "SystemRetrospective (Orchestrator) -> ImprovementProposal (LeadArchitect)",
         "Overall_Project_Goal": "Improve system efficiency through self-analysis.",
-        "Phase_Goal": "Analyze the process friction report `[AnalysisKey]` and formulate a concrete, actionable improvement proposal logged as a ConPort `Decision`.",
+        "Phase_Goal": "Analyze the process friction report `[AnalysisKey]` and formulate a concrete, actionable improvement proposal logged as a NovaPort-MCP `Decision`.",
         "Lead_Mode_Specific_Instructions": [
           "1. Your team is to retrieve and study the friction analysis report from `CustomData RetrospectiveAnalysis:[AnalysisKey]` using `use_mcp_tool` (`tool_name: 'get_custom_data'`).",
-          "2. Instruct your team to perform a focused `ImpactAnalysis` on the findings. This should result in a new `ImpactAnalyses` item in ConPort.",
+          "2. Instruct your team to perform a focused `ImpactAnalysis` on the findings. This should result in a new `ImpactAnalyses` item in NovaPort-MCP.",
           "3. Based on the analysis, formulate a concrete proposal for system improvement (e.g., 'Modify prompt X', 'Add pre-flight check to workflow Y').",
-          "4. Log this proposal as a new, detailed `Decision` (integer `id`) in ConPort. The `summary` must be the proposal itself, and the `rationale` must reference both `[AnalysisKey]` and the key of the new `ImpactAnalyses` item, explaining how the change addresses the identified friction."
+          "4. Log this proposal as a new, detailed `Decision` (integer `id`) in NovaPort-MCP. The `summary` must be the proposal itself, and the `rationale` must reference both `[AnalysisKey]` and the key of the new `ImpactAnalyses` item, explaining how the change addresses the identified friction."
         ],
         "Required_Input_Context": {
           "Friction_Analysis_Report_Key": "[AnalysisKey]"
@@ -84,7 +84,7 @@
       - Receive the `Decision` ID from Nova-LeadArchitect's `attempt_completion`.
       - Use `use_mcp_tool` (`tool_name: 'get_decisions'`) to retrieve the proposal summary from the `Decision`.
       - Use `ask_followup_question` to present the proposal to the user for approval.
-        - **Question:** "The system retrospective has identified a potential improvement: '[Proposal Summary from Decision]'. The full details are in ConPort `Decision:[ID]`. Do you approve implementing this change?"
+        - **Question:** "The system retrospective has identified a potential improvement: '[Proposal Summary from Decision]'. The full details are in NovaPort-MCP `Decision:[ID]`. Do you approve implementing this change?"
         - **Suggestions:** ["Yes, I approve the change.", "No, reject the change.", "I have questions about the implications."]
 
 **Phase RETRO.4: Closure and Follow-up**
@@ -99,7 +99,7 @@
 ## Failure Scenarios
 
 - **Scenario:** `CustomData NovaSystemConfig:ProcessFrictionHeuristics_v1` is not found.
-  - **Orchestrator Action:** `FlowAsk`'s subtask will fail. The Orchestrator will catch this, inform the user "Cannot run retrospective: The `ProcessFrictionHeuristics_v1` configuration is missing from `NovaSystemConfig` in ConPort.", and halt this workflow.
+  - **Orchestrator Action:** `FlowAsk`'s subtask will fail. The Orchestrator will catch this, inform the user "Cannot run retrospective: The `ProcessFrictionHeuristics_v1` configuration is missing from `NovaSystemConfig` in NovaPort-MCP.", and halt this workflow.
 - **Scenario:** `Nova-FlowAsk` finds no significant friction.
   - **Orchestrator Action:** `FlowAsk`'s `attempt_completion` will return an empty `key_findings` array. The Orchestrator logs this, informs the user "No significant process friction found based on current heuristics," and concludes the workflow successfully.
 - **Scenario:** `Nova-LeadArchitect` cannot formulate a concrete proposal from the analysis.

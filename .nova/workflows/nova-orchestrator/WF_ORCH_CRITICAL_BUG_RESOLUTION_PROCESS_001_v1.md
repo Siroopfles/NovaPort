@@ -13,8 +13,8 @@
 
 **Pre-requisites by Nova-Orchestrator (before starting this workflow):**
 
-- Nova-Orchestrator has performed its initial session/ConPort initialization.
-- A ConPort `CustomData ErrorLogs:[key]` entry exists or is immediately created for the critical bug, containing as much initial detail as possible. If not, Orchestrator delegates its creation to Nova-LeadQA (or its ConPortSteward via LeadArchitect).
+- Nova-Orchestrator has performed its initial session/database initialization.
+- A NovaPort-MCP `CustomData ErrorLogs:[key]` entry exists or is immediately created for the critical bug, containing as much initial detail as possible. If not, Orchestrator delegates its creation to Nova-LeadQA (or its Nova-SpecializedNovaPortSteward via LeadArchitect).
 - User/Stakeholder confirms the criticality and the need for an expedited process.
 
 ---
@@ -29,7 +29,7 @@
     - **Checks:**
       1.  **Retrieve `ErrorLogs` Item:** Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to retrieve the `CustomData ErrorLogs:[ErrorLogKey]` entry that triggered this workflow.
       2.  **Check for Existence:**
-          - **Failure:** If the item is not found, report to user: "BLOCKER: The specified `ErrorLogs:[ErrorLogKey]` does not exist in ConPort. Cannot start critical resolution process without a valid bug report." Halt workflow.
+          - **Failure:** If the item is not found, report to user: "BLOCKER: The specified `ErrorLogs:[ErrorLogKey]` does not exist in NovaPort-MCP. Cannot start critical resolution process without a valid bug report." Halt workflow.
       3.  **Check for Correct Status/Severity:**
           - Review the `status` and `severity` fields within the `value` of the retrieved `ErrorLogs` item.
           - The `status` should ideally be 'OPEN' or 'REOPENED'.
@@ -43,7 +43,7 @@
     - **Actor:** Nova-Orchestrator
     - **Action:**
       - Log/Update a main `Progress` (integer `id`) item using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"CRITICAL BUG Resolution: [ErrorLogKey/Symptom]\"}`). Let this be `[CritBugProgressID]`.
-      - Delegate to `Nova-LeadArchitect`: "Please have your ConPortSteward update `active_context.state_of_the_union` to reflect 'CRITICAL BUG [ErrorLogKey] under active investigation. Potential impact on current sprint goals.'." (This requires get/log).
+      - Delegate to `Nova-LeadArchitect`: "Please have your NovaPortSteward update `active_context.state_of_the_union` to reflect 'CRITICAL BUG [ErrorLogKey] under active investigation. Potential impact on current sprint goals.'." (This requires get/log).
     - **Task:** "Delegate immediate and thorough investigation of critical `ErrorLogs:[ErrorLogKey]` to Nova-LeadQA."
     - **`new_task` message for Nova-LeadQA:**
       ```json
@@ -53,13 +53,13 @@
         "Phase_Goal": "Perform rapid root cause analysis for `ErrorLogs:[ErrorLogKey]`, document findings, and propose an immediate mitigation or investigation path.",
         "Lead_Mode_Specific_Instructions": [
           "CRITICAL BUG: `ErrorLogs:[ErrorLogKey]` - [Symptom from ErrorLog].",
-          "Your goal for this phase is to perform rapid RCA. Create a high-level plan for this, log it to ConPort, and then use your single-step execution loop to delegate tasks to your specialists, primarily Nova-SpecializedBugInvestigator.",
+          "Your goal for this phase is to perform rapid RCA. Create a high-level plan for this, log it to NovaPort-MCP, and then use your single-step execution loop to delegate tasks to your specialists, primarily Nova-SpecializedBugInvestigator.",
           "You may consult `.nova/workflows/nova-leadqa/WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md` for a reference process.",
           "Ensure BugInvestigator meticulously updates `ErrorLogs:[ErrorLogKey]` with findings.",
           "If a temporary workaround is identifiable, document it clearly in the `ErrorLogs` item."
         ],
         "Required_Input_Context": {
-          "ConPort_ErrorLog_Key_To_Investigate": "[ErrorLogKey]",
+          "NovaPort-MCP_ErrorLog_Key_To_Investigate": "[ErrorLogKey]",
           "Any_Initial_User_Or_Orchestrator_Observations": "[...]"
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
@@ -92,8 +92,8 @@
           "Code must pass all linters as per `ProjectConfig:ActiveConfig`."
         ],
         "Required_Input_Context": {
-          "ConPort_ErrorLog_To_Fix_Key": "[ErrorLogKey]",
-          "ConPort_Root_Cause_Analysis_Ref": {
+          "NovaPort-MCP_ErrorLog_To_Fix_Key": "[ErrorLogKey]",
+          "NovaPort-MCP_Root_Cause_Analysis_Ref": {
             "type": "custom_data",
             "category": "ErrorLogs",
             "key": "[ErrorLogKey]",
@@ -105,7 +105,7 @@
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
           "Confirmation that fix is implemented and unit tested (with pass status).",
           "Paths to modified files / Pull Request ID (conceptual).",
-          "ConPort integer `id` of any `Decision` made for the fix.",
+          "NovaPort-MCP integer `id` of any `Decision` made for the fix.",
           "Confirmation that code is ready for verification by Nova-LeadQA."
         ]
       }
@@ -128,16 +128,16 @@
         "Lead_Mode_Specific_Instructions": [
           "VERIFY FIX for `ErrorLogs:[ErrorLogKey]`. Fix details from Nova-LeadDeveloper: [Summary of fix, modified files/PR].",
           "Your goal is to verify the fix. Plan and delegate tasks to your FixVerifier to execute the original repro steps and targeted regression tests.",
-          "Ensure the final status of the `ErrorLogs` item (RESOLVED or REOPENED) is updated in ConPort.",
+          "Ensure the final status of the `ErrorLogs` item (RESOLVED or REOPENED) is updated in NovaPort-MCP.",
           "Coordinate with me to ensure `active_context.open_issues` is updated."
         ],
         "Required_Input_Context": {
-          "ConPort_ErrorLog_To_Verify_Key": "[ErrorLogKey]",
+          "NovaPort-MCP_ErrorLog_To_Verify_Key": "[ErrorLogKey]",
           "Fix_Implementation_Details_From_Dev": "[...]"
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
           "Final status of `ErrorLogs:[ErrorLogKey]` (RESOLVED or FAILED_VERIFICATION/REOPENED).",
-          "ConPort key of `LessonsLearned` if one was logged.",
+          "NovaPort-MCP key of `LessonsLearned` if one was logged.",
           "Confirmation that need for `active_context.open_issues` update has been communicated."
         ]
       }
@@ -153,11 +153,11 @@
     - **Action:**
       - Log `Decision` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_decision'`) confirming critical bug `ErrorLogs:[ErrorLogKey]` resolution and any deployment/hotfix strategy.
       - Update main `Progress` (`[CritBugProgressID]`) to "COMPLETED_RESOLVED" using `use_mcp_tool` (`tool_name: 'update_progress'`).
-      - Delegate to `Nova-LeadArchitect`: "Please have your ConPortSteward update `active_context.state_of_the_union` to 'Critical bug [ErrorLogKey] resolved. System stable.'."
+      - Delegate to `Nova-LeadArchitect`: "Please have your NovaPortSteward update `active_context.state_of_the_union` to 'Critical bug [ErrorLogKey] resolved. System stable.'."
       - Communicate resolution to user/stakeholders.
     - **Output:** Critical bug resolved and stakeholders informed.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - CustomData ErrorLogs:[key] (central item, status updates are critical)
 - Progress (integer `id`) (for Orchestrator's overall tracking, and for each Lead's phase)

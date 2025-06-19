@@ -3,7 +3,7 @@
 **Goal:** To systematically identify, analyze, evaluate, and plan mitigation for potential risks within a project or a specific project phase/feature.
 
 **Primary Actor:** Nova-LeadArchitect
-**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedConPortSteward, (potentially Nova-FlowAsk).
+**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedNovaPortSteward, (potentially Nova-FlowAsk).
 
 **Trigger / Recognition:**
 
@@ -18,9 +18,9 @@
 - **Goal:** Gather relevant context and brainstorm a comprehensive list of potential risks.
 - **Suggested Specialist Sequence & Lead Actions:**
   1.  **LeadArchitect Action:** Log a main `Progress` item for this Risk Assessment cycle.
-  2.  **Delegate to `Nova-SpecializedConPortSteward` or `Nova-FlowAsk`:**
-      - **Subtask Goal:** "Retrieve relevant ConPort data for risk identification related to scope: [Scope]."
-      - **Briefing Details:** Instruct the specialist to use ConPort search tools to find information in categories like `SystemArchitecture`, `ImpactAnalyses`, `LessonsLearned`, `ErrorLogs` (critical/recurring), and `TechDebtCandidates`. They should return a summary of relevant items.
+  2.  **Delegate to `Nova-SpecializedNovaPortSteward` or `Nova-FlowAsk`:**
+      - **Subtask Goal:** "Retrieve relevant NovaPort-MCP data for risk identification related to scope: [Scope]."
+      - **Briefing Details:** Instruct the specialist to use NovaPort-MCP search tools to find information in categories like `SystemArchitecture`, `ImpactAnalyses`, `LessonsLearned`, `ErrorLogs` (critical/recurring), and `TechDebtCandidates`. They should return a summary of relevant items.
   3.  **LeadArchitect Action: Brainstorming:**
       - Consolidate the data from the specialist.
       - Brainstorm additional risks based on expertise, categorizing them (e.g., Technical, Schedule, Security, External).
@@ -31,14 +31,14 @@
 - **Suggested Lead Action:**
   1.  **Analyze & Evaluate:** For each risk, describe it clearly, estimate its Likelihood and Impact, and determine an overall Risk Level.
   2.  **Define Mitigation:** For significant risks (Medium level or higher), brainstorm and define specific **Mitigation Actions** (to reduce likelihood/impact) and **Contingency Plans** (if the risk occurs).
-  3.  **Log Decisions:** Log key mitigation strategies or risk acceptance choices as formal `Decisions` in ConPort.
+  3.  **Log Decisions:** Log key mitigation strategies or risk acceptance choices as formal `Decisions` in NovaPort-MCP.
 
 **Milestone RA.3: Documentation**
 
-- **Goal:** Log each identified risk and its associated analysis and plans as a structured item in ConPort.
+- **Goal:** Log each identified risk and its associated analysis and plans as a structured item in NovaPort-MCP.
 - **Suggested Specialist Sequence & Briefing Guidance:**
-  1.  **Delegate to `Nova-SpecializedConPortSteward`:**
-      - **Subtask Goal:** "Log all identified risks and mitigation plans to the ConPort `RiskAssessment` category."
+  1.  **Delegate to `Nova-SpecializedNovaPortSteward`:**
+      - **Subtask Goal:** "Log all identified risks and mitigation plans to the NovaPort-MCP `RiskAssessment` category."
       - **Briefing Details:**
         - Provide a list of structured objects, one for each risk.
         - Instruct the specialist to loop through the list and use `log_custom_data` to create a new `CustomData RiskAssessment:[RiskID]` entry for each.
@@ -55,9 +55,9 @@
   3.  Update the `active_context.state_of_the_union` with a summary of the project's risk posture.
   4.  In your `attempt_completion` to `Nova-Orchestrator`, provide the risk summary and reference the keys of the logged `RiskAssessment` items.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - CustomData RiskAssessment:[Key] (key)
 - Decisions (integer `id`)
-- Reads various other ConPort items for context.
+- Reads various other NovaPort-MCP items for context.

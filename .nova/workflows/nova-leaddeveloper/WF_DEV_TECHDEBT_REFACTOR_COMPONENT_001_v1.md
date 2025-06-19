@@ -53,7 +53,7 @@
 - **Suggested Specialist Sequence & Briefing Guidance:**
   1.  **Delegate to `Nova-SpecializedTestAutomator` (if performance was a goal):**
       - **Subtask Goal:** "Perform final verification and benchmarking against criteria in `RefactorCriteria:[Key]`."
-      - **Briefing Details:** Provide the ConPort key for the success criteria. Request benchmark results and a full regression run.
+      - **Briefing Details:** Provide the NovaPort-MCP key for the success criteria. Request benchmark results and a full regression run.
   2.  **Delegate to `Nova-SpecializedCodeDocumenter`:**
       - **Subtask Goal:** "Update all inline and technical documentation for the refactored [ComponentName]."
       - **Briefing Details:** Point to the refactored code and highlight the key changes.
@@ -67,7 +67,7 @@
   3.  **Update Progress:** Update the main `Progress` item to 'DONE'.
   4.  **Report to Orchestrator:** In your `attempt_completion`, report the summary of improvements, verification status, and the proposed update for the `TechDebtCandidates` item.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

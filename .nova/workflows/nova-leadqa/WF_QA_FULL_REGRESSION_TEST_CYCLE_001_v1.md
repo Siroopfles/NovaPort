@@ -10,7 +10,7 @@
 - `Nova-Orchestrator` delegates: "Perform Full Regression Test for Release [Version]".
 - A major refactoring phase is completed.
 
-**Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or ConPort):**
+**Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or NovaPort-MCP):**
 
 - A stable, deployed build is available in the designated test environment.
 - The full regression test suite is available and executable (path/command from `ProjectConfig`).
@@ -31,12 +31,12 @@
 
 **Milestone FRT.2: Results Analysis & Defect Logging**
 
-- **Goal:** Analyze all test failures and log new or reopened defects in ConPort.
+- **Goal:** Analyze all test failures and log new or reopened defects in NovaPort-MCP.
 - **Suggested Lead Action:**
   1.  Thoroughly review the test results from the `TestExecutor`.
   2.  For each test failure, determine if it is a new issue or a recurrence of a known bug.
   3.  **Delegate Defect Logging to `Nova-SpecializedTestExecutor` (or perform self):**
-      - **Subtask Goal:** "For each new, unique failure, log a new `ErrorLogs` item in ConPort."
+      - **Subtask Goal:** "For each new, unique failure, log a new `ErrorLogs` item in NovaPort-MCP."
       - **Briefing Details:** Instruct to create detailed, R20-compliant `ErrorLogs` entries, including precise repro steps, severity, and links to the failed test case.
       - For recurring bugs, instruct them to update the existing `ErrorLogs` item's status to 'REOPENED'.
   4.  Coordinate with `Nova-Orchestrator` to update `active_context.open_issues`.
@@ -45,15 +45,15 @@
 
 - **Goal:** Compile a final report and provide a quality assessment to the Orchestrator.
 - **Suggested Specialist Sequence & Lead Actions:**
-  1.  **Delegate to `Nova-SpecializedTestExecutor` (or ConPortSteward):**
+  1.  **Delegate to `Nova-SpecializedTestExecutor` (or Nova-SpecializedNovaPortSteward):**
       - **Subtask Goal:** "Compile a summary report for the full regression cycle."
-      - **Briefing Details:** The report should include test metrics (total, pass, fail), a list of all new/reopened `ErrorLogs` keys with their severity, and an overall assessment of stability. The report should be saved as a `TestExecutionReports` item in ConPort or as a file.
+      - **Briefing Details:** The report should include test metrics (total, pass, fail), a list of all new/reopened `ErrorLogs` keys with their severity, and an overall assessment of stability. The report should be saved as a `TestExecutionReports` item in NovaPort-MCP or as a file.
   2.  **LeadQA Action:**
       - Review the final report.
       - Update the main `Progress` item for the cycle to 'DONE' or 'DONE_WITH_FAILURES'.
       - Use `attempt_completion` to report the final summary, the list of critical new bugs, and the key/path to the full report to `Nova-Orchestrator`.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - CustomData ErrorLogs:[key] (key)

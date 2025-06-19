@@ -10,7 +10,7 @@
 - `Nova-Orchestrator` delegates: "Validate Release Candidate [RC_Version]".
 - Part of a parent workflow like `WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md`.
 
-**Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or ConPort):**
+**Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or NovaPort-MCP):**
 
 - A specific RC build is deployed to a stable, production-like QA environment.
 - The scope of the release is defined (e.g., in `ReleaseNotesDraft`).
@@ -49,11 +49,11 @@
 - **Suggested Lead Action:**
   1.  **Consolidate & Triage:** Collect all results and new `ErrorLogs` from the `TestExecutor`. Triage new bugs for severity.
   2.  **Check for Blockers:** If new critical/high severity bugs ("blockers") were found, the RC cannot pass. Prepare a 'NO_GO' recommendation.
-  3.  **Compile Report:** Create a comprehensive validation report summarizing the test scope, metrics (pass/fail counts), a list of all new `ErrorLogs` found, and the final go/no-go recommendation with clear justification. Log this as a `TestExecutionReports` item in ConPort.
+  3.  **Compile Report:** Create a comprehensive validation report summarizing the test scope, metrics (pass/fail counts), a list of all new `ErrorLogs` found, and the final go/no-go recommendation with clear justification. Log this as a `TestExecutionReports` item in NovaPort-MCP.
   4.  **Update Progress:** Update the main `Progress` item to 'DONE' (if GO) or 'FAILED_CRITICAL_BUGS_FOUND' (if NO_GO).
   5.  **Report to Orchestrator:** Use `attempt_completion` to provide the go/no-go recommendation, a summary of any blocking `ErrorLogs` keys, and the key to the full validation report.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - CustomData (`ReleaseNotesDraft`, `ErrorLogs`, `TestExecutionReports`)

@@ -9,7 +9,7 @@ This tutorial will show you the power of Nova's collaborative AI agents by guidi
 Before you begin, please make sure you have completed the following steps from our main `README.md`:
 
 1.  **Installed the Nova System files** into an empty directory for this project.
-2.  **Installed and configured the `context-portal-mcp-server`** in your Roo Code environment.
+2.  **Installed and configured the `novaport-mcp` server** in your Roo Code environment. This is the backend database that Nova depends on for its memory.
 
 Let's begin!
 
@@ -27,7 +27,7 @@ First, we'll ask the `Nova-Orchestrator` to set up our new project.
 > `This is a new project. Let's set it up. It will be a simple Python command-line tool that prints a random quote.`
 
 **What's happening?**
-The `Nova-Orchestrator` will detect that this is a new, empty workspace. It will ask for your confirmation and then delegate the entire project setup to `Nova-LeadArchitect`. The architect's team will create the initial project structure in ConPort and guide you through setting up a basic `ProjectConfig` file. Answer its questions about the primary language (`Python`) and testing framework (`pytest`).
+The `Nova-Orchestrator` will detect that this is a new, empty workspace. It will ask for your confirmation and then delegate the entire project setup to `Nova-LeadArchitect`. The architect's team will create the initial project structure in the NovaPort-MCP database and guide you through setting up a basic `ProjectConfig` file. Answer its questions about the primary language (`Python`) and testing framework (`pytest`).
 
 ---
 
@@ -40,7 +40,7 @@ Now that the project is initialized, let's have the system design itself.
 > `Okay, let's design the application. It's very simple. We only need one main function that will contain a list of hardcoded quotes. This function should select one quote at random and print it to the console.`
 
 **What's happening?**
-The orchestrator will delegate this design phase to `Nova-LeadArchitect`. The architect's team will analyze your request and create a simple design artifact in ConPort, likely in the `SystemArchitecture` category, describing this single-function structure.
+The orchestrator will delegate this design phase to `Nova-LeadArchitect`. The architect's team will analyze your request and create a simple design artifact in the database, likely in the `SystemArchitecture` category, describing this single-function structure.
 
 ---
 
@@ -81,7 +81,7 @@ You've witnessed the entire workflow:
 - **Development:** `Nova-LeadDeveloper`'s team implemented the code.
 - **Quality Assurance:** A test was created to verify the functionality.
 
-All significant decisions, designs, and code snippets have been automatically logged into the **Context Portal (ConPort)**, creating a rich history of your project.
+All significant decisions, designs, and code snippets have been automatically logged into the **NovaPort-MCP** database, creating a rich history of your project.
 
 ### What's Next?
 

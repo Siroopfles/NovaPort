@@ -41,15 +41,15 @@
         - Instruct to update the module's `README.md` with a title, purpose, and placeholder sections for Usage and Setup.
         - Instruct to create placeholder `.md` files in the module's `docs/` directory (e.g., `introduction.md`, `api_reference.md`).
 
-**Milestone NMS.3: ConPort Registration & Finalization**
+**Milestone NMS.3: NovaPort-MCP Registration & Finalization**
 
-- **Goal:** Register the new module in ConPort and close out the scaffolding process.
+- **Goal:** Register the new module in NovaPort-MCP and close out the scaffolding process.
 - **Suggested Lead Action:**
-  1.  **Register Module:** Log a new `CustomData SystemArchitecture:[ModuleName]_ModuleOverview_v1` item to ConPort. The `value` should include the module's description, root path, primary language, and an initial version hint (e.g., "0.1.0-alpha").
+  1.  **Register Module:** Log a new `CustomData SystemArchitecture:[ModuleName]_ModuleOverview_v1` item to NovaPort-MCP. The `value` should include the module's description, root path, primary language, and an initial version hint (e.g., "0.1.0-alpha").
   2.  **Finalize:** Update the main `Progress` item for the scaffolding task to 'DONE'.
-  3.  **Report:** Use `attempt_completion` to report to `Nova-Orchestrator`, providing the path to the new module and the key of its `SystemArchitecture` entry in ConPort.
+  3.  **Report:** Use `attempt_completion` to report to `Nova-Orchestrator`, providing the path to the new module and the key of its `SystemArchitecture` entry in NovaPort-MCP.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

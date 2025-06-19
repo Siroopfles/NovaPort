@@ -18,12 +18,12 @@
 - **Goal:** Gather all necessary context and delegate the code analysis to `Nova-FlowAsk`.
 - **Suggested Specialist Sequence & Lead Actions:**
   1.  **LeadDeveloper Action:** Log a main `Progress` item for this review simulation. Identify the specific file(s) and code sections for review.
-  2.  **LeadDeveloper Action:** Use `use_mcp_tool` and `read_file` to gather all context: the code content itself, and relevant ConPort items like `FeatureScope`, `APIEndpoints`, `SystemPatterns` (for coding standards), and any guiding `Decisions`.
+  2.  **LeadDeveloper Action:** Use `use_mcp_tool` and `read_file` to gather all context: the code content itself, and relevant NovaPort-MCP items like `FeatureScope`, `APIEndpoints`, `SystemPatterns` (for coding standards), and any guiding `Decisions`.
   3.  **Delegate to `Nova-FlowAsk`:**
       - **Subtask Goal:** "Perform a simulated code review of the provided code snippet against given criteria."
       - **Briefing Details:**
         - Provide the full code content, its file path, and specific focus areas for the review (e.g., "Check for input validation", "Adherence to DRY principle").
-        - Provide all the contextual ConPort items you retrieved.
+        - Provide all the contextual NovaPort-MCP items you retrieved.
         - Instruct `FlowAsk` to provide structured feedback on clarity, potential bugs, efficiency, and adherence to standards, with specific line references.
         - `FlowAsk` should return a Markdown report with its findings.
 
@@ -40,22 +40,22 @@
 **Milestone CR.3: Documentation & Closure**
 
 - **DoR Check:** All required code changes from the review have been implemented and verified.
-- **Goal:** Log a summary of the code review in ConPort and finalize the cycle.
+- **Goal:** Log a summary of the code review in NovaPort-MCP and finalize the cycle.
 - **Suggested Specialist Sequence & Lead Actions:**
   1.  **Delegate to `Nova-SpecializedCodeDocumenter`:**
-      - **Subtask Goal:** "Log a summary of the code review for [ComponentName/File] to the ConPort `CodeReviewSummaries` category."
+      - **Subtask Goal:** "Log a summary of the code review for [ComponentName/File] to the NovaPort-MCP `CodeReviewSummaries` category."
       - **Briefing Details:**
         - Provide a concise summary of the review feedback and the actions taken.
         - Reference the file path, version/commit hint, and the `Decision` ID for any mandated changes.
         - Instruct the specialist to use `log_custom_data` to create the `CodeReviewSummaries` entry.
   2.  **LeadDeveloper Action:**
-      - Verify the ConPort log entry.
+      - Verify the NovaPort-MCP log entry.
       - Update the main `Progress` item for the review cycle to 'DONE'.
       - Report completion to `Nova-Orchestrator` if this was a standalone phase.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - CustomData CodeReviewSummaries:[Key] (key)
 - Decisions (integer `id`)
-- Reads various specs and standards from ConPort.
+- Reads various specs and standards from NovaPort-MCP.
