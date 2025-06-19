@@ -9,7 +9,7 @@ customModes:
 
   - slug: nova-leadarchitect
     name: Nova-LeadArchitect
-    roleDefinition: "Head of system design, ConPort governance, and architectural strategy. Manages a team of architect specialists."
+    roleDefinition: "Head of system design, NovaPort-MCP governance, and architectural strategy. Manages a team of architect specialists."
     groups:
       - read
       - edit # For managing .nova/workflows/ and .roo/ directories
@@ -60,8 +60,8 @@ customModes:
       - mcp
 
   - slug: nova-specializednovaportsteward
-    name: nova-specializednovaportsteward
-    roleDefinition: "Architect specialist for database data integrity, quality, and administrative tasks. Reports to Nova-LeadArchitect."
+    name: Nova-SpecializedNovaPortSteward
+    roleDefinition: "Architect specialist for NovaPort-MCP database integrity, quality, and administrative tasks. Reports to Nova-LeadArchitect."
     groups:
       - read
       - - edit

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
-## [0.4.0-beta] - YYYY-MM-DD
+## [0.4.0-beta] - 2024-05-24
 
 ### 🚀 Backend Overhaul & System Modernization
 
@@ -38,27 +38,27 @@ This is a major release that transitions the Nova System's entire knowledge mana
 
 ### 🚀 Improvements & System Reliability Hardening
 
-- **Hardened ConPort Tool Specificity and Completeness:** Conducted a comprehensive audit and refactoring of the `conport_tool_reference` section across all 15 agent prompts. This system-wide hardening effort addresses a critical root cause of tool selection errors.
+- **Hardened NovaPort-MCP Tool Specificity and Completeness:** Conducted a comprehensive audit and refactoring of the `novaport_mcp_tool_reference` section across all 15 agent prompts. This system-wide hardening effort addresses a critical root cause of tool selection errors.
   - **Explicit Tool Fencing:** Added `CRITICAL: Use ONLY for the '...' item.` warnings to all entity-specific data access tools (e.g., `get_decisions`, `get_product_context`, `log_progress`). This creates a strong "fence" around each tool, preventing the AI from misusing it for other data types.
   - **Negative Constraints on Generic Tools:** Fortified the description of the generic `get_custom_data` tool with a strict negative constraint: `DO NOT use to get Decisions, Progress, ProductContext, or ActiveContext; use their specific get_* tools instead.` This directly mitigates the primary failure mode where the AI would default to this tool incorrectly.
-  - **Full Toolset Availability:** Ensured all relevant roles, especially specialist modes like `Nova-SpecializedSystemDesigner` and `Nova-SpecializedConPortSteward`, now have the complete and correct set of both read (`get_*`) and write (`log_*`, `update_*`) tools required to perform their duties as defined in their briefings and associated workflows.
+  - **Full Toolset Availability:** Ensured all relevant roles, especially specialist modes like `Nova-SpecializedSystemDesigner` and `Nova-SpecializedNovaPortSteward`, now have the complete and correct set of both read (`get_*`) and write (`log_*`, `update_*`) tools required to perform their duties as defined in their briefings and associated workflows.
   - **Documentation Restoration:** Re-instated the important `__DELETE__` functionality detail in the descriptions for `update_product_context` and `update_active_context`, ensuring a complete and accurate tool reference.
 
-This holistic update significantly improves the reliability and predictability of all ConPort interactions by providing clear, unambiguous, and strict guidance for tool selection to every agent in the Nova system.
+This holistic update significantly improves the reliability and predictability of all NovaPort-MCP interactions by providing clear, unambiguous, and strict guidance for tool selection to every agent in the Nova system.
 
 ## [0.3.2-beta] - 2024-05-21
 
 ### 🚀 Improvements & System Reliability Hardening
 
 - **Hardened Agent Delegation Protocol:** Fortified the `task_execution_protocol` in all delegating agent prompts (Orchestrator, Leads) with a "CRITICAL DELEGATION FLOW" instruction. This explicitly defines that the `tool_output` of a `new_task` call is the `attempt_completion` result from the sub-agent, preventing agent confusion and stalled loops.
-- **Hardened ConPort Tool Specificity:** Refactored the `conport_tool_reference` section in all 16 agent prompts to add explicit `CRITICAL:` warnings to each data-access tool, clarifying which entity type it is designed for (e.g., "Use `get_decisions` ONLY for 'Decision' items"). This prevents agents from using incorrect tools for a given data type.
-- **Mitigated Context Overload from ConPort:** Hardened all prompts against context window overload by adding a strong warning to the `get_custom_data` tool definition. Agents are now explicitly forbidden from calling this tool without at least a `category` argument and are guided to use `search_custom_data_value_fts` with a `limit` for discovery.
+- **Hardened NovaPort-MCP Tool Specificity:** Refactored the `novaport_mcp_tool_reference` section in all 16 agent prompts to add explicit `CRITICAL:` warnings to each data-access tool, clarifying which entity type it is designed for (e.g., "Use `get_decisions` ONLY for 'Decision' items"). This prevents agents from using incorrect tools for a given data type.
+- **Mitigated Context Overload from NovaPort-MCP:** Hardened all prompts against context window overload by adding a strong warning to the `get_custom_data` tool definition. Agents are now explicitly forbidden from calling this tool without at least a `category` argument and are guided to use `search_custom_data_value_fts` with a `limit` for discovery.
 - **Optimized Bulk File Operation Protocols:** Hardened the usage protocols for `read_file` and `apply_diff` across all system prompts. Agents are now instructed to follow an "Intelligent Batching and Verification" strategy, reading files in small batches and, critically, performing an immediate `read_file` verification after each `apply_diff` batch to ensure robust multi-file edits.
 - **Activated `Suggested_ConPort_Links` Processing:** Updated all `Lead` mode prompts with an explicit instruction in their `task_execution_protocol` to process the `Suggested_ConPort_Links` section from a specialist's report, ensuring the knowledge graph is actively enriched.
 
 ### 🐛 Bug Fixes
 
-- **Fixed `Nova-SpecializedConPortSteward` Capabilities:** Added missing tool definitions for `get_product_context`, `update_product_context`, `get_active_context`, and `update_active_context` to the `system-prompt-nova-specializedconportsteward` prompt. This resolves a critical issue where the steward could not manage high-level project context as required by core bootstrap and session management workflows.
+- **Fixed `Nova-SpecializedNovaPortSteward` Capabilities:** Added missing tool definitions for `get_product_context`, `update_product_context`, `get_active_context`, and `update_active_context` to the `system-prompt-nova-specializednovaortsteward` prompt. This resolves a critical issue where the steward could not manage high-level project context as required by core bootstrap and session management workflows.
 
 ### 🧹 Refactoring & System Hygiene
 
@@ -71,7 +71,7 @@ This holistic update significantly improves the reliability and predictability o
 ### 🐛 Bug Fixes & System Reliability Hardening
 
 - **Clarified Delegation Flow Protocol:** Hardened the `task_execution_protocol` in all delegating agent prompts (Orchestrator, Leads). Added a "CRITICAL DELEGATION FLOW" instruction that explicitly states that after calling `new_task`, the agent's execution will pause and the sub-agent's `attempt_completion` result will be returned as the `tool_output` for the `new_task` call. This prevents agent confusion and stalled loops where the agent would incorrectly state it was still waiting.
-- **Mitigated Context Overload from ConPort:** Hardened all prompts against context window overload by adding a strong warning to the `get_custom_data` tool definition. Agents are now explicitly forbidden from calling this tool without at least a `category` argument. To discover items across categories or search by keyword, they are instructed to use `search_custom_data_value_fts` with a recommended `limit` of 30. The example usage has been updated to reflect safer patterns.
+- **Mitigated Context Overload from NovaPort-MCP:** Hardened all prompts against context window overload by adding a strong warning to the `get_custom_data` tool definition. Agents are now explicitly forbidden from calling this tool without at least a `category` argument. To discover items across categories or search by keyword, they are instructed to use `search_custom_data_value_fts` with a recommended `limit` of 30. The example usage has been updated to reflect safer patterns.
 - **Optimized Bulk File Operation Protocols:** Hardened the usage protocols for `read_file` and `apply_diff` across all system prompts. Instead of a simple bulk operation, agents are now instructed to follow an "Intelligent Batching and Verification" strategy:
   - **`read_file`:** Agents should first `list_files` and then read content in small, logical batches (e.g., 3-7 files at a time) to manage context size effectively.
   - **`apply_diff`:** Agents are now required to apply diffs in small batches and, critically, perform an immediate `read_file` verification on the changed section after each batch application. This closed-loop verification significantly improves the reliability and predictability of multi-file edit operations.
@@ -83,20 +83,20 @@ This is a major release focused on fundamentally improving agent reliability, sy
 #### ✨ New Features & Capabilities
 
 - **Workflow Validation Suite:** Introduced a new `Test-Harness-Orchestrator` mode and a corresponding `WF_ARCH_VALIDATE_WORKFLOW_SIMULATION_001_v1.md` workflow. This enables "dry-runs" of workflow logic for validation and debugging before live execution.
-- **ConPort Schema Migration:** Added a new `WF_ARCH_CONPORT_SCHEMA_MIGRATION_001_v1.md` workflow to guide the `LeadArchitect` and `ConPortSteward` through the process of migrating `CustomData` items to new schemas.
-- **Analytical Graph Query:** Enabled complex, multi-hop analysis of the ConPort knowledge graph.
+- **NovaPort-MCP Schema Migration:** Added a new `WF_ARCH_NOVAPORT_MCP_SCHEMA_MIGRATION_001_v1.md` workflow to guide the `LeadArchitect` and `NovaPortSteward` through the process of migrating `CustomData` items to new schemas.
+- **Analytical Graph Query:** Enabled complex, multi-hop analysis of the NovaPort-MCP knowledge graph.
   - Added a new `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md` workflow for the Orchestrator to delegate multi-step queries.
   - Enhanced the `Nova-FlowAsk` prompt with an explicit capability to execute a sequence of `use_mcp_tool` calls as part of a single subtask.
 
 #### 🚀 Improvements & Hardening
 
 - **Granular Single-Step Execution Loop (Lead Modes):** Re-engineered the core `task_execution_protocol` for all Lead Modes (`LeadArchitect`, `LeadDeveloper`, `LeadQA`). They no longer plan entire phases upfront. Instead, they create a high-level plan and then enter an iterative loop, determining and delegating only the single, next, most logical atomic sub-task to a specialist at a time. This dramatically improves reliability and reduces the risk of complex, error-prone specialist briefings.
-- **Mandatory Auditable Rationale Protocol:** System-wide hardening of all 15 agent prompts (`Orchestrator`, `Leads`, `Specialists`, `FlowAsk`). Before _every_ tool call, agents must now include a `## Rationale` section in their `<thinking>` block, detailing the goal, justification, and expected outcome of the tool call. This creates an invaluable "flight recorder" log for debugging and analysis.
-- **Proactive ConPort Linking (Specialist Modes):** All 10 Specialist Mode prompts have been updated to include a mandatory `Suggested_ConPort_Links` section in their `attempt_completion` reports. Specialists are now required to proactively suggest potential links between the ConPort items they create and other relevant items, enriching the knowledge graph for their Leads to review and action.
+- **Mandatory Auditable Rationale Protocol:** System-wide hardening of all 15 agent prompts (`Orchestrator`, `Leads`, `Specialists`, `FlowAsk`). Before _every* tool call, agents must now include a `## Rationale` section in their `<thinking>` block, detailing the goal, justification, and expected outcome of the tool call. This creates an invaluable "flight recorder" log for debugging and analysis.
+- **Proactive NovaPort-MCP Linking (Specialist Modes):** All 10 Specialist Mode prompts have been updated to include a mandatory `Suggested_ConPort_Links` section in their `attempt_completion` reports. Specialists are now required to proactively suggest potential links between the NovaPort-MCP items they create and other relevant items, enriching the knowledge graph for their Leads to review and action.
 
 ### 📖 Documentation & Prompts
 
-- **System-Wide Prompt Re-engineering:** All 15 system prompts in the `.roo/` directory have been updated to implement the new "Auditable Rationale" protocol. All Lead prompts have their core logic updated for the "Single-Step Loop". All Specialist prompts have been updated with the "Proactive ConPort Linking" protocol.
+- **System-Wide Prompt Re-engineering:** All 15 system prompts in the `.roo/` directory have been updated to implement the new "Auditable Rationale" protocol. All Lead prompts have their core logic updated for the "Single-Step Loop". All Specialist prompts have been updated with the "Proactive NovaPort-MCP Linking" protocol.
 - **README Update:** The main `README.md` was updated to reflect the new operational principles of Granular Tasking and Auditable Reasoning. The descriptions of Lead and Specialist modes have been updated to reflect their new responsibilities and logic.
 - **New Workflows Added to Manifest:** The `.nova/workflows/manifest.md` has been updated to include the new validation, migration, and query workflows.
 
@@ -119,13 +119,13 @@ This is a major release focused on fundamentally improving agent reliability, sy
 
 ### 🚀 Improvements & Hardening
 
-- **ConPort Tool Reference Refactoring:** Conducted a comprehensive refactoring and enhancement of the `conport_tool_reference` sections across all relevant system prompts (`.roo/system-prompt-nova-*.md`). This update improves the clarity, accuracy, and usability of tool definitions for all AI agents. Key changes include standardizing example arguments, enhancing tool descriptions and guidelines, and refining instructions for ConPort operations, leading to more reliable and predictable AI behavior when interacting with the ConPort server.
+- **NovaPort-MCP Tool Reference Refactoring:** Conducted a comprehensive refactoring and enhancement of the `novaport_mcp_tool_reference` sections across all relevant system prompts (`.roo/system-prompt-nova-*.md`). This update improves the clarity, accuracy, and usability of tool definitions for all AI agents. Key changes include standardizing example arguments, enhancing tool descriptions and guidelines, and refining instructions for NovaPort-MCP operations, leading to more reliable and predictable AI behavior when interacting with the NovaPort-MCP server.
 
 ## [0.2.5-beta] - 2024-05-19
 
 ### 🚀 Improvements & Hardening
 
-- **System-Wide Prompt & Tooling Synchronization:** Performed a comprehensive audit and update of all system prompts (`.roo/system-prompt-nova-*.md`). The `conport_tool_reference` section in each prompt has been corrected, completed, and synchronized with the master ConPort API specification. This resolves numerous inconsistencies, adds previously missing tool definitions, and ensures all AI agents (Orchestrator, Leads, Specialists) operate with a consistent and accurate understanding of the available ConPort tools and their parameters. This significantly improves the reliability and predictability of AI-driven ConPort interactions.
+- **System-Wide Prompt & Tooling Synchronization:** Performed a comprehensive audit and update of all system prompts (`.roo/system-prompt-nova-*.md`). The `novaport_mcp_tool_reference` section in each prompt has been corrected, completed, and synchronized with the master NovaPort-MCP API specification. This resolves numerous inconsistencies, adds previously missing tool definitions, and ensures all AI agents (Orchestrator, Leads, Specialists) operate with a consistent and accurate understanding of the available NovaPort-MCP tools and their parameters. This significantly improves the reliability and predictability of AI-driven NovaPort-MCP interactions.
 
 ## [0.2.2-beta] - 2024-05-18
 
@@ -134,9 +134,9 @@ This release focuses on implementing the strategic recommendations from the v2 s
 ### ✨ New Features & Capabilities
 
 - **New System & DX Workflows:** Added several new workflows to improve system maintainability and developer experience:
-  - `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md`: For periodically identifying and archiving stale ConPort data.
-  - `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md`: For generating Mermaid.js diagrams of ConPort item relationships.
-  - `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md`: For creating a summary of active ConPort categories and workflows.
+  - `WF_ARCH_NOVAPORT_MCP_DATA_HYGIENE_REVIEW_001_v1.md`: For periodically identifying and archiving stale NovaPort-MCP data.
+  - `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md`: For generating Mermaid.js diagrams of NovaPort-MCP item relationships.
+  - `WF_ARCH_GENERATE_NOVAPORT_MCP_CHEATSHEET_001_v1.md`: For creating a summary of active NovaPort-MCP categories and workflows.
   - `WF_ORCH_ONBOARD_NEW_DEVELOPER_001_v1.md`: For generating a comprehensive project briefing for new team members.
 - **System Retrospective Capability:** Enabled the system's self-improvement cycle by updating the `WF_PROJ_INIT_001_NewProjectBootstrap.md` to log the necessary `ProcessFrictionHeuristics_v1` configuration by default.
 
@@ -167,14 +167,14 @@ This was a comprehensive hardening and process-improvement release. The primary 
 ### 🚀 Improvements & Hardening
 
 - **Hardened Delegation Protocol:** The `new_task` tool across all delegating prompts (`Orchestrator`, `Leads`) has been re-engineered. The `message` parameter now MANDATES a structured YAML/JSON `Subtask Briefing Object`, drastically reducing ambiguity and improving the reliability of the entire delegation chain.
-- **Proactive "Definition of Ready" (DoR) Gating:** All Lead Mode prompts now include a mandatory, tool-based "Definition of Ready" check in their `task_execution_protocol`. They must verify that all prerequisites for their assigned phase exist and are in the correct state in ConPort _before_ starting their planning. This prevents entire work cycles from being wasted on unready tasks.
+- **Proactive "Definition of Ready" (DoR) Gating:** All Lead Mode prompts now include a mandatory, tool-based "Definition of Ready" check in their `task_execution_protocol`. They must verify that all prerequisites for their assigned phase exist and are in the correct state in NovaPort-MCP _before_ starting their planning. This prevents entire work cycles from being wasted on unready tasks.
 - **Enforced "Definition of Done" (DoD) Checks:** The `attempt_completion` instructions for all Lead Modes have been updated to require a final "Definition of Done" verification on their phase's deliverables before reporting completion to the Orchestrator, formalizing a final quality gate.
-- **Robust Failure Handling & Retry Logic:** The failure recovery rules (`R14`) in all Lead Mode prompts have been enhanced. They now include explicit instructions for logging non-transient failures as `ErrorLogs` in ConPort, updating their internal execution plan, and a "retry-once" policy for potentially transient errors to increase system resilience.
+- **Robust Failure Handling & Retry Logic:** The failure recovery rules (`R14`) in all Lead Mode prompts have been enhanced. They now include explicit instructions for logging non-transient failures as `ErrorLogs` in NovaPort-MCP, updating their internal execution plan, and a "retry-once" policy for potentially transient errors to increase system resilience.
 
 ### ✨ New Features & Capabilities
 
 - **Bounded Autonomy for Trivial Fixes:** Relevant specialist prompts (`Nova-SpecializedFeatureImplementer`, `Nova-SpecializedCodeRefactorer`) now include a rule granting them bounded autonomy to fix trivial, in-scope issues, provided they log the action as a `Decision`. This improves efficiency by reducing unnecessary failure/re-delegation loops.
-- **Proactive Tech Debt Identification (R23):** The prompts for developer-side specialists now include an explicit instruction to identify and log new, out-of-scope technical debt to ConPort as a `TechDebtCandidates` item, improving long-term code health.
+- **Proactive Tech Debt Identification (R23):** The prompts for developer-side specialists now include an explicit instruction to identify and log new, out-of-scope technical debt to NovaPort-MCP as a `TechDebtCandidates` item, improving long-term code health.
 - **Enhanced System Observability & DX:** The `nova-orchestrator` prompt has been updated with capabilities to initiate new "Developer Experience" workflows for knowledge graph visualization and new developer onboarding, making the system's state more transparent to the user.
 
 ### 📖 Documentation & Prompts
@@ -190,7 +190,7 @@ This was a major feature-enhancement release focused on adding new core capabili
 
 ### ✨ New Features & Capabilities
 
-- **ConPort Data Standards:** Introduced a formal `conport_standards.md` document in `.nova/docs/`.
+- **NovaPort-MCP Data Standards:** Introduced a formal `novaport_mcp_standards.md` document in `.nova/docs/`.
 - **System Prompt Management Workflow:** Added `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL_001_v1.md`.
 - **Module Template Workflow:** Added `WF_ARCH_CREATE_MODULE_TEMPLATE_001_v1.md`.
 - **Dependency Management Workflow:** Added `WF_DEV_DEPENDENCY_UPDATE_AND_AUDIT_001_v1.md`.

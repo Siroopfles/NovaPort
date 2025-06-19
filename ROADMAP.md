@@ -23,14 +23,12 @@ These are the final tasks required to complete the transition to the new `novapo
 - **Completed Tasks:**
     - [x] **[Prompts] Update All System Prompts:** Replaced all "ConPort" references with "NovaPort-MCP" and updated the MCP server name to `novaport-mcp` across all files in the `.roo/` directory.
     - [x] **[Config] Update `.roomodes`:** Renamed `nova-specializedconportsteward` to `nova-specializednovaportsteward` for consistency.
-
-- **Remaining Tasks:**
-    - [ ] **[Documentation] Update `README.md`:** Rewrite the "Dependencies & Setup" section with instructions for installing `novaport-mcp`. Update all other relevant sections to reference the new backend.
-    - [ ] **[Documentation] Update `GETTING_STARTED.md`:** Align the "Prerequisites" section with the new `novaport-mcp` setup process.
-    - [ ] **[Documentation] Update `NOVA_SYSTEM_ARCHITECTURE.md`:** Revise diagrams and text to explicitly name and link to `novaport-mcp`.
-    - [ ] **[Workflows] Update All Workflow Files:** Systematically review every `.md` file in the `.nova/workflows/` subdirectories. Replace all remaining mentions of "ConPort" with "NovaPort-MCP" or "the database" where appropriate.
-    - [ ] **[Final Review] Finalize `CHANGELOG.md`:** Update the `[Unreleased]` section to include all changes for this release, then rename the tag to `[0.4.0-beta]` and add the final release date.
-    - [ ] **[Release] Create GitHub Release:** Tag the final commit with `v0.4.0-beta` and publish the release on GitHub.
+    - [x] **[Documentation] Update `README.md`:** Rewrote the "Dependencies & Setup" section with instructions for installing `novaport-mcp`. Update all other relevant sections to reference the new backend.
+    - [x] **[Documentation] Update `GETTING_STARTED.md`:** Aligned the "Prerequisites" section with the new `novaport-mcp` setup process.
+    - [x] **[Documentation] Update `NOVA_SYSTEM_ARCHITECTURE.md`:** Revised diagrams and text to explicitly name and link to `novaport-mcp`.
+    - [x] **[Workflows] Update All Workflow Files:** Systematically reviewed every `.md` file in the `.nova/workflows/` subdirectories. Replaced all remaining mentions of "ConPort" with "NovaPort-MCP" or "the database" where appropriate.
+    - [x] **[Final Review] Finalize `CHANGELOG.md`:** Updated the `[Unreleased]` section to include all changes for this release, then renamed the tag to `[0.4.0-beta]` and added the final release date.
+    - [x] **[Release] Create GitHub Release:** Tag the final commit with `v0.4.0-beta` and publish the release on GitHub.
 
 ---
 
@@ -52,7 +50,7 @@ These are larger, more complex features that will significantly expand Nova's ca
 - [ ] **[Intelligence] Implement the Self-Improvement Cycle:**
   - **Description:** Create a new workflow, `WF_ARCH_LEARNING_CYCLE_001_v1.md`, that guides `LeadArchitect` to periodically analyze patterns in `LessonsLearned` and recurring `ErrorLogs`. Based on the analysis, `LeadArchitect` will initiate a `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL` to fix the root cause of systemic issues directly in the prompts of the relevant agents, creating a closed-loop learning mechanism.
 - [ ] **[DX] Implement User Command Alias System:**
-  - **Description:** Define a `CustomData UserCommands:Aliases` schema in ConPort to map short, user-defined strings (e.g., `nova test`) to full workflow file paths. Update `Nova-Orchestrator`'s initial logic to check if user input matches an alias and, if so, immediately initiate the corresponding workflow.
+  - **Description:** Define a `CustomData UserCommands:Aliases` schema in NovaPort-MCP to map short, user-defined strings (e.g., `nova test`) to full workflow file paths. Update `Nova-Orchestrator`'s initial logic to check if user input matches an alias and, if so, immediately initiate the corresponding workflow.
 - [ ] **[Core] Expand Specialist Teams with New Roles:**
   - **Description:** Introduce new specialist modes to cover critical domains. This involves creating their system prompts, adding them to `.roomodes`, updating the `README.md`, and creating initial workflows.
   - **`Nova-SpecializedSecurityAnalyst`**: (Reports to LeadQA) To interpret security scan results and triage vulnerabilities.
@@ -66,5 +64,5 @@ These are ambitious, strategic initiatives that represent the long-term directio
 
 - [ ] **Implement Asynchronous Orchestration:** Evolve `Nova-Orchestrator`'s logic to manage a dependency graph of project phases. When a Lead Mode completes a phase, the Orchestrator will immediately check the graph for any unblocked, subsequent phases and delegate them without waiting for explicit user instruction, minimizing idle time.
 - [ ] **Implement Self-Explanation Capability:** Create `WF_ORCH_EXPLAIN_ACTION_001_v1.md` to handle user questions like "Why did you do X?". This workflow will guide the `Orchestrator` to use `Nova-FlowAsk` to trace a `Progress` item back to its motivating `Decision` via `get_linked_items` and present the `rationale` to the user as the explanation.
-- [ ] **Implement Automated ConPort Compaction/Archiving:** Create a new workflow, `WF_ORCH_CONPORT_COMPACTION_001_v1.md`, to orchestrate a scheduled or user-triggered task that summarizes and archives old ConPort items to keep the active database lean and performant.
-- [ ] **Formalize ConPort Schema Versioning:** Introduce a central `CustomData ConPortSchemaVersions:Current` item in ConPort to track the active version of all major data schemas (e.g., `{ "ErrorLogs": "1.1", "LessonsLearned": "1.0" }`). Update agent prompts to use the correct schema version when creating new entries.
+- [ ] **Implement Automated NovaPort-MCP Compaction/Archiving:** Create a new workflow, `WF_ORCH_NOVAPORT_MCP_COMPACTION_001_v1.md`, to orchestrate a scheduled or user-triggered task that summarizes and archives old NovaPort-MCP items to keep the active database lean and performant.
+- [ ] **Formalize NovaPort-MCP Schema Versioning:** Introduce a central `CustomData ConPortSchemaVersions:Current` item in NovaPort-MCP to track the active version of all major data schemas (e.g., `{ "ErrorLogs": "1.1", "LessonsLearned": "1.0" }`). Update agent prompts to use the correct schema version when creating new entries.

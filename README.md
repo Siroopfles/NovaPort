@@ -562,7 +562,7 @@ NovaPort-MCP structures project knowledge into several key entities stored in SQ
 7.  **`ContextLink`:** Defines explicit relationships between items, forming the knowledge graph edges.
 8.  **Vector Store (ChromaDB):** Stores vector embeddings of text content from various entities for semantic search, linked to SQLite data via item type and ID.
 
-Pydantic models in NovaPort-MCP's source (`src/conport/db/models.py`) mirror these structures. For detailed standard structures and guidelines for key `CustomData` entities like `ErrorLogs` and `LessonsLearned`, refer to `.nova/docs/conport_standards.md`.
+Pydantic models in NovaPort-MCP's source (`src/conport/db/models.py`) mirror these structures. For detailed standard structures and guidelines for key `CustomData` entities like `ErrorLogs` and `LessonsLearned`, refer to `.nova/docs/novaport_mcp_standards.md`.
 
 ### Key Configuration Items
 
