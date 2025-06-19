@@ -21,14 +21,14 @@ Interested in helping us build the future of Nova? We'd love to have you!
 These are the final tasks required to complete the transition to the new `novaport-mcp` backend and finalize the v0.4.0-beta release.
 
 - **Completed Tasks:**
-    - [x] **[Prompts] Update All System Prompts:** Replaced all "ConPort" references with "NovaPort-MCP" and updated the MCP server name to `novaport-mcp` across all files in the `.roo/` directory.
-    - [x] **[Config] Update `.roomodes`:** Renamed `nova-specializedconportsteward` to `nova-specializednovaportsteward` for consistency.
-    - [x] **[Documentation] Update `README.md`:** Rewrote the "Dependencies & Setup" section with instructions for installing `novaport-mcp`. Update all other relevant sections to reference the new backend.
-    - [x] **[Documentation] Update `GETTING_STARTED.md`:** Aligned the "Prerequisites" section with the new `novaport-mcp` setup process.
-    - [x] **[Documentation] Update `NOVA_SYSTEM_ARCHITECTURE.md`:** Revised diagrams and text to explicitly name and link to `novaport-mcp`.
-    - [x] **[Workflows] Update All Workflow Files:** Systematically reviewed every `.md` file in the `.nova/workflows/` subdirectories. Replaced all remaining mentions of "ConPort" with "NovaPort-MCP" or "the database" where appropriate.
-    - [x] **[Final Review] Finalize `CHANGELOG.md`:** Updated the `[Unreleased]` section to include all changes for this release, then renamed the tag to `[0.4.0-beta]` and added the final release date.
-    - [x] **[Release] Create GitHub Release:** Tag the final commit with `v0.4.0-beta` and publish the release on GitHub.
+  - [x] **[Prompts] Update All System Prompts:** Replaced all "ConPort" references with "NovaPort-MCP" and updated the MCP server name to `novaport-mcp` across all files in the `.roo/` directory.
+  - [x] **[Config] Update `.roomodes`:** Renamed `nova-specializedconportsteward` to `nova-specializednovaportsteward` for consistency.
+  - [x] **[Documentation] Update `README.md`:** Rewrote the "Dependencies & Setup" section with instructions for installing `novaport-mcp`. Update all other relevant sections to reference the new backend.
+  - [x] **[Documentation] Update `GETTING_STARTED.md`:** Aligned the "Prerequisites" section with the new `novaport-mcp` setup process.
+  - [x] **[Documentation] Update `NOVA_SYSTEM_ARCHITECTURE.md`:** Revised diagrams and text to explicitly name and link to `novaport-mcp`.
+  - [x] **[Workflows] Update All Workflow Files:** Systematically reviewed every `.md` file in the `.nova/workflows/` subdirectories. Replaced all remaining mentions of "ConPort" with "NovaPort-MCP" or "the database" where appropriate.
+  - [x] **[Final Review] Finalize `CHANGELOG.md`:** Updated the `[Unreleased]` section to include all changes for this release, then renamed the tag to `[0.4.0-beta]` and added the final release date.
+  - [x] **[Release] Create GitHub Release:** Tag the final commit with `v0.4.0-beta` and publish the release on GitHub.
 
 ---
 

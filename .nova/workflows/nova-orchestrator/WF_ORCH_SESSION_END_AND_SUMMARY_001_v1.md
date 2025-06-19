@@ -40,7 +40,10 @@
         ],
         "Required_Input_Context": {
           "Orchestrator_Current_Project_Status_View": "[Nova-Orchestrator's summary of ongoing main tasks and Lead Mode statuses]",
-          "Key_Recent_NovaPort-MCP_Progress_IDs_Strings": ["ID1_as_string", "ID2_as_string"]
+          "Key_Recent_NovaPort-MCP_Progress_IDs_Strings": [
+            "ID1_as_string",
+            "ID2_as_string"
+          ]
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
           "Confirmation that `active_context.state_of_the_union` has been updated.",

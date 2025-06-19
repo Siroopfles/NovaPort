@@ -11,28 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.h
 
 This is a major release that transitions the Nova System's entire knowledge management backend from the original `context-portal` to the new, robust, and fully-typed `novaport-mcp` server. This change enhances stability, maintainability, and future scalability.
 
--   **System-Wide Backend Migration:** Replaced all references to "ConPort" with "NovaPort-MCP" across all system prompts, workflows, and documentation to reflect the new backend.
--   **Corrected MCP Server Name:** The `server_name` parameter for the `use_mcp_tool` in all system prompts (`.roo/` directory) has been updated from `conport` to `novaport-mcp`, ensuring all agents communicate with the correct server instance.
--   **Updated Mode Configuration:** Renamed the specialist mode `nova-specializedconportsteward` to `nova-specializednovaportsteward` in `.roomodes` and its corresponding system prompt for full naming consistency with the new backend.
--   **Updated User Documentation:**
-    -   Rewrote the "Dependencies & Setup" section in `README.md` to provide clear, step-by-step instructions for installing and configuring the new `novaport-mcp` backend.
-    -   Updated `GETTING_STARTED.md` and `NOVA_SYSTEM_ARCHITECTURE.md` to be fully consistent with the new terminology and architecture.
--   **Updated Workflow Definitions:** Systematically reviewed and updated every workflow file in the `.nova/workflows/` directory to replace all mentions of "ConPort" with "NovaPort-MCP", ensuring that agent instructions are accurate and reflect the current system.
+- **System-Wide Backend Migration:** Replaced all references to "ConPort" with "NovaPort-MCP" across all system prompts, workflows, and documentation to reflect the new backend.
+- **Corrected MCP Server Name:** The `server_name` parameter for the `use_mcp_tool` in all system prompts (`.roo/` directory) has been updated from `conport` to `novaport-mcp`, ensuring all agents communicate with the correct server instance.
+- **Updated Mode Configuration:** Renamed the specialist mode `nova-specializedconportsteward` to `nova-specializednovaportsteward` in `.roomodes` and its corresponding system prompt for full naming consistency with the new backend.
+- **Updated User Documentation:**
+  - Rewrote the "Dependencies & Setup" section in `README.md` to provide clear, step-by-step instructions for installing and configuring the new `novaport-mcp` backend.
+  - Updated `GETTING_STARTED.md` and `NOVA_SYSTEM_ARCHITECTURE.md` to be fully consistent with the new terminology and architecture.
+- **Updated Workflow Definitions:** Systematically reviewed and updated every workflow file in the `.nova/workflows/` directory to replace all mentions of "ConPort" with "NovaPort-MCP", ensuring that agent instructions are accurate and reflect the current system.
 
 ## [0.3.4-beta] - 2024-05-23
 
 ### ✨ New Features & Capabilities
 
--   **Enabled Specialist-Proposed Alternatives:** System-wide update to empower `Specialist` modes to propose alternative solutions if a briefed task is flawed or inefficient.
-    -   Updated all 10 specialist prompts to include a rule (`R26`) allowing them to return a `Proposed_Alternative` block in their `attempt_completion`.
-    -   Hardened all 3 `Lead` mode prompts to recognize and handle the `Proposed_Alternative` block from specialists, requiring the Lead to log a formal `Decision` to approve or reject the proposal before proceeding.
--   **Implemented Configurable Quality Gates:** Introduced a new project-level setting for flexible quality governance.
-    -   Added `testing.quality_gate_level` (`'strict' | 'moderate' | 'lean'`) to the example `ProjectConfig:ActiveConfig` file.
-    -   Updated `Nova-LeadDeveloper` and `Nova-LeadQA` prompts to read this setting and adjust the rigor of their 'Definition of Done' checks and delegated testing tasks accordingly.
+- **Enabled Specialist-Proposed Alternatives:** System-wide update to empower `Specialist` modes to propose alternative solutions if a briefed task is flawed or inefficient.
+  - Updated all 10 specialist prompts to include a rule (`R26`) allowing them to return a `Proposed_Alternative` block in their `attempt_completion`.
+  - Hardened all 3 `Lead` mode prompts to recognize and handle the `Proposed_Alternative` block from specialists, requiring the Lead to log a formal `Decision` to approve or reject the proposal before proceeding.
+- **Implemented Configurable Quality Gates:** Introduced a new project-level setting for flexible quality governance.
+  - Added `testing.quality_gate_level` (`'strict' | 'moderate' | 'lean'`) to the example `ProjectConfig:ActiveConfig` file.
+  - Updated `Nova-LeadDeveloper` and `Nova-LeadQA` prompts to read this setting and adjust the rigor of their 'Definition of Done' checks and delegated testing tasks accordingly.
 
 ### 📖 Documentation & Prompts
 
--   **Updated `ROADMAP.md`:** Marked the "Enable Specialist-Proposed Alternatives" and "Implement Configurable Quality Gates" short-term goals as complete.
+- **Updated `ROADMAP.md`:** Marked the "Enable Specialist-Proposed Alternatives" and "Implement Configurable Quality Gates" short-term goals as complete.
 
 ## [0.3.3-beta] - 2024-05-22
 
@@ -91,7 +91,7 @@ This is a major release focused on fundamentally improving agent reliability, sy
 #### 🚀 Improvements & Hardening
 
 - **Granular Single-Step Execution Loop (Lead Modes):** Re-engineered the core `task_execution_protocol` for all Lead Modes (`LeadArchitect`, `LeadDeveloper`, `LeadQA`). They no longer plan entire phases upfront. Instead, they create a high-level plan and then enter an iterative loop, determining and delegating only the single, next, most logical atomic sub-task to a specialist at a time. This dramatically improves reliability and reduces the risk of complex, error-prone specialist briefings.
-- **Mandatory Auditable Rationale Protocol:** System-wide hardening of all 15 agent prompts (`Orchestrator`, `Leads`, `Specialists`, `FlowAsk`). Before _every* tool call, agents must now include a `## Rationale` section in their `<thinking>` block, detailing the goal, justification, and expected outcome of the tool call. This creates an invaluable "flight recorder" log for debugging and analysis.
+- **Mandatory Auditable Rationale Protocol:** System-wide hardening of all 15 agent prompts (`Orchestrator`, `Leads`, `Specialists`, `FlowAsk`). Before \_every\* tool call, agents must now include a `## Rationale` section in their `<thinking>` block, detailing the goal, justification, and expected outcome of the tool call. This creates an invaluable "flight recorder" log for debugging and analysis.
 - **Proactive NovaPort-MCP Linking (Specialist Modes):** All 10 Specialist Mode prompts have been updated to include a mandatory `Suggested_ConPort_Links` section in their `attempt_completion` reports. Specialists are now required to proactively suggest potential links between the NovaPort-MCP items they create and other relevant items, enriching the knowledge graph for their Leads to review and action.
 
 ### 📖 Documentation & Prompts

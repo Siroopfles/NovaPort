@@ -152,16 +152,18 @@ Before you can run the Nova System, its core dependency, the **NovaPort-MCP** se
 1.  **A Roo Code Compatible Environment:** The system is designed to be run by an AI agent framework like Roo Code. This documentation assumes you are using the Roo Code extension within Visual Studio Code.
 
 2.  **NovaPort-MCP Server Setup:** The Nova System's memory is powered by the NovaPort-MCP server.
+
     - **Step A: Install the Backend:**
       You must first clone and install the `novaport-mcp` backend. You can find the full installation instructions at its official repository:
       **[https://github.com/Siroopfles/novaport-mcp](https://github.com/Siroopfles/novaport-mcp)**
-      
+
       A quick summary of the installation is:
+
       ```bash
       # 1. Clone the repository
       git clone https://github.com/Siroopfles/novaport-mcp.git
       cd novaport-mcp
-
+      
       # 2. Install dependencies with Poetry
       # This requires Python 3.11+ and Poetry to be installed.
       poetry install
@@ -169,18 +171,15 @@ Before you can run the Nova System, its core dependency, the **NovaPort-MCP** se
 
     - **Step B: Configure in Roo Code:**
       After installing the backend, you must configure it as an available "MCP Server" within your Roo Code environment. This allows the Roo Code extension to start and manage the server for your project.
-      
+
       In your Roo Code `mcp_settings.json` or your project's `.roo/mcp.json`, add the following `mcpServers` object. **You must replace `<absolute path to your cloned novaport-mcp directory>` with the actual absolute path on your system.**
-      
+
       ```json
       {
         "mcpServers": {
           "novaport-mcp": {
             "command": "poetry",
-            "args": [
-              "run",
-              "novaport-mcp"
-            ],
+            "args": ["run", "novaport-mcp"],
             "cwd": "<absolute path to your cloned novaport-mcp directory>",
             "disabled": false,
             "description": "The robust, multi-project MCP server for NovaPort."
@@ -188,6 +187,7 @@ Before you can run the Nova System, its core dependency, the **NovaPort-MCP** se
         }
       }
       ```
+
       > **Troubleshooting:** If you encounter connection errors, please refer to the "Troubleshooting & Robust Configuration" section in the `novaport-mcp` README for instructions on how to call the Python interpreter directly.
 
 ## Quick Start: Your First Interaction
