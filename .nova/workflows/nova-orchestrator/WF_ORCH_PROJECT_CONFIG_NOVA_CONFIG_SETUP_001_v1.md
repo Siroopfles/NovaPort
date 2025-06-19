@@ -1,18 +1,18 @@
 # Workflow: Project & Nova System Configuration Setup Orchestration (WF_ORCH_PROJECT_CONFIG_NOVA_CONFIG_SETUP_001_v1)
 
-**Goal:** To ensure that essential project-specific configurations (`ProjectConfig:ActiveConfig`) and Nova system behavior configurations (`NovaSystemConfig:ActiveSettings`) are established in ConPort, orchestrated by Nova-Orchestrator by delegating to Nova-LeadArchitect.
+**Goal:** To ensure that essential project-specific configurations (`ProjectConfig:ActiveConfig`) and Nova system behavior configurations (`NovaSystemConfig:ActiveSettings`) are established in NovaPort-MCP, orchestrated by Nova-Orchestrator by delegating to Nova-LeadArchitect.
 
 **Primary Orchestrator Actor:** Nova-Orchestrator
 **Delegated Lead Mode Actor:** Nova-LeadArchitect
 
 **Trigger / Recognition:**
 
-- Executed by Nova-Orchestrator as part of its `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` if `ProjectConfig:ActiveConfig` (key) or `NovaSystemConfig:ActiveSettings` (key) are not found in ConPort.
+- Executed by Nova-Orchestrator as part of its `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md` if `ProjectConfig:ActiveConfig` (key) or `NovaSystemConfig:ActiveSettings` (key) are not found in NovaPort-MCP.
 - Can also be triggered if user explicitly requests to review/setup these configurations.
 
 **Pre-requisites by Nova-Orchestrator:**
 
-- ConPort is `[CONPORT_ACTIVE]`.
+- The database is `[DATABASE_ACTIVE]`.
 - If part of a new project, `WF_PROJ_INIT_001_NewProjectBootstrap.md` (or similar) should ideally have been completed to establish basic `ProductContext` (key 'product_context').
 
 **Phases & Steps (managed by Nova-Orchestrator):**
@@ -31,14 +31,14 @@
       ```json
       {
         "Context_Path": "ProjectSetup (Orchestrator) -> ConfigSetup (LeadArchitect)",
-        "Overall_Project_Goal": "Ensure Project [ProjectName] has necessary ConPort configurations.",
-        "Phase_Goal": "Define and log [missing/requested configs: ProjectConfig:ActiveConfig and/or NovaSystemConfig:ActiveSettings] in ConPort.",
+        "Overall_Project_Goal": "Ensure Project [ProjectName] has necessary database configurations.",
+        "Phase_Goal": "Define and log [missing/requested configs: ProjectConfig:ActiveConfig and/or NovaSystemConfig:ActiveSettings] in NovaPort-MCP.",
         "Lead_Mode_Specific_Instructions": [
           "Project: [ProjectName].",
-          "The following configurations need to be established/reviewed in ConPort: [List missing, e.g., 'ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings'].",
-          "Your goal is to ensure these configurations are correctly defined and logged. Create a high-level plan for this, log it, and use your single-step loop to delegate atomic tasks to your ConPortSteward.",
+          "The following configurations need to be established/reviewed in NovaPort-MCP: [List missing, e.g., 'ProjectConfig:ActiveConfig', 'NovaSystemConfig:ActiveSettings'].",
+          "Your goal is to ensure these configurations are correctly defined and logged. Create a high-level plan for this, log it, and use your single-step loop to delegate atomic tasks to your NovaPortSteward.",
           "You may consult `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for a reference process.",
-          "Key sub-tasks for your specialists will include: preparing default values, guiding the user (via me) through key settings, and logging the final JSON objects to ConPort."
+          "Key sub-tasks for your specialists will include: preparing default values, guiding the user (via me) through key settings, and logging the final JSON objects to NovaPort-MCP."
         ],
         "Required_Input_Context": {
           "ProjectName": "[ProjectName]",
@@ -48,7 +48,7 @@
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
           "Confirmation that `ProjectConfig:ActiveConfig` (key) has been created/updated, with a summary of key values.",
           "Confirmation that `NovaSystemConfig:ActiveSettings` (key) has been created/updated, with a summary of key values.",
-          "ConPort keys for both logged configuration items."
+          "NovaPort-MCP keys for both logged configuration items."
         ]
       }
       ```
@@ -56,9 +56,9 @@
       - Verify configurations are reported as logged by LeadArchitect.
       - Use `use_mcp_tool` (`tool_name: 'get_custom_data'`) to re-load `ProjectConfig:ActiveConfig` (key) and `NovaSystemConfig:ActiveSettings` (key) into its own session understanding.
       - Update its `Progress` (`[OrchCfgProgressID]`) for "Setup Project/Nova Configurations (Orchestrated)" to "DONE" using `use_mcp_tool` (`tool_name: 'update_progress'`).
-      - Inform user: "Project and Nova system configurations have been established in ConPort."
+      - Inform user: "Project and Nova system configurations have been established in NovaPort-MCP."
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - CustomData ProjectConfig:ActiveConfig (key) (created/updated by LeadArchitect's team)
 - CustomData NovaSystemConfig:ActiveSettings (key) (created/updated by LeadArchitect's team)

@@ -3,7 +3,7 @@
 **Goal:** To design and create a standardized, reusable module/service template and store it in the `.nova/templates/` directory for future use.
 
 **Primary Actor:** Nova-LeadArchitect
-**Delegated Specialist Actors:** Nova-SpecializedSystemDesigner, Nova-SpecializedWorkflowManager, Nova-SpecializedConPortSteward
+**Delegated Specialist Actors:** Nova-SpecializedSystemDesigner, Nova-SpecializedWorkflowManager, Nova-SpecializedNovaPortSteward
 
 **Trigger / Recognition:**
 
@@ -39,23 +39,23 @@
         - Instruct them to use `write_to_file` to create each boilerplate file with its content.
         - The specialist should return a list of all created file paths.
 
-**Milestone MT.3: ConPort Registration & Closure**
+**Milestone MT.3: NovaPort-MCP Registration & Closure**
 
 - **DoR Check:** All template files have been created on the filesystem.
-- **Goal:** Log the new template in ConPort for discoverability and finalize the process.
+- **Goal:** Log the new template in NovaPort-MCP for discoverability and finalize the process.
 - **Suggested Specialist Sequence & Lead Actions:**
-  1.  **Delegate to `Nova-SpecializedConPortSteward`:**
-      - **Subtask Goal:** "Log the newly created module template in ConPort for discoverability."
+  1.  **Delegate to `Nova-SpecializedNovaPortSteward`:**
+      - **Subtask Goal:** "Log the newly created module template in NovaPort-MCP for discoverability."
       - **Briefing Details:**
         - Instruct the specialist to use `log_custom_data` to create a new entry in the `Templates` category.
         - The `value` object should include the template's `description`, `path` on the filesystem, `primary_language`, and `tags`.
-        - The specialist should return the key of the new ConPort entry.
+        - The specialist should return the key of the new NovaPort-MCP entry.
   2.  **LeadArchitect Action:**
       - Verify all steps are complete.
       - Update the main `Progress` item to 'DONE'.
       - Report completion to `Nova-Orchestrator`.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

@@ -54,7 +54,7 @@
   2.  Update the main `Progress` item for the audit cycle to 'DONE'.
   3.  Report a summary of the updates, the new risk posture, and any new `ErrorLogs` to `Nova-Orchestrator`.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

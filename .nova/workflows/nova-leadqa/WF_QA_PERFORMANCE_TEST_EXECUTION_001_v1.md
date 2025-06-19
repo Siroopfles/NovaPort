@@ -11,7 +11,7 @@
 - `AcceptanceCriteria` for a feature includes specific performance targets.
 - A periodic performance health check is scheduled.
 
-**Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or ConPort):**
+**Pre-requisites by Nova-LeadQA (from Nova-Orchestrator's briefing or NovaPort-MCP):**
 
 - Application build is deployed to a dedicated performance testing environment (`ProjectConfig`).
 - Performance test scripts/tools are available and configured (`ProjectConfig`).
@@ -38,14 +38,14 @@
 - **Goal:** Analyze the results against KPIs and log any significant findings.
 - **Suggested Lead Action & Specialist Sequence:**
   1.  **LeadQA Action: Analyze Results:**
-      - For each completed scenario, compare the observed metrics (e.g., p95 latency, throughput, error rate) against the defined KPI targets from ConPort (`PerformanceTargets` or `AcceptanceCriteria`).
+      - For each completed scenario, compare the observed metrics (e.g., p95 latency, throughput, error rate) against the defined KPI targets from NovaPort-MCP (`PerformanceTargets` or `AcceptanceCriteria`).
       - Identify any KPIs that were not met and any potential performance bottlenecks.
-  2.  **Delegate to `Nova-SpecializedTestExecutor` (or ConPortSteward):**
-      - **Subtask Goal:** "Compile an overall performance report and log key findings as `PerformanceNotes` in ConPort."
+  2.  **Delegate to `Nova-SpecializedTestExecutor` (or Nova-SpecializedNovaPortSteward):**
+      - **Subtask Goal:** "Compile an overall performance report and log key findings as `PerformanceNotes` in NovaPort-MCP."
       - **Briefing Details:**
         - Provide the consolidated analysis from all scenarios.
         - Instruct to create a summary Markdown report.
-        - For each significant finding (e.g., a KPI miss), instruct them to log a structured `CustomData PerformanceNotes:[Component]_[Finding]` item to ConPort, detailing the metric, target, actual value, and a link to the raw data.
+        - For each significant finding (e.g., a KPI miss), instruct them to log a structured `CustomData PerformanceNotes:[Component]_[Finding]` item to NovaPort-MCP, detailing the metric, target, actual value, and a link to the raw data.
         - The specialist should return the path/key of the report and a list of all `PerformanceNotes` keys created.
 
 **Milestone PT.3: Finalize Cycle**
@@ -57,7 +57,7 @@
   3.  Update the `active_context.state_of_the_union`.
   4.  Use `attempt_completion` to report the summary, pass/fail status against KPIs, and references to the report and `PerformanceNotes` to `Nova-Orchestrator`. Highlight any critical performance blockers.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - CustomData (`PerformanceTargets`, `PerformanceNotes`, `TestExecutionReports`)

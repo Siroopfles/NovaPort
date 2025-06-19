@@ -8,7 +8,7 @@
 
 **Pre-requisites by Nova-LeadQA:**
 
-- A `CustomData ErrorLogs:[BugKey]` entry exists in ConPort.
+- A `CustomData ErrorLogs:[BugKey]` entry exists in NovaPort-MCP.
 
 **Reference Milestones for your Single-Step Loop:**
 
@@ -31,8 +31,8 @@
       - **Subtask Goal:** "Conduct detailed RCA for `ErrorLogs:[BugKey]`."
       - **Briefing Details:**
         - Provide the `ErrorLogs` key to investigate.
-        - Instruct the specialist to attempt reproduction, analyze logs/code (read-only), and consult related ConPort items.
-        - The primary deliverable is an **updated** `ErrorLogs` item in ConPort containing detailed `investigation_notes`, a clear `root_cause_analysis`, and a new `status` (e.g., `AWAITING_FIX`).
+        - Instruct the specialist to attempt reproduction, analyze logs/code (read-only), and consult related NovaPort-MCP items.
+        - The primary deliverable is an **updated** `ErrorLogs` item in NovaPort-MCP containing detailed `investigation_notes`, a clear `root_cause_analysis`, and a new `status` (e.g., `AWAITING_FIX`).
         - The specialist should return confirmation of the update and a summary of the root cause.
 
 **Milestone BIR.2: Fix Coordination**
@@ -66,11 +66,11 @@
 - **Suggested Lead Action & Specialist Sequence:**
   1.  **Process Verification Outcome:**
       - **If RESOLVED:** Update the main `Progress` to 'DONE'. Coordinate with `Nova-Orchestrator` to update `active_context.open_issues`.
-      - **Delegate to `Nova-SpecializedBugInvestigator` or `ConPortSteward`:** "Draft a `LessonsLearned` entry for `ErrorLogs:[BugKey]`."
+      - **Delegate to `Nova-SpecializedBugInvestigator` or `Nova-SpecializedNovaPortSteward`:** "Draft a `LessonsLearned` entry for `ErrorLogs:[BugKey]`."
       - **If FAILED_VERIFICATION:** Update `Progress` to 'BLOCKED'. Inform `Nova-Orchestrator` to re-engage `Nova-LeadDeveloper`. Loop back to Milestone BIR.2.
   2.  **Report to Orchestrator:** Use `attempt_completion` to report the final outcome of the bug lifecycle.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - CustomData ErrorLogs:[BugKey] (key)
 - Progress (integer `id`)

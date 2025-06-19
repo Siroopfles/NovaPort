@@ -8,13 +8,13 @@
 **Trigger / Recognition:**
 
 - User requests a new feature for an existing, already initialized project (e.g., "Add a user dashboard to Project X", "Implement payment integration for our app").
-- ConPort `ProductContext` (key 'product_context'), `ProjectConfig:ActiveConfig` (key), and `NovaSystemConfig:ActiveSettings` (key) already exist and are reasonably up-to-date.
+- NovaPort-MCP `ProductContext` (key 'product_context'), `ProjectConfig:ActiveConfig` (key), and `NovaSystemConfig:ActiveSettings` (key) already exist and are reasonably up-to-date.
 
 **Pre-requisites by Nova-Orchestrator (before starting this workflow):**
 
-- Nova-Orchestrator has performed its initial session/ConPort initialization (executing `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md`).
+- Nova-Orchestrator has performed its initial session/database initialization (executing `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md`).
 - User has provided a clear description of the new feature, its goals, and ideally, some initial requirements or user stories.
-- The existing project in ConPort is in a stable state (e.g., not in the middle of a critical bug fix for an unrelated area).
+- The existing project in NovaPort-MCP is in a stable state (e.g., not in the middle of a critical bug fix for an unrelated area).
 
 **Phases & Steps (managed by Nova-Orchestrator):**
 
@@ -29,12 +29,12 @@
       {
         "Context_Path": "Project [ProjectName] (Orchestrator) -> Feature [FeatureName] Definition (LeadArchitect)",
         "Overall_Project_Goal": "Successfully integrate new feature [FeatureName] into Project [ProjectName].",
-        "Phase_Goal": "Define detailed specifications for [FeatureName], analyze its impact on the existing architecture of Project [ProjectName], and update relevant ConPort documentation.",
+        "Phase_Goal": "Define detailed specifications for [FeatureName], analyze its impact on the existing architecture of Project [ProjectName], and update relevant NovaPort-MCP documentation.",
         "Lead_Mode_Specific_Instructions": [
           "Feature to define: [FeatureName] - [UserProvidedFeatureDescription].",
-          "Your goal for this phase is to define the feature specifications and assess its impact. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists.",
+          "Your goal for this phase is to define the feature specifications and assess its impact. Create a high-level plan for this phase, log it to NovaPort-MCP, and then use your standard single-step execution loop to delegate atomic tasks to your specialists.",
           "You may consult `.nova/workflows/nova-leadarchitect/WF_ARCH_IMPACT_ANALYSIS_001_v1.md` for a reference process for the impact analysis part.",
-          "Key sub-tasks for your specialists will include: detailing user stories, acceptance criteria, and non-functional requirements in ConPort (`FeatureScope` and `AcceptanceCriteria` categories); analyzing impact on existing architecture; and proposing/logging any necessary architectural changes or new design artifacts (`SystemArchitecture`, `APIEndpoints`, `DBMigrations`)."
+          "Key sub-tasks for your specialists will include: detailing user stories, acceptance criteria, and non-functional requirements in NovaPort-MCP (`FeatureScope` and `AcceptanceCriteria` categories); analyzing impact on existing architecture; and proposing/logging any necessary architectural changes or new design artifacts (`SystemArchitecture`, `APIEndpoints`, `DBMigrations`)."
         ],
         "Required_Input_Context": {
           "ProjectName": "[ProjectName]",
@@ -51,9 +51,9 @@
           }
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
-          "ConPort keys for `FeatureScope:[FeatureName_Scope_Key]` and `AcceptanceCriteria:[FeatureName_AC_Key]`.",
-          "ConPort key for the `ImpactAnalyses:[FeatureName_ImpactReport_Date_Key]`.",
-          "List of ConPort IDs/keys for any new/updated `SystemArchitecture`, `APIEndpoints`, `DBMigrations`, or architectural `Decisions` related to this feature.",
+          "NovaPort-MCP keys for `FeatureScope:[FeatureName_Scope_Key]` and `AcceptanceCriteria:[FeatureName_AC_Key]`.",
+          "NovaPort-MCP key for the `ImpactAnalyses:[FeatureName_ImpactReport_Date_Key]`.",
+          "List of NovaPort-MCP IDs/keys for any new/updated `SystemArchitecture`, `APIEndpoints`, `DBMigrations`, or architectural `Decisions` related to this feature.",
           "Confirmation `active_context.state_of_the_union` is updated."
         ]
       }
@@ -89,7 +89,7 @@
             "Phase_Goal": "Remediate failing DoR criteria for the Development Phase of Feature [FeatureName].",
             "Lead_Mode_Specific_Instructions": [
               "The 'Definition of Ready' for the Development Phase has failed. The following criteria are not met: [List of Failed_Criteria].",
-              "Your team must take action to meet these criteria. This may involve finalizing designs, securing approvals (simulated via user interaction if needed), or updating ConPort statuses.",
+              "Your team must take action to meet these criteria. This may involve finalizing designs, securing approvals (simulated via user interaction if needed), or updating NovaPort-MCP statuses.",
               "Report back via `attempt_completion` when all listed criteria are now met."
             ],
             "Required_Input_Context": { "Failed_Criteria_List": "[...]" },
@@ -114,20 +114,20 @@
         "Overall_Project_Goal": "Successfully integrate new feature [FeatureName] into Project [ProjectName].",
         "Phase_Goal": "Implement [FeatureName] for Project [ProjectName] according to provided specifications, ensuring code quality and comprehensive testing.",
         "Lead_Mode_Specific_Instructions": [
-          "Your goal for this phase is to implement the feature '[FeatureName]'. Create a high-level plan for this phase, log it to ConPort, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` for a reference process. Ensure all code is implemented according to specifications, is fully tested, and meets quality standards."
+          "Your goal for this phase is to implement the feature '[FeatureName]'. Create a high-level plan for this phase, log it to NovaPort-MCP, and then use your standard single-step execution loop to delegate atomic tasks to your specialists. You may consult `.nova/workflows/nova-leaddeveloper/WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md` for a reference process. Ensure all code is implemented according to specifications, is fully tested, and meets quality standards."
         ],
         "Required_Input_Context": {
           "ProjectName": "[ProjectName]",
           "FeatureName": "[FeatureName]",
-          "ConPort_FeatureScope_Key": "[FeatureName_Scope_Key]",
-          "ConPort_AcceptanceCriteria_Key": "[FeatureName_AC_Key]",
-          "ConPort_Relevant_Arch_API_DB_Refs": "[Keys/IDs from LeadArchitect's phase output]",
-          "ConPort_ProjectConfig_Key": "ProjectConfig:ActiveConfig"
+          "NovaPort-MCP_FeatureScope_Key": "[FeatureName_Scope_Key]",
+          "NovaPort-MCP_AcceptanceCriteria_Key": "[FeatureName_AC_Key]",
+          "NovaPort-MCP_Relevant_Arch_API_DB_Refs": "[Keys/IDs from LeadArchitect's phase output]",
+          "NovaPort-MCP_ProjectConfig_Key": "ProjectConfig:ActiveConfig"
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
           "Summary of implemented aspects of [FeatureName].",
           "Confirmation of linting and unit/integration test completion and pass status (or list of critical unresolved test failures).",
-          "List of key ConPort items created: implementation `Decision` (integer `id`s), `CodeSnippets` (keys).",
+          "List of key NovaPort-MCP items created: implementation `Decision` (integer `id`s), `CodeSnippets` (keys).",
           "Confirmation that `active_context.state_of_the_union` is updated (or request for update sent)."
         ]
       }
@@ -158,15 +158,15 @@ _ **Path A (YES - Success):** Log success, proceed to Phase NF.3. \* **Path B (N
         "Phase_Goal": "Thoroughly test the new [FeatureName] within Project [ProjectName], including integration with existing functionalities. Identify and track defects, verify fixes.",
         "Lead_Mode_Specific_Instructions": [
           "Feature to test: [FeatureName].",
-          "Your goal for this phase is to ensure the quality of feature '[FeatureName]'. Create a high-level test plan, log it to ConPort, and then use your standard single-step execution loop to delegate atomic testing and bug investigation tasks to your specialists.",
+          "Your goal for this phase is to ensure the quality of feature '[FeatureName]'. Create a high-level test plan, log it to NovaPort-MCP, and then use your standard single-step execution loop to delegate atomic testing and bug investigation tasks to your specialists.",
           "You may consult `.nova/workflows/nova-leadqa/` for reference processes, such as `WF_QA_TEST_CASE_DESIGN_FROM_SPECS_001_v1.md` or `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md`.",
           "Key sub-tasks for your specialists will include: developing and executing test cases based on `AcceptanceCriteria`, logging all defects as structured `ErrorLogs`, managing the bug lifecycle, and verifying fixes."
         ],
         "Required_Input_Context": {
           "ProjectName": "[ProjectName]",
           "FeatureName": "[FeatureName]",
-          "ConPort_FeatureScope_Key": "[FeatureName_Scope_Key]",
-          "ConPort_AcceptanceCriteria_Key": "[FeatureName_AC_Key]",
+          "NovaPort-MCP_FeatureScope_Key": "[FeatureName_Scope_Key]",
+          "NovaPort-MCP_AcceptanceCriteria_Key": "[FeatureName_AC_Key]",
           "Developer_Build_Or_Branch_Info": "[Details from LeadDeveloper phase completion]"
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
@@ -184,7 +184,7 @@ _ **Path A (YES - Success):** Log success, proceed to Phase NF.3. \* **Path B (N
 _(This might be folded into the end of QA or become part of a broader release workflow like WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1.md)_ 6. **Nova-Orchestrator: Coordinate Final Integration & Documentation**
 _ **Action:**
 _ Delegate to Nova-LeadDeveloper: Briefing to ensure feature branch is merged to main (conceptual, no git tools directly), final build checks, and update any developer-facing documentation.
-_ Delegate to Nova-LeadArchitect: Briefing to ensure their team (CodeDocumenter via LeadDev or WorkflowManager/ConPortSteward via LeadArch) updates all project documentation (`SystemArchitecture` (key), user docs, `DefinedWorkflows` (key)) to include the new feature.
+_ Delegate to Nova-LeadArchitect: Briefing to ensure their team (CodeDocumenter via LeadDev or WorkflowManager/NovaPortSteward via LeadArch) updates all project documentation (`SystemArchitecture` (key), user docs, `DefinedWorkflows` (key)) to include the new feature.
 _ **Output:** Feature fully integrated. All documentation updated.
 
 **Phase NF.5: Closure for Feature Cycle (Nova-Orchestrator)** 7. **Nova-Orchestrator: Finalize Feature Cycle**
@@ -195,7 +195,7 @@ _ Update `active_context.state_of_the_union` to "Feature [FeatureName] successfu
 _ Initiate `WF_ORCH_SYSTEM_RETROSPECTIVE_AND_IMPROVEMENT_PROPOSAL_001_v1.md` if defined, to capture `LessonsLearned`.
 _ **Output:** Feature cycle concluded.
 
-**Key ConPort Items Referenced/Updated by Nova-Orchestrator (overall for this feature):**
+**Key NovaPort-MCP Items Referenced/Updated by Nova-Orchestrator (overall for this feature):**
 
 - Progress (integer `id`) for the feature delivery.
 - Reads/Ensures creation of: FeatureScope (key), AcceptanceCriteria (key), ImpactAnalyses (key).

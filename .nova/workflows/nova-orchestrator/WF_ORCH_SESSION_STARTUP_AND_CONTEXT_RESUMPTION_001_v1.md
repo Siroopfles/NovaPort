@@ -1,6 +1,6 @@
 # Workflow: Session Startup and Context Resumption (WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1)
 
-**Goal:** To correctly initialize Nova-Orchestrator at the start of a new user session by loading all relevant context from ConPort and the last session summary file, establishing a clear operational state.
+**Goal:** To correctly initialize Nova-Orchestrator at the start of a new user session by loading all relevant context from NovaPort-MCP and the last session summary file, establishing a clear operational state.
 
 **Primary Orchestrator Actor:** Nova-Orchestrator (executes this internally as its first set of actions)
 **Utility Mode Actor (potentially delegated to by Nova-Orchestrator):** Nova-FlowAsk (for summary parsing)
@@ -16,7 +16,7 @@
 
 **Phases & Steps (executed by Nova-Orchestrator):**
 
-**Phase SSU.1: Determine Workspace & ConPort DB Status**
+**Phase SSU.1: Determine Workspace & Database Status**
 
 1.  **Nova-Orchestrator: Identify Workspace**
 
@@ -24,36 +24,36 @@
     - **Action:** Determine `ACTUAL_WORKSPACE_ID` from `[WORKSPACE_PLACEHOLDER]` in `system_information`.
     - **Output:** `ACTUAL_WORKSPACE_ID` known.
 
-2.  **Nova-Orchestrator: Check ConPort Database Existence**
+2.  **Nova-Orchestrator: Check Database Existence**
     - **Actor:** Nova-Orchestrator
-    - **Action:** Use `list_files` tool to check for `context_portal/context.db` within `ACTUAL_WORKSPACE_ID`.
-      - Tool Call: `<list_files><path>context_portal/</path></list_files>` (Relative to `ACTUAL_WORKSPACE_ID`)
-    - **Output:** Boolean indicating if `context.db` exists.
+    - **Action:** Use `list_files` tool to check for `.novaport_data/conport.db` within `ACTUAL_WORKSPACE_ID`.
+      - Tool Call: `<list_files><path>.novaport_data/</path></list_files>` (Relative to `ACTUAL_WORKSPACE_ID`)
+    - **Output:** Boolean indicating if `conport.db` exists.
 
-**Phase SSU.2: Load or Initialize Core ConPort Data & Configurations**
+**Phase SSU.2: Load or Initialize Core Database Data & Configurations**
 
-3.  **Nova-Orchestrator: Handle ConPort DB State**
+3.  **Nova-Orchestrator: Handle Database State**
 
     - **Actor:** Nova-Orchestrator
     - **Logic:**
-      - **Condition:** If `context.db` exists (from step 2):
-        - **Action:** Proceed to step 4 (Load Existing Context). Set internal ConPort status to `[CONPORT_ACTIVE]`.
-      - **Condition:** If `context.db` does NOT exist:
+      - **Condition:** If `conport.db` exists (from step 2):
+        - **Action:** Proceed to step 4 (Load Existing Context). Set internal database status to `[DATABASE_ACTIVE]`.
+      - **Condition:** If `conport.db` does NOT exist:
         - **Action:**
-          - Inform user: "No existing ConPort database found for this workspace (`ACTUAL_WORKSPACE_ID`)."
+          - Inform user: "No existing NovaPort-MCP database found for this workspace (`ACTUAL_WORKSPACE_ID`)."
           - Use `ask_followup_question`:
-            - Question: "Would you like to initialize a new ConPort database and project setup now? This involves: 1. Running the New Project Bootstrap workflow (`.nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md`). 2. Setting up initial `ProjectConfig:ActiveConfig`. 3. Setting up initial `NovaSystemConfig:ActiveSettings`. I will delegate this entire setup to Nova-LeadArchitect."
-            - Suggestions: ["Yes, delegate full setup to Nova-LeadArchitect.", "No, do not use ConPort/Nova configs this session."].
+            - Question: "Would you like to initialize a new NovaPort-MCP database and project setup now? This involves: 1. Running the New Project Bootstrap workflow (`.nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md`). 2. Setting up initial `ProjectConfig:ActiveConfig`. 3. Setting up initial `NovaSystemConfig:ActiveSettings`. I will delegate this entire setup to Nova-LeadArchitect."
+            - Suggestions: ["Yes, delegate full setup to Nova-LeadArchitect.", "No, do not use the database this session."].
           - If user selects "Yes":
             - Delegate to `Nova-LeadArchitect` using `new_task`.
             - **Subtask Briefing Object for Nova-LeadArchitect (schematic):**
               ```json
               {
-                "Context_Path": "SessionStartup -> NewConPortSetup (LeadArchitect)",
+                "Context_Path": "SessionStartup -> NewDatabaseSetup (LeadArchitect)",
                 "Overall_Project_Goal": "Initialize new project in workspace.",
-                "Phase_Goal": "Execute full ConPort and project initialization: Bootstrap, ProjectConfig, NovaSystemConfig.",
+                "Phase_Goal": "Execute full NovaPort-MCP and project initialization: Bootstrap, ProjectConfig, NovaSystemConfig.",
                 "Lead_Mode_Specific_Instructions": [
-                  "Your goal for this phase is to fully initialize the project. Create a high-level plan for this, log it, and use your standard single-step execution loop to delegate atomic tasks to your specialists.",
+                  "Your goal for this phase is to fully initialize the project. Create a high-level plan for this phase, log it to NovaPort-MCP, and then use your standard single-step execution loop to delegate atomic tasks to your specialists.",
                   "You should consult `.nova/workflows/nova-orchestrator/WF_PROJ_INIT_001_NewProjectBootstrap.md` and `.nova/workflows/nova-leadarchitect/WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` for reference processes."
                 ],
                 "Required_Input_Context": {
@@ -67,29 +67,29 @@
                 ]
               }
               ```
-            - Acknowledge to user: "Delegating full ConPort and project initialization to Nova-LeadArchitect..."
+            - Acknowledge to user: "Delegating full database and project initialization to Nova-LeadArchitect..."
             - Await `attempt_completion` from Nova-LeadArchitect (via user).
-            - If successful, set internal ConPort status to `[CONPORT_ACTIVE]`.
+            - If successful, set internal database status to `[DATABASE_ACTIVE]`.
           - If user selects "No":
-            - Set internal ConPort status to `[CONPORT_INACTIVE]`. Inform user: "[CONPORT_INACTIVE] ConPort will not be used." Proceed to step 6 (skipping ConPort loads).
-    - **Output:** ConPort status (`[CONPORT_ACTIVE]` or `[CONPORT_INACTIVE]`) determined. If new setup was done, basic ConPort items exist.
+            - Set internal database status to `[DATABASE_INACTIVE]`. Inform user: "[DATABASE_INACTIVE] The NovaPort-MCP database will not be used." Proceed to step 6 (skipping database loads).
+    - **Output:** Database status (`[DATABASE_ACTIVE]` or `[DATABASE_INACTIVE]`) determined. If new setup was done, basic database items exist.
 
-4.  **Nova-Orchestrator: Load Core ConPort Contexts (if CONPORT_ACTIVE)**
+4.  **Nova-Orchestrator: Load Core Database Contexts (if DATABASE_ACTIVE)**
 
     - **Actor:** Nova-Orchestrator
-    - **Action:** If status is `[CONPORT_ACTIVE]`, use `use_mcp_tool` (`server_name: 'conport'`, `arguments` incl. `workspace_id: 'ACTUAL_WORKSPACE_ID'`) for:
+    - **Action:** If status is `[DATABASE_ACTIVE]`, use `use_mcp_tool` (`server_name: 'novaport-mcp'`, `arguments` incl. `workspace_id: 'ACTUAL_WORKSPACE_ID'`) for:
       - `tool_name: 'get_product_context'`
       - `tool_name: 'get_active_context'`
       - `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"ProjectConfig\", \"key\": \"ActiveConfig\"}`
       - `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"NovaSystemConfig\", \"key\": \"ActiveSettings\"}`
       - `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"DefinedWorkflows\"}`
       - `tool_name: 'get_recent_activity_summary'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"hours_ago\": 168, \"limit_per_type\": 3}`
-    - **Output:** Core ConPort data loaded into Nova-Orchestrator's current session understanding.
+    - **Output:** Core database data loaded into Nova-Orchestrator's current session understanding.
 
-5.  **Nova-Orchestrator: Verify/Delegate Missing Configurations (if CONPORT_ACTIVE)**
+5.  **Nova-Orchestrator: Verify/Delegate Missing Configurations (if DATABASE_ACTIVE)**
     - **Actor:** Nova-Orchestrator
     - **Action:** If `ProjectConfig:ActiveConfig` (key) or `NovaSystemConfig:ActiveSettings` (key) were not found or are incomplete after step 4:
-      - Inform user: "Essential configurations (`ProjectConfig:ActiveConfig` or `NovaSystemConfig:ActiveSettings`) are missing or incomplete from ConPort."
+      - Inform user: "Essential configurations (`ProjectConfig:ActiveConfig` or `NovaSystemConfig:ActiveSettings`) are missing or incomplete from NovaPort-MCP."
       - Delegate to `Nova-LeadArchitect` using `new_task` to execute workflow `.nova/workflows/nova-orchestrator/WF_ORCH_PROJECT_CONFIG_NOVA_CONFIG_SETUP_001_v1.md`.
       - **Subtask Briefing Object for Nova-LeadArchitect (schematic):**
         ```json
@@ -113,7 +113,7 @@
 
 **Phase SSU.3: Resume Previous Session State (if applicable)**
 
-6.  **Nova-Orchestrator: Load Last Session Summary (if CONPORT_ACTIVE or user desires continuity)**
+6.  **Nova-Orchestrator: Load Last Session Summary (if DATABASE_ACTIVE or user desires continuity)**
     - **Actor:** Nova-Orchestrator
     - **Action:**
       - Use `list_files` to check `.nova/summary/` for `session_summary_*.md` files. Identify the most recent one.
@@ -125,7 +125,7 @@
             "Context_Path": "SessionStartup -> SummarizePreviousSession (FlowAsk)",
             "Subtask_Goal": "Extract key status, last active task, and open points from the provided previous session summary text.",
             "Mode_Specific_Instructions": [
-              "Parse Markdown. Identify: 1. Main project/workflow active. 2. Last major step/phase. 3. Key ConPort items changed. 4. Next steps/open questions."
+              "Parse Markdown. Identify: 1. Main project/workflow active. 2. Last major step/phase. 3. Key database items changed. 4. Next steps/open questions."
             ],
             "Required_Input_Context": {
               "File_Content_To_Summarize": "[Content of the .nova/summary/file.md]"
@@ -144,15 +144,15 @@
     - **Actor:** Nova-Orchestrator
     - **Action:**
       - Formulate a message to the user, combining:
-        - ConPort status (`[CONPORT_ACTIVE]` or `[CONPORT_INACTIVE]`).
+        - Database status (`[DATABASE_ACTIVE]` or `[DATABASE_INACTIVE]`).
         - Brief summary of loaded `ProjectConfig:ActiveConfig.project_type_hint` (key) and `NovaSystemConfig:ActiveSettings.mode_behavior.nova-orchestrator.default_dor_strictness` (key) if available.
         - Key points from the last session summary (if available and processed).
       - Use `ask_followup_question` to ask the user how to proceed.
-        - Question: "Session initialized. ConPort is `[Status]`. Project type hint: `[Type_from_ProjectConfig]`. Default DoR Strictness: `[DoR_from_NovaSystemConfig]`. Last session focused on `[Last Task Summary from .nova/summary/ if any]`. What would you like to work on?"
+        - Question: "Session initialized. Database is `[Status]`. Project type hint: `[Type_from_ProjectConfig]`. Default DoR Strictness: `[DoR_from_NovaSystemConfig]`. Last session focused on `[Last Task Summary from .nova/summary/ if any]`. What would you like to work on?"
         - Suggestions: ["Continue with [Last Task]", "Start a new major project", "Implement new feature for existing project [ProjectName]", "Debug issue [ErrorLog Key if known]", "Review project status"].
     - **Output:** User is informed of the initialized state and provides direction for the current session. This workflow (SSU) concludes; Nova-Orchestrator proceeds with the user's chosen task.
 
-**Key ConPort Items Read by Nova-Orchestrator (or via delegation in this workflow):**
+**Key NovaPort-MCP Items Read by Nova-Orchestrator (or via delegation in this workflow):**
 
 - ProductContext (key 'product_context')
 - ActiveContext (key 'active_context')

@@ -1,6 +1,6 @@
 # Workflow: Release Preparation and Conceptual Go-Live (WF_ORCH_RELEASE_PREPARATION_AND_GO_LIVE_001_v1)
 
-**Goal:** To guide all necessary steps to prepare for a software release, including final testing, documentation updates, ConPort updates, and conceptual version tagging.
+**Goal:** To guide all necessary steps to prepare for a software release, including final testing, documentation updates, NovaPort-MCP updates, and conceptual version tagging.
 
 **Primary Orchestrator Actor:** Nova-Orchestrator
 **Primary Lead Mode Actors (delegated to by Nova-Orchestrator):** Nova-LeadQA, Nova-LeadArchitect, Nova-LeadDeveloper
@@ -8,14 +8,14 @@
 **Trigger / Recognition:**
 
 - User indicates intention to prepare for a new release (e.g., "Let's prepare release v2.1.0").
-- All features and critical bugs planned for this release have their main `Progress` (integer `id`) items marked as resolved/done in ConPort.
-- Triggered by a higher-level project plan in ConPort `ProjectRoadmap:[key]`.
+- All features and critical bugs planned for this release have their main `Progress` (integer `id`) items marked as resolved/done in NovaPort-MCP.
+- Triggered by a higher-level project plan in NovaPort-MCP `ProjectRoadmap:[key]`.
 
 **Pre-requisites by Nova-Orchestrator (before starting this workflow):**
 
-- Nova-Orchestrator has performed its initial session/ConPort initialization.
+- Nova-Orchestrator has performed its initial session/database initialization.
 - User has provided a target `ReleaseVersion` string (e.g., "v2.1.0").
-- (Ideally) A ConPort `CustomData SprintGoals:[key]` or `CustomData ProjectFeatures:[key]` list exists outlining the scope of the release.
+- (Ideally) A NovaPort-MCP `CustomData SprintGoals:[key]` or `CustomData ProjectFeatures:[key]` list exists outlining the scope of the release.
 
 ---
 
@@ -42,28 +42,28 @@
 
 **Phase RP.1: Release Planning & Scope Finalization (Nova-Orchestrator -> Nova-LeadArchitect)**
 
-2.  **Nova-Orchestrator: Delegate Release Scope Definition & ConPort Setup**
+2.  **Nova-Orchestrator: Delegate Release Scope Definition & NovaPort-MCP Setup**
     - **Action:** Log/Update top-level `Progress` (integer `id`) using `use_mcp_tool` (`tool_name: 'log_progress'` or `update_progress`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"status\": \"IN_PROGRESS\", \"description\": \"Release [ReleaseVersion] Preparation\"}`). Let this be `[ReleasePrepProgressID]`.
-    - **Task:** "Delegate to Nova-LeadArchitect to finalize the scope for release [ReleaseVersion], draft release notes, and set up initial release tracking in ConPort."
+    - **Task:** "Delegate to Nova-LeadArchitect to finalize the scope for release [ReleaseVersion], draft release notes, and set up initial release tracking in NovaPort-MCP."
     - **`new_task` message for Nova-LeadArchitect:**
       ```json
       {
         "Context_Path": "Project [ProjectName] (Orchestrator) -> Release [ReleaseVersion] -> Scope Definition (LeadArchitect)",
         "Overall_Project_Goal": "Successfully prepare Project [ProjectName] for release [ReleaseVersion].",
-        "Phase_Goal": "Finalize scope for release [ReleaseVersion], create initial release artifacts in ConPort (Releases entry, draft release notes).",
+        "Phase_Goal": "Finalize scope for release [ReleaseVersion], create initial release artifacts in NovaPort-MCP (Releases entry, draft release notes).",
         "Lead_Mode_Specific_Instructions": [
           "Target Release Version: [ReleaseVersion].",
           "Your goal is to finalize the release scope. Plan and delegate tasks to your specialists.",
-          "Key sub-tasks will include: creating/updating a `Releases:[ReleaseVersion]` item in ConPort; compiling a list of included features/fixes to draft `ReleaseNotesDraft:[ReleaseVersion]_Draft`; and identifying relevant technical changes (`Decisions`, `APIEndpoints`, etc.) for technical release notes."
+          "Key sub-tasks will include: creating/updating a `Releases:[ReleaseVersion]` item in NovaPort-MCP; compiling a list of included features/fixes to draft `ReleaseNotesDraft:[ReleaseVersion]_Draft`; and identifying relevant technical changes (`Decisions`, `APIEndpoints`, etc.) for technical release notes."
         ],
         "Required_Input_Context": {
           "ReleaseVersion": "[ReleaseVersion]",
           "ProjectName": "[ProjectName]",
-          "Reference_To_Sprint_Goals_Or_Feature_List_Key": "[Optional ConPort Key]"
+          "Reference_To_Sprint_Goals_Or_Feature_List_Key": "[Optional NovaPort-MCP Key]"
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
-          "ConPort key of the `Releases:[ReleaseVersion]` entry.",
-          "ConPort key of the `ReleaseNotesDraft:[ReleaseVersion]_Draft` entry.",
+          "NovaPort-MCP key of the `Releases:[ReleaseVersion]` entry.",
+          "NovaPort-MCP key of the `ReleaseNotesDraft:[ReleaseVersion]_Draft` entry.",
           "Summary of the release scope."
         ]
       }
@@ -84,14 +84,14 @@
         "Overall_Project_Goal": "Successfully prepare Project [ProjectName] for release [ReleaseVersion].",
         "Phase_Goal": "Execute comprehensive final testing for release [ReleaseVersion] to ensure quality and stability.",
         "Lead_Mode_Specific_Instructions": [
-          "Release Version: [ReleaseVersion] (Ref: ConPort `CustomData Releases:[ReleaseVersion]` (key)).",
+          "Release Version: [ReleaseVersion] (Ref: NovaPort-MCP `CustomData Releases:[ReleaseVersion]` (key)).",
           "Your goal for this phase is to provide a final quality gate. Create a plan and delegate tasks to your specialists to perform full regression and targeted testing based on the release scope.",
           "You may consult `.nova/workflows/nova-leadqa/WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md` for a reference process.",
           "Log all new defects as `ErrorLogs`. Critical/High severity issues are release blockers."
         ],
         "Required_Input_Context": {
           "ReleaseVersion": "[ReleaseVersion]",
-          "ConPort_Release_Scope_Ref_Key": "ReleaseNotesDraft:[ReleaseVersion]_Draft",
+          "NovaPort-MCP_Release_Scope_Ref_Key": "ReleaseNotesDraft:[ReleaseVersion]_Draft",
           "ProjectConfig_Ref": {
             "type": "custom_data",
             "category": "ProjectConfig",
@@ -126,11 +126,11 @@
         "Lead_Mode_Specific_Instructions": [
           "Release Version: [ReleaseVersion].",
           "Your goal is to ensure all documentation is updated for the release. Plan and delegate tasks to your specialists.",
-          "Key sub-tasks will include: updating user-facing docs in `/docs/`, ensuring technical docs in ConPort (`SystemArchitecture`, `APIEndpoints`) are current, and finalizing the release notes based on the draft and QA results, storing the final version in `ReleaseNotesFinal:[ReleaseVersion]`."
+          "Key sub-tasks will include: updating user-facing docs in `/docs/`, ensuring technical docs in NovaPort-MCP (`SystemArchitecture`, `APIEndpoints`) are current, and finalizing the release notes based on the draft and QA results, storing the final version in `ReleaseNotesFinal:[ReleaseVersion]`."
         ],
         "Required_Input_Context": {
           "ReleaseVersion": "[ReleaseVersion]",
-          "ConPort_Release_Draft_Notes_Key": "ReleaseNotesDraft:[ReleaseVersion]_Draft",
+          "NovaPort-MCP_Release_Draft_Notes_Key": "ReleaseNotesDraft:[ReleaseVersion]_Draft",
           "List_Of_Minor_Issues_From_QA": "[...]"
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
@@ -141,20 +141,20 @@
       ```
     - **Nova-Orchestrator Action after Lead's `attempt_completion`:** Verify deliverables. Update `[ReleasePrepProgressID]` status to "DOCS_FINALIZED_TAGGING_PENDING".
 
-**Phase RP.4: Conceptual Version Tagging & ConPort Update (Nova-Orchestrator -> Nova-LeadDeveloper & Nova-LeadArchitect)**
+**Phase RP.4: Conceptual Version Tagging & NovaPort-MCP Update (Nova-Orchestrator -> Nova-LeadDeveloper & Nova-LeadArchitect)**
 
-5.  **Nova-Orchestrator: Delegate Conceptual Tagging & Final ConPort Status**
+5.  **Nova-Orchestrator: Delegate Conceptual Tagging & Final Database Status**
     - **Task 1 (to Nova-LeadDeveloper):** "Conceptually prepare for version tagging of [ReleaseVersion]."
     - **`new_task` message for Nova-LeadDeveloper:**
       ```json
       {
         "Context_Path": "Project [ProjectName] (Orchestrator) -> Release [ReleaseVersion] -> Conceptual Tagging (LeadDeveloper)",
         "Overall_Project_Goal": "Successfully prepare Project [ProjectName] for release [ReleaseVersion].",
-        "Phase_Goal": "Log conceptual version tagging for [ReleaseVersion] in ConPort.",
+        "Phase_Goal": "Log conceptual version tagging for [ReleaseVersion] in NovaPort-MCP.",
         "Lead_Mode_Specific_Instructions": [
           "Release Version: [ReleaseVersion].",
           "Identify the current commit hash that represents this release state (this might require user input).",
-          "Log a `Decision` in ConPort with the summary 'Commit [hash] designated for release [ReleaseVersion]' and tag it with the release version.",
+          "Log a `Decision` in NovaPort-MCP with the summary 'Commit [hash] designated for release [ReleaseVersion]' and tag it with the release version.",
           "(The user will be instructed to perform the actual git tag command separately based on this decision)."
         ],
         "Required_Input_Context": {
@@ -162,21 +162,21 @@
           "User_Provided_Commit_Hash_If_Any": "[...]"
         },
         "Expected_Deliverables_In_Attempt_Completion_From_Lead": [
-          "ConPort integer `id` of the conceptual tagging `Decision`."
+          "NovaPort-MCP integer `id` of the conceptual tagging `Decision`."
         ]
       }
       ```
     - **Nova-Orchestrator Action:** Await completion. Instruct user about physical git tagging.
-    - **Task 2 (to Nova-LeadArchitect):** "Update ConPort status for released version [ReleaseVersion]."
+    - **Task 2 (to Nova-LeadArchitect):** "Update NovaPort-MCP status for released version [ReleaseVersion]."
     - **`new_task` message for Nova-LeadArchitect:**
       ```json
       {
-        "Context_Path": "Project [ProjectName] (Orchestrator) -> Release [ReleaseVersion] -> ConPort Status Update (LeadArchitect)",
+        "Context_Path": "Project [ProjectName] (Orchestrator) -> Release [ReleaseVersion] -> Database Status Update (LeadArchitect)",
         "Overall_Project_Goal": "Successfully prepare Project [ProjectName] for release [ReleaseVersion].",
-        "Phase_Goal": "Update ConPort to reflect that [ReleaseVersion] is now considered 'Shipped' or 'Released'.",
+        "Phase_Goal": "Update NovaPort-MCP to reflect that [ReleaseVersion] is now considered 'Shipped' or 'Released'.",
         "Lead_Mode_Specific_Instructions": [
           "Release Version: [ReleaseVersion].",
-          "Your ConPortSteward should update `CustomData Releases:[ReleaseVersion]` (key) status to 'Shipped' and add `release_date`.",
+          "Your NovaPortSteward should update `CustomData Releases:[ReleaseVersion]` (key) status to 'Shipped' and add `release_date`.",
           "Update `active_context.state_of_the_union` to reflect the new release."
         ],
         "Required_Input_Context": {
@@ -194,10 +194,10 @@
 **Phase RP.5: Notify User (Nova-Orchestrator)**
 
 6.  **Nova-Orchestrator: `attempt_completion` to User**
-    - **Action:** Inform user that release [ReleaseVersion] preparation is complete, all checks passed, documentation is updated, and ConPort reflects the new release status. Summarize key ConPort items.
-    - Result should include ConPort key for `Releases:[ReleaseVersion]` and `ReleaseNotesFinal:[ReleaseVersion]`.
+    - **Action:** Inform user that release [ReleaseVersion] preparation is complete, all checks passed, documentation is updated, and NovaPort-MCP reflects the new release status. Summarize key database items.
+    - Result should include NovaPort-MCP key for `Releases:[ReleaseVersion]` and `ReleaseNotesFinal:[ReleaseVersion]`.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - CustomData Releases:[key]
 - CustomData ReleaseNotesDraft:[key], CustomData ReleaseNotesFinal:[key]

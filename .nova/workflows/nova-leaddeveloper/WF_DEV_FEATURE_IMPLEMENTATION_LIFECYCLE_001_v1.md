@@ -12,7 +12,7 @@
 
 **Pre-requisites by Nova-LeadDeveloper:**
 
-- Detailed feature specifications (`FeatureScope`, `AcceptanceCriteria`) and architectural designs (`SystemArchitecture`, `APIEndpoints`) are finalized and approved in ConPort.
+- Detailed feature specifications (`FeatureScope`, `AcceptanceCriteria`) and architectural designs (`SystemArchitecture`, `APIEndpoints`) are finalized and approved in NovaPort-MCP.
 - `ProjectConfig:ActiveConfig` is defined.
 
 **Reference Milestones for your Single-Step Loop:**
@@ -22,7 +22,7 @@
 - **Goal:** Verify all specifications and designs are approved before starting development.
 - **Suggested Lead Action:**
   1.  Your first action MUST be a "Definition of Ready" check.
-  2.  Use `use_mcp_tool` to retrieve all prerequisite ConPort items from your briefing (`FeatureScope`, `SystemArchitecture`, `APIEndpoints`, etc.).
+  2.  Use `use_mcp_tool` to retrieve all prerequisite NovaPort-MCP items from your briefing (`FeatureScope`, `SystemArchitecture`, `APIEndpoints`, etc.).
   3.  **Gated Check:** If any required spec is missing or not 'APPROVED'/'FINAL', immediately `attempt_completion` with a `BLOCKER:` status to `Nova-Orchestrator`. Do not proceed.
 
 **Milestone DEV.1: Planning & Implementation Breakdown**
@@ -30,7 +30,7 @@
 - **Goal:** Analyze requirements and create a high-level plan of development components.
 - **Suggested Lead Action:**
   1.  Log a main `Progress` item for the feature implementation phase.
-  2.  Review all specifications from ConPort. Log any high-level implementation `Decisions`.
+  2.  Review all specifications from NovaPort-MCP. Log any high-level implementation `Decisions`.
   3.  Create and log your `LeadPhaseExecutionPlan`. This plan should be a sequence of the milestones below, broken down into logical components (e.g., "Implement Backend API Endpoint X", "Implement Frontend Component Y").
 
 **Milestone DEV.2: Component Implementation & Testing (Iterative)**
@@ -63,9 +63,9 @@
   1.  Log a final `Decision` confirming development phase completion.
   2.  Update the main phase `Progress` item to 'DONE'.
   3.  Coordinate with `Nova-Orchestrator` to update `active_context.state_of_the_union`.
-  4.  In your `attempt_completion` to `Nova-Orchestrator`, summarize the work, confirm test status, and list all critical ConPort items created.
+  4.  In your `attempt_completion` to `Nova-Orchestrator`, summarize the work, confirm test status, and list all critical NovaPort-MCP items created.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

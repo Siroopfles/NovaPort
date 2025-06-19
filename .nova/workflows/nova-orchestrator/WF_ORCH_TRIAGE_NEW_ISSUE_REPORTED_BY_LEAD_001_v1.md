@@ -1,18 +1,18 @@
 # Workflow: Triage New Issue Reported by Lead (WF_ORCH_TRIAGE_NEW_ISSUE_REPORTED_BY_LEAD_001_v1)
 
-**Goal:** To systematically process a "New Issue Discovered (Out of Scope)" that a Lead Mode has reported in their `attempt_completion`, by ensuring it's tracked in ConPort and discussed with the user for prioritization.
+**Goal:** To systematically process a "New Issue Discovered (Out of Scope)" that a Lead Mode has reported in their `attempt_completion`, by ensuring it's tracked in NovaPort-MCP and discussed with the user for prioritization.
 
 **Primary Orchestrator Actor:** Nova-Orchestrator (executes this internally)
 **Delegated Lead Mode Actor:** Nova-LeadArchitect (for logging `Progress` for the new issue)
 
 **Trigger / Recognition:**
 
-- A Lead Mode's `attempt_completion` message includes a "New Issues Discovered (Out of Scope)" section with one or more ConPort `CustomData ErrorLogs:[key]` references.
+- A Lead Mode's `attempt_completion` message includes a "New Issues Discovered (Out of Scope)" section with one or more NovaPort-MCP `CustomData ErrorLogs:[key]` references.
 - This workflow is executed by Nova-Orchestrator for each such reported new issue.
 
 **Pre-requisites by Nova-Orchestrator:**
 
-- The Lead Mode has already created the initial `ErrorLogs:[key]` entry in ConPort (as per their prompt's rules).
+- The Lead Mode has already created the initial `ErrorLogs:[key]` entry in NovaPort-MCP (as per their prompt's rules).
 - Nova-Orchestrator has the `ErrorLogs:[key]` and a brief summary of the issue from the Lead's report.
 
 **Phases & Steps (executed by Nova-Orchestrator):**
@@ -28,10 +28,10 @@
       {
         "Context_Path": "IssueTriage (Orchestrator) -> LogTrackingProgress (LeadArchitect)",
         "Overall_Project_Goal": "Ensure all discovered issues are tracked.",
-        "Phase_Goal": "Create a ConPort `Progress` item for the new `ErrorLogs:[ErrorLogKeyFromLead]`.",
+        "Phase_Goal": "Create a NovaPort-MCP `Progress` item for the new `ErrorLogs:[ErrorLogKeyFromLead]`.",
         "Lead_Mode_Specific_Instructions": [
           "A new out-of-scope issue was reported by another Lead: `ErrorLogs:[ErrorLogKeyFromLead]` (key) - Summary: '[IssueSummaryFromLead]'.",
-          "Your goal is to ensure this is tracked. Delegate the creation of a new `Progress` item to your ConPortSteward with status 'TODO' and an appropriate description.",
+          "Your goal is to ensure this is tracked. Delegate the creation of a new `Progress` item to your NovaPortSteward with status 'TODO' and an appropriate description.",
           "After logging the `Progress` item, ensure it is linked to the `ErrorLogs` item with the relationship type 'tracks_errorlog'."
         ],
         "Required_Input_Context": {
@@ -69,7 +69,7 @@
         - Inform user: "Okay, I've tasked Nova-LeadQA with investigating `ErrorLogs:[ErrorLogKeyFromLead]`."
     - **Condition:** If user chose "Add to backlog":
       - **Action:**
-        - Delegate to `Nova-LeadArchitect` (via Nova-SpecializedConPortSteward): "Update `Progress:[NewIssueProgressID]` (integer `id`) by setting its status to 'BACKLOGGED' and ensure its `description` field appropriately reflects it's a backlogged item."
+        - Delegate to `Nova-LeadArchitect` (via Nova-SpecializedNovaPortSteward): "Update `Progress:[NewIssueProgressID]` (integer `id`) by setting its status to 'BACKLOGGED' and ensure its `description` field appropriately reflects it's a backlogged item."
         - Inform user: "Okay, `ErrorLogs:[ErrorLogKeyFromLead]` (key) (tracked by `Progress:[NewIssueProgressID]` (integer `id`)) is added to backlog."
     - **Condition:** If user chose "Defer decision for now":
       - **Action:**
@@ -77,7 +77,7 @@
         - Inform user: "Okay, `ErrorLogs:[ErrorLogKeyFromLead]` (key) (tracked by `Progress:[NewIssueProgressID]` (integer `id`)) remains as TODO/NEEDS_TRIAGE for now. We can revisit its priority later."
     - **Output:** New issue is either actively being investigated, backlogged, or noted for later triage.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - CustomData ErrorLogs:[key] (created by the reporting Lead's team, read by Orchestrator)
 - Progress (integer `id`) (new item created by Nova-LeadArchitect's team, status/description updated)

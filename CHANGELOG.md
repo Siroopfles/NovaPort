@@ -5,13 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.html).
 
-## [Unreleased]
+## [0.4.0-beta] - YYYY-MM-DD
 
-### 📖 System Prompts & Mode Configuration
+### 🚀 Backend Overhaul & System Modernization
 
--   **System-Wide Naming Update:** Replaced all references to "ConPort" with "NovaPort-MCP" across all system prompts in the `.roo/` directory to prepare for the transition to the new backend.
--   **Corrected MCP Server Name:** The `server_name` parameter for the `use_mcp_tool` in all system prompts has been updated from `conport` to `novaport-mcp`.
--   **Corrected Specialist Mode Name:** Renamed `nova-specializedconportsteward` to `nova-specializednovaportsteward` in `.roomodes` and its corresponding system prompt for full naming consistency.
+This is a major release that transitions the Nova System's entire knowledge management backend from the original `context-portal` to the new, robust, and fully-typed `novaport-mcp` server. This change enhances stability, maintainability, and future scalability.
+
+-   **System-Wide Backend Migration:** Replaced all references to "ConPort" with "NovaPort-MCP" across all system prompts, workflows, and documentation to reflect the new backend.
+-   **Corrected MCP Server Name:** The `server_name` parameter for the `use_mcp_tool` in all system prompts (`.roo/` directory) has been updated from `conport` to `novaport-mcp`, ensuring all agents communicate with the correct server instance.
+-   **Updated Mode Configuration:** Renamed the specialist mode `nova-specializedconportsteward` to `nova-specializednovaportsteward` in `.roomodes` and its corresponding system prompt for full naming consistency with the new backend.
+-   **Updated User Documentation:**
+    -   Rewrote the "Dependencies & Setup" section in `README.md` to provide clear, step-by-step instructions for installing and configuring the new `novaport-mcp` backend.
+    -   Updated `GETTING_STARTED.md` and `NOVA_SYSTEM_ARCHITECTURE.md` to be fully consistent with the new terminology and architecture.
+-   **Updated Workflow Definitions:** Systematically reviewed and updated every workflow file in the `.nova/workflows/` directory to replace all mentions of "ConPort" with "NovaPort-MCP", ensuring that agent instructions are accurate and reflect the current system.
 
 ## [0.3.4-beta] - 2024-05-23
 

@@ -12,8 +12,8 @@
 
 **Pre-requisites by Nova-Orchestrator:**
 
-- ConPort is `[CONPORT_ACTIVE]`.
-- Recent activity has been logged in ConPort by the team.
+- The database is `[DATABASE_ACTIVE]`.
+- Recent activity has been logged in NovaPort-MCP by the team.
 
 **Phases & Steps (managed by Nova-Orchestrator):**
 
@@ -28,14 +28,14 @@
 
 2.  **Nova-Orchestrator -> Delegate to Nova-FlowAsk: Query & Summarize**
     - **Actor:** Nova-Orchestrator
-    - **Task:** "Retrieve recent, significant ConPort activity and synthesize it into a structured Markdown digest report. Save the report to `.nova/reports/digests/`."
+    - **Task:** "Retrieve recent, significant NovaPort-MCP activity and synthesize it into a structured Markdown digest report. Save the report to `.nova/reports/digests/`."
     - **`new_task` message for Nova-FlowAsk:**
       ```json
       {
         "Context_Path": "UserQuery (Orchestrator) -> ProjectDigest (FlowAsk)",
         "Subtask_Goal": "Generate a project digest report for the last [TimeFrame, e.g., 7 days] and save it to a file.",
         "Mode_Specific_Instructions": [
-          "1. **Query ConPort:** Use `use_mcp_tool` with `server_name: 'conport'` and `workspace_id: 'ACTUAL_WORKSPACE_ID'` to execute the following queries:",
+          "1. **Query NovaPort-MCP:** Use `use_mcp_tool` with `server_name: 'novaport-mcp'` and `workspace_id: 'ACTUAL_WORKSPACE_ID'` to execute the following queries:",
           "   - `tool_name: 'get_recent_activity_summary'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"hours_ago\": 168}` (or other timeframe from Orchestrator).",
           "   - `tool_name: 'get_active_context'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\"}` to get `state_of_the_union` and `open_issues`.",
           "   - `tool_name: 'get_custom_data'`, `arguments: {\"workspace_id\": \"ACTUAL_WORKSPACE_ID\", \"category\": \"Dashboard\", \"key\": \"ProjectStatus_v1\"}` if available.",
@@ -71,7 +71,7 @@
       - (Optional) Present a very high-level summary from the report directly in the chat.
     - **Output:** User is informed and has access to the report.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - (Read) Progress, Decisions, ErrorLogs, ActiveContext, Dashboard.
 - (Write) Progress (for the digest generation task itself).

@@ -4,7 +4,7 @@
 
 This document provides a detailed architectural analysis of the Nova System, a sophisticated, AI-driven framework designed for managing and executing complex software development projects. The system is built upon a hierarchical model of specialized AI agents (referred to as "modes") that collaborate under the direction of a central `Nova-Orchestrator`.
 
-The core principles of the Nova System are structured project execution, explicit knowledge retention, and efficient task delegation. Its memory and "single source of truth" is the **Context Portal (ConPort)**, a project-specific knowledge graph. All operations are guided by **Workflows**, which are standardized, documented processes stored as Markdown files.
+The core principles of the Nova System are structured project execution, explicit knowledge retention, and efficient task delegation. Its memory and "single source of truth" is the **NovaPort-MCP** server, a project-specific knowledge graph. All operations are guided by **Workflows**, which are standardized, documented processes stored as Markdown files.
 
 The following visualizations dissect the system's key components, data structures, and interaction patterns to provide a clear and comprehensive understanding of its inner workings.
 
@@ -16,7 +16,7 @@ This C4-style context diagram provides a bird's-eye view of the Nova System's ec
 
 - **User & Environment:** The `User` interacts with the system through a `Roo Code Execution Environment` (like the VS Code extension), which is responsible for activating the appropriate AI modes.
 - **Nova System Core:** The `Nova-Orchestrator` is the central point of contact, delegating entire project phases to `Lead Modes`. These Leads, in turn, break down phases into atomic sub-tasks for their teams of `Specialized Modes`.
-- **Data & Knowledge Layer:** All modes interact with the `Context Portal (ConPort)`, the system's central memory. ConPort utilizes `SQLite` for structured data and `ChromaDB` for vector embeddings, enabling powerful semantic search and Retrieval Augmented Generation (RAG).
+- **Data & Knowledge Layer:** All modes interact with the `NovaPort-MCP Server`, the system's central memory. NovaPort-MCP utilizes `SQLite` for structured data and `ChromaDB` for vector embeddings, enabling powerful semantic search and Retrieval Augmented Generation (RAG).
 
 ```mermaid
 graph TD
@@ -35,7 +35,7 @@ graph TD
     end
 
     subgraph "Data & Knowledge Layer"
-        ConPort["Context Portal (ConPort)<br/><i>Project Memory</i>"]
+        NovaPortMCP["NovaPort-MCP Server<br/><i>Project Memory</i>"]
         subgraph "Database Backend"
             SQLite["SQLite<br/><i>Structured Data</i>"]
             ChromaDB["ChromaDB<br/><i>Vector Embeddings for RAG</i>"]
@@ -47,43 +47,38 @@ graph TD
     Orchestrator -- "Delegates Phase" --> LeadModes
     LeadModes -- "Delegates Sub-task" --> SpecializedModes
 
-    SpecializedModes -- "Reads/Writes Project Data" --> ConPort
-    LeadModes -- "Reads/Writes Project Data" --> ConPort
-    Orchestrator -- "Reads/Writes Project Data" --> ConPort
+    SpecializedModes -- "Reads/Writes Project Data" --> NovaPortMCP
+    LeadModes -- "Reads/Writes Project Data" --> NovaPortMCP
+    Orchestrator -- "Reads/Writes Project Data" --> NovaPortMCP
 
-    ConPort -- "Stores/Retrieves Structured Data" --> SQLite
-    ConPort -- "Stores/Retrieves Vectors" --> ChromaDB
+    NovaPortMCP -- "Stores/Retrieves Structured Data" --> SQLite
+    NovaPortMCP -- "Stores/Retrieves Vectors" --> ChromaDB
 ```
 
 ---
 
-### 2. Context Portal (ConPort) Data Model
+### 2. NovaPort-MCP Data Model
 
-This Entity Relationship Diagram (ERD) reveals the structure of the system's memory. It models the core data entities within ConPort's SQLite database, showcasing how project knowledge is captured and organized. The `ContextLinks` table is the critical component that transforms these entities from isolated data points into a richly interconnected knowledge graph, enabling complex queries and contextual understanding.
+This Entity Relationship Diagram (ERD) reveals the structure of the system's memory. It models the core data entities within NovaPort-MCP's SQLite database, showcasing how project knowledge is captured and organized. The `ContextLink` table is the critical component that transforms these entities from isolated data points into a richly interconnected knowledge graph, enabling complex queries and contextual understanding.
 
-- **Key Entities:** `ProductContext` and `ActiveContext` hold high-level and session-specific state. `Decisions` and `Progress` track strategic choices and task status. `CustomData` is a flexible key-value store for everything from `ProjectConfig` to `ErrorLogs`.
-- **The Knowledge Graph:** The `ContextLinks` entity explicitly defines relationships (e.g., "implements," "tested_by," "caused_by") between any two items in the database, forming the graph's edges.
+- **Key Entities:** `ProductContext` and `ActiveContext` hold high-level and session-specific state. `Decision` and `ProgressEntry` track strategic choices and task status. `CustomData` is a flexible key-value store for everything from `ProjectConfig` to `ErrorLogs`.
+- **The Knowledge Graph:** The `ContextLink` entity explicitly defines relationships (e.g., "implements," "tested_by," "caused_by") between any two items in the database, forming the graph's edges.
 
 ```mermaid
 erDiagram
     ProductContext {
-        string key PK
         json content
-        timestamp created_at
     }
     ActiveContext {
-        string key PK
-        json value
-        timestamp created_at
+        json content
     }
-    Decisions {
+    Decision {
         int id PK
         string summary
         text rationale
-        text implementation_details
-        string tags
+        json tags
     }
-    Progress {
+    ProgressEntry {
         int id PK
         string description
         string status
@@ -94,7 +89,7 @@ erDiagram
         string key PK
         json value
     }
-    ContextLinks {
+    ContextLink {
         int id PK
         string source_item_type
         string source_item_id
@@ -103,19 +98,19 @@ erDiagram
         string relationship_type
     }
 
-    Progress }|--o{ Progress : "is parent of"
-    ProductContext ||--o{ ContextLinks : "can be linked"
-    ActiveContext ||--o{ ContextLinks : "can be-linked"
-    Decisions ||--o{ ContextLinks : "can be linked"
-    Progress ||--o{ ContextLinks : "can be linked"
-    CustomData ||--o{ ContextLinks : "can be linked"
+    ProgressEntry }|--o{ ProgressEntry : "is parent of"
+    ProductContext ||--o{ ContextLink : "can be linked"
+    ActiveContext ||--o{ ContextLink : "can be-linked"
+    Decision ||--o{ ContextLink : "can be linked"
+    ProgressEntry ||--o{ ContextLink : "can be linked"
+    CustomData ||--o{ ContextLink : "can be linked"
 ```
 
 ---
 
 ### 3. Feature Implementation Lifecycle
 
-This sequence diagram visualizes the end-to-end process of implementing a new feature, as defined in `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`. It highlights the formal, hierarchical delegation from the user's request down to the specialist level. The diagram emphasizes the structured communication protocol, where `new_task` calls carry a formal `Subtask Briefing Object` and `attempt_completion` calls serve as formal reports. ConPort is actively read from and written to at every stage, acting as the shared state manager.
+This sequence diagram visualizes the end-to-end process of implementing a new feature, as defined in `WF_ORCH_EXISTING_PROJECT_NEW_FEATURE_E2E_001_v1.md`. It highlights the formal, hierarchical delegation from the user's request down to the specialist level. The diagram emphasizes the structured communication protocol, where `new_task` calls carry a formal `Subtask Briefing Object` and `attempt_completion` calls serve as formal reports. The NovaPort-MCP database is actively read from and written to at every stage, acting as the shared state manager.
 
 ```mermaid
 sequenceDiagram
@@ -123,7 +118,7 @@ sequenceDiagram
     participant Orchestrator as Nova-Orchestrator
     participant LeadDev as Nova-LeadDeveloper
     participant Implementer as SpecializedFeatureImplementer
-    participant ConPort
+    participant NovaPortMCP as NovaPort-MCP
 
     User->>Orchestrator: Request: "Add user profile page"
     activate Orchestrator
@@ -132,13 +127,13 @@ sequenceDiagram
     deactivate Orchestrator
 
     activate LeadDev
-    LeadDev->>ConPort: log_progress("Start Dev Phase")
+    LeadDev->>NovaPortMCP: log_progress("Start Dev Phase")
     LeadDev->>Implementer: new_task (Briefing for 'Implement UI Component')
 
     activate Implementer
-    Implementer->>ConPort: log_decision("Chose Vue.js for UI")
-    Note over Implementer, ConPort: Writes code and unit tests...
-    Implementer->>ConPort: log_custom_data("CodeSnippets:UserProfileComponent_v1")
+    Implementer->>NovaPortMCP: log_decision("Chose Vue.js for UI")
+    Note over Implementer, NovaPortMCP: Writes code and unit tests...
+    Implementer->>NovaPortMCP: log_custom_data("CodeSnippets:UserProfileComponent_v1")
     Implementer-->>LeadDev: attempt_completion("UI Component Done")
     deactivate Implementer
 
@@ -158,12 +153,12 @@ This flowchart illustrates the fundamental execution logic for all Lead Modes (`
 
 ```mermaid
 flowchart TD
-    A["Start: Receive Phase-Task<br/>from Orchestrator"] --> B{"Create High-Level Plan<br/>in ConPort"};
+    A["Start: Receive Phase-Task<br/>from Orchestrator"] --> B{"Create High-Level Plan<br/>in Database"};
     B --> C["Start Loop: Focus on<br/>Next Milestone"];
     C --> D["Determine SINGLE, next,<br/>most logical, atomic sub-task"];
     D --> E["Delegate Sub-task to Specialist<br/>via `new_task`"];
     E --> F["Await `attempt_completion`<br/>from Specialist"];
-    F --> G["Process Specialist's Result<br/>and Update ConPort (e.g., Progress)"];
+    F --> G["Process Specialist's Result<br/>and Update Database (e.g., Progress)"];
     G --> H{Phase Goal Met?};
     H -- No --> C;
     H -- Yes --> I[End Loop];
@@ -189,7 +184,7 @@ mindmap
       WF_ORCH_RELEASE_PREPARATION
     LeadArchitect
       ::icon(fa fa-building)
-      WF_ARCH_CONPORT_HEALTH_CHECK
+      WF_ARCH_NOVAPORT_MCP_HEALTH_CHECK
       WF_ARCH_IMPACT_ANALYSIS
       WF_ARCH_NEW_WORKFLOW_DEFINITION
       WF_ARCH_SYSTEM_PROMPT_UPDATE
@@ -230,30 +225,30 @@ flowchart TD
 
 ### 7. Session Start & Context Resumption
 
-This sequence diagram models the critical boot-up procedure detailed in `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md`. It shows how the `Nova-Orchestrator` intelligently handles the start of any new user session. The process is robust, featuring conditional logic to either load the state from an existing ConPort database or, if one is not found, to orchestrate a full project bootstrap by delegating to `Nova-LeadArchitect`. This ensures seamless continuity between sessions or a structured start for new projects.
+This sequence diagram models the critical boot-up procedure detailed in `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md`. It shows how the `Nova-Orchestrator` intelligently handles the start of any new user session. The process is robust, featuring conditional logic to either load the state from an existing NovaPort-MCP database or, if one is not found, to orchestrate a full project bootstrap by delegating to `Nova-LeadArchitect`. This ensures seamless continuity between sessions or a structured start for new projects.
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Orchestrator as Nova-Orchestrator
     participant FileSystem
-    participant ConPort
+    participant NovaPortMCP as NovaPort-MCP
     participant Architect as Nova-LeadArchitect
 
     User->>Orchestrator: "Start new session."
     activate Orchestrator
-    Orchestrator->>FileSystem: list_files('context_portal/')
-    FileSystem-->>Orchestrator: [context.db found / not found]
+    Orchestrator->>FileSystem: list_files('.novaport_data/')
+    FileSystem-->>Orchestrator: [conport.db found / not found]
 
-    alt ConPort DB Exists
-        Orchestrator->>ConPort: get_product_context()
-        ConPort-->>Orchestrator: ProductContext data
-        Orchestrator->>ConPort: get_custom_data('ProjectConfig:ActiveConfig')
-        ConPort-->>Orchestrator: ProjectConfig data
+    alt Database Exists
+        Orchestrator->>NovaPortMCP: get_product_context()
+        NovaPortMCP-->>Orchestrator: ProductContext data
+        Orchestrator->>NovaPortMCP: get_custom_data('ProjectConfig:ActiveConfig')
+        NovaPortMCP-->>Orchestrator: ProjectConfig data
         Orchestrator->>FileSystem: read_file('.nova/summary/latest.md')
         FileSystem-->>Orchestrator: Last session summary text
         Orchestrator->>User: "Session resumed. Ready for command."
-    else ConPort DB Does Not Exist
+    else Database Does Not Exist
         Orchestrator->>User: ask_followup_question("Initialize new project?")
         User-->>Orchestrator: "Yes, initialize."
         Orchestrator->>Architect: new_task (Bootstrap Project)
@@ -272,7 +267,7 @@ The Nova System is designed around several key architectural principles:
 
 1.  **Hierarchical Delegation:** Tasks flow from high-level user goals down to granular, specialist actions.
 2.  **Structured Communication:** Formal `new_task` briefings and `attempt_completion` reports minimize ambiguity.
-3.  **Centralized Knowledge:** The `Context Portal (ConPort)` acts as a single, shared brain, enabling state retention and complex contextual reasoning.
+3.  **Centralized Knowledge:** The `NovaPort-MCP` server acts as a single, shared brain, enabling state retention and complex contextual reasoning.
 4.  **Standardized Processes:** `Workflows` codify best practices, ensuring consistent and repeatable project execution.
 5.  **Auditable Rationale:** The mandatory rationale protocol provides complete transparency into the decision-making process of every agent.
 

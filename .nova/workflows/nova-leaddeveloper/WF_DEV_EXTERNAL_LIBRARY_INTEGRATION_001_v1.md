@@ -31,7 +31,7 @@
       - **Briefing Details:**
         - Instruct to use the project's package manager command (from `ProjectConfig`) to add the library.
         - If the library needs config keys, they must be added as placeholders to example config files (e.g., `.env.example`).
-        - A `CustomData ConfigSettings:[LibraryName]_ConfigKeysNeeded_v1` item must be logged to ConPort with details of the required keys.
+        - A `CustomData ConfigSettings:[LibraryName]_ConfigKeysNeeded_v1` item must be logged to NovaPort-MCP with details of the required keys.
         - A basic initialization file (e.g., `src/integrations/[library_name]_client.py`) should be created.
 
 **Milestone ELI.2: Wrapper Development & Testing**
@@ -44,7 +44,7 @@
         - Provide a list of core functionalities to wrap.
         - Instruct to create wrappers that encapsulate setup and simplify the interface.
         - Unit tests for the wrappers are mandatory and must mock external calls.
-        - An illustrative `CodeSnippets` entry for the wrapper should be logged to ConPort.
+        - An illustrative `CodeSnippets` entry for the wrapper should be logged to NovaPort-MCP.
   2.  **Delegate to `Nova-SpecializedTestAutomator`:**
       - **Subtask Goal:** "Write and execute integration tests for the wrapped library functions."
       - **Briefing Details:**
@@ -61,11 +61,11 @@
         - Instruct to create a Markdown document in the project's `docs/` directory.
         - The document should cover purpose, configuration, and usage examples of the wrappers.
   2.  **LeadDeveloper Action:**
-      - Ensure a final `CustomData APIUsage:[LibraryName]_IntegrationNotes_v1` (or similar) entry is logged to ConPort, summarizing the integration and linking to all related artifacts.
+      - Ensure a final `CustomData APIUsage:[LibraryName]_IntegrationNotes_v1` (or similar) entry is logged to NovaPort-MCP, summarizing the integration and linking to all related artifacts.
       - Update the main `Progress` item to 'DONE'.
       - Report completion to `Nova-Orchestrator`.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

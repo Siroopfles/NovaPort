@@ -1,13 +1,13 @@
-# Workflow: ConPort Schema Proposal (WF_ARCH_CONPORT_SCHEMA_PROPOSAL_001_v1)
+# Workflow: NovaPort-MCP Schema Proposal (WF_ARCH_NOVAPORT_MCP_SCHEMA_PROPOSAL_001_v1)
 
-**Goal:** To formally propose a new standard `CustomData` category, or significant changes/additions to the structure or usage guidelines of existing ConPort entities, and log this proposal in ConPort for review and potential adoption.
+**Goal:** To formally propose a new standard `CustomData` category, or significant changes/additions to the structure or usage guidelines of existing NovaPort-MCP entities, and log this proposal in NovaPort-MCP for review and potential adoption.
 
 **Primary Actor:** Nova-LeadArchitect
-**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedConPortSteward
+**Primary Specialist Actor (delegated to by Nova-LeadArchitect):** Nova-SpecializedNovaPortSteward
 
 **Trigger / Recognition:**
 
-- A recurring type of information is identified that doesn't fit well into existing ConPort categories.
+- A recurring type of information is identified that doesn't fit well into existing NovaPort-MCP categories.
 - `LessonsLearned` suggest a new structured way of capturing information would improve processes.
 - Inconsistent use of a category highlights the need for a clearer schema.
 
@@ -25,10 +25,10 @@
 
 **Milestone SP.2: Logging Proposal**
 
-- **Goal:** Log the detailed schema proposal into the ConPort `ConPortSchema` category.
+- **Goal:** Log the detailed schema proposal into the NovaPort-MCP `ConPortSchema` category.
 - **Suggested Specialist Sequence & Briefing Guidance:**
-  1.  **Delegate to `Nova-SpecializedConPortSteward`:**
-      - **Subtask Goal:** "Log the detailed schema proposal to the ConPort `ConPortSchema` category."
+  1.  **Delegate to `Nova-SpecializedNovaPortSteward`:**
+      - **Subtask Goal:** "Log the detailed schema proposal to the NovaPort-MCP `ConPortSchema` category."
       - **Briefing Details:**
         - Provide all proposal details in a structured format.
         - Instruct the specialist to use `log_custom_data` with `category: "ConPortSchema"` and a descriptive key (e.g., `ProposedSchemaChange_[YYYYMMDD]_[ProposalName]`).
@@ -43,7 +43,7 @@
   2.  **Update Progress:** Update the main `Progress` item for the proposal cycle to 'DONE'.
   3.  **Report:** If this was a delegated task, use `attempt_completion` to report to `Nova-Orchestrator`, providing the key of the new `ConPortSchema` proposal. The proposal is now ready for wider review.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Decisions (integer `id`)

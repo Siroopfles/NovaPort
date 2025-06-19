@@ -1,9 +1,9 @@
 # Workflow: System Design Phase Management (WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1)
 
-**Goal:** To manage and execute a complete system design phase for a new project or major feature, resulting in a documented architecture, key technical decisions, and defined interfaces, all logged in ConPort.
+**Goal:** To manage and execute a complete system design phase for a new project or major feature, resulting in a documented architecture, key technical decisions, and defined interfaces, all logged in NovaPort-MCP.
 
 **Primary Actor:** Nova-LeadArchitect
-**Primary Specialist Actors (delegated to by Nova-LeadArchitect):** Nova-SpecializedSystemDesigner, Nova-SpecializedConPortSteward
+**Primary Specialist Actors (delegated to by Nova-LeadArchitect):** Nova-SpecializedSystemDesigner, Nova-SpecializedNovaPortSteward
 
 **Trigger / Recognition:**
 
@@ -65,13 +65,13 @@
 
 - **Goal:** Consolidate all design artifacts and report completion of the phase.
 - **Suggested Lead Action:**
-  1.  Review all created ConPort items (`SystemArchitecture`, `APIEndpoints`, `DBMigrations`, `Decisions`) for consistency and completeness.
+  1.  Review all created NovaPort-MCP items (`SystemArchitecture`, `APIEndpoints`, `DBMigrations`, `Decisions`) for consistency and completeness.
   2.  Update a main `SystemArchitecture:[ProjectName]_OverallArch_v1` document to link to all other artifacts.
   3.  Update the main phase `Progress` item to 'DONE'.
   4.  Update the `active_context.state_of_the_union`.
   5.  In your `attempt_completion` to `Nova-Orchestrator`, summarize the phase outcome and provide keys to the most important design artifacts as `Critical_Output_For_Orchestrator`.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - CustomData (`SystemArchitecture`, `APIEndpoints`, `DBMigrations`)

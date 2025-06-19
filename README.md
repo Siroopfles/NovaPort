@@ -19,7 +19,7 @@
 5.  [Introduction](#introduction)
 6.  [Core Concepts](#core-concepts)
     - [System Architecture & Communication Flow](#system-architecture--communication-flow)
-    - [Context Portal (ConPort)](#context-portal-conport)
+    - [NovaPort-MCP (The Project Memory)](#novaport-mcp-the-project-memory)
     - [Nova Modes](#nova-modes)
     - [Workflows](#workflows)
     - [Delegation and Communication](#delegation-and-communication)
@@ -35,7 +35,7 @@
       - [Nova-LeadDeveloper](#nova-leaddeveloper)
       - [Nova-LeadQA](#nova-leadqa)
     - [Specialized Modes](#specialized-modes)
-      - [Proactive ConPort Linking (v3)](#proactive-conport-linking-v3)
+      - [Proactive Linking (v3)](#proactive-linking-v3)
       - [Architect Team](#architect-team)
       - [Developer Team](#developer-team)
       - [QA Team](#qa-team)
@@ -44,7 +44,7 @@
 8.  [Workflows (`.nova/workflows/`)](#workflows-novaworkflows)
     - [Orchestrator Workflows](#orchestrator-workflows)
     - [Lead Mode Workflows](#lead-mode-workflows)
-9.  [Context Portal (ConPort) - The Memory](#context-portal-conport---the-memory)
+9.  [NovaPort-MCP - The Memory](#novaport-mcp---the-memory)
     - [Purpose and Architecture](#purpose-and-architecture)
     - [Core Data Entities](#core-data-entities)
     - [Key Configuration Items](#key-configuration-items)
@@ -62,11 +62,11 @@ The installer will automatically download the core system files: `.roomodes`, `R
 
 ### Choosing a Version
 
-- **`latest-prerelease` (Recommended Default):** Installs the most recent pre-release version (e.g., `v0.3.1-beta`). This is the best choice for users who want access to the latest features that are in the final stages of testing.
+- **`latest-prerelease` (Recommended Default):** Installs the most recent pre-release version (e.g., `v0.4.0-beta`). This is the best choice for users who want access to the latest features that are in the final stages of testing.
 - **`latest`:** Installs the most recent **stable** release. This is the safest option, recommended for production-like environments or users who prioritize stability over the newest features.
 - **`main`:** Installs the latest version from the `main` branch, which represents the stable base for the next release.
 - **`dev`:** Installs the absolute latest commit from the `dev` branch. This version is potentially unstable and should only be used by developers contributing to the Nova System itself or those who need cutting-edge changes immediately.
-- **`[specific_tag]`:** Installs a specific version by its tag name, for example, `v0.2.8-beta`.
+- **`[specific_tag]`:** Installs a specific version by its tag name, for example, `v0.3.4-beta`.
 
 ---
 
@@ -101,9 +101,9 @@ Now, run the script with the desired version.
   ./install_nova_modes.sh dev
   ```
 
-- **To Install a Specific Version (e.g., v0.3.1-beta):**
+- **To Install a Specific Version (e.g., v0.3.4-beta):**
   ```bash
-  ./install_nova_modes.sh v0.3.1-beta
+  ./install_nova_modes.sh v0.3.4-beta
   ```
 
 > **Note:** The script requires `curl` and `jq` to be installed.
@@ -138,23 +138,57 @@ Now, run the script with the desired version using the `-Version` parameter.
   .\install_nova_modes.ps1 -Version dev
   ```
 
-- **To Install a Specific Version (e.g., v0.3.1-beta):**
+- **To Install a Specific Version (e.g., v0.3.4-beta):**
   ```powershell
-  .\install_nova_modes.ps1 -Version v0.3.1-beta
+  .\install_nova_modes.ps1 -Version v0.3.4-beta
   ```
 
 > **Note:** If you encounter an error about execution policies, you may need to run this command first: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
 
 ## Dependencies & Setup
 
-Before you can run the Nova System, your environment must be set up correctly.
+Before you can run the Nova System, its core dependency, the **NovaPort-MCP** server, must be installed and configured.
 
 1.  **A Roo Code Compatible Environment:** The system is designed to be run by an AI agent framework like Roo Code. This documentation assumes you are using the Roo Code extension within Visual Studio Code.
 
-2.  **Context Portal (ConPort):** The Nova System's memory is powered by the Context Portal MCP server.
-    - **Step A: Install the Package:** You must first install the `context-portal-mcp-server` Python package. You can find the latest installation instructions at the official repository:
-      **[https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal)**
-    - **Step B: Configure in Roo Code:** After installation, the server must be configured as an available "MCP Server" within your Roo Code environment settings. This allows the Roo Code extension to start and manage the server for your project. **Please refer to the official Roo Code documentation for instructions on how to configure MCP servers.**
+2.  **NovaPort-MCP Server Setup:** The Nova System's memory is powered by the NovaPort-MCP server.
+    - **Step A: Install the Backend:**
+      You must first clone and install the `novaport-mcp` backend. You can find the full installation instructions at its official repository:
+      **[https://github.com/Siroopfles/novaport-mcp](https://github.com/Siroopfles/novaport-mcp)**
+      
+      A quick summary of the installation is:
+      ```bash
+      # 1. Clone the repository
+      git clone https://github.com/Siroopfles/novaport-mcp.git
+      cd novaport-mcp
+
+      # 2. Install dependencies with Poetry
+      # This requires Python 3.11+ and Poetry to be installed.
+      poetry install
+      ```
+
+    - **Step B: Configure in Roo Code:**
+      After installing the backend, you must configure it as an available "MCP Server" within your Roo Code environment. This allows the Roo Code extension to start and manage the server for your project.
+      
+      In your Roo Code `mcp_settings.json` or your project's `.roo/mcp.json`, add the following `mcpServers` object. **You must replace `<absolute path to your cloned novaport-mcp directory>` with the actual absolute path on your system.**
+      
+      ```json
+      {
+        "mcpServers": {
+          "novaport-mcp": {
+            "command": "poetry",
+            "args": [
+              "run",
+              "conport"
+            ],
+            "cwd": "<absolute path to your cloned novaport-mcp directory>",
+            "disabled": false,
+            "description": "The robust, multi-project MCP server for NovaPort."
+          }
+        }
+      }
+      ```
+      > **Troubleshooting:** If you encounter connection errors, please refer to the "Troubleshooting & Robust Configuration" section in the `novaport-mcp` README for instructions on how to call the Python interpreter directly.
 
 ## Quick Start: Your First Interaction
 
@@ -180,8 +214,8 @@ For example, to start a new session, type:
 
 The Roo Code extension will activate `Nova-Orchestrator`, which will begin its startup sequence.
 
-- **For a Brand New Project:** `Nova-Orchestrator` will detect that ConPort is empty. It will initiate a setup workflow and ask you follow-up questions in the chat to define the project's core configuration.
-- **For an Existing Project:** The orchestrator will load the project's context from ConPort and provide a summary of the last session, ready for your next command.
+- **For a Brand New Project:** `Nova-Orchestrator` will detect that the database is empty. It will initiate a setup workflow and ask you follow-up questions in the chat to define the project's core configuration.
+- **For an Existing Project:** The orchestrator will load the project's context from NovaPort-MCP and provide a summary of the last session, ready for your next command.
 
 > **Want a step-by-step tutorial?**
 > For a guided "Hello, World!" experience, check out our [**Getting Started Guide**](./GETTING_STARTED.md).
@@ -190,10 +224,10 @@ See the `examples/example-user-prompts.md` file for more ideas on how to interac
 
 ## Configuration
 
-The Nova System's behavior is controlled by two key configuration items stored as `CustomData` objects within the project's Context Portal (ConPort). These are typically set up during the initial project bootstrap.
+The Nova System's behavior is controlled by two key configuration items stored as `CustomData` objects within the project's NovaPort-MCP database. These are typically set up during the initial project bootstrap.
 
 - **`ProjectConfig:ActiveConfig`**: Defines project-specific settings, such as the primary programming language, testing frameworks, linter commands, and documentation standards. This ensures that all AI modes operate consistently within the project's technical environment.
-- **`NovaSystemConfig:ActiveSettings`**: Configures the behavior of the Nova modes themselves. This can include settings like the frequency of ConPort health checks, triggers for specific workflows, or the default level of strictness for quality gates.
+- **`NovaSystemConfig:ActiveSettings`**: Configures the behavior of the Nova modes themselves. This can include settings like the frequency of database health checks, triggers for specific workflows, or the default level of strictness for quality gates.
 
 These configurations are managed by the `Nova-LeadArchitect` team via the `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md` workflow. For a detailed example of what these configurations can contain, see the `examples/example-project-config.json` file in this repository.
 
@@ -201,7 +235,7 @@ These configurations are managed by the `Nova-LeadArchitect` team via the `WF_AR
 
 The **Nova System** is an advanced AI-driven framework designed for managing and executing complex software development projects. The system comprises various specialized AI agents (referred to as "modes") that collaborate under the direction of a central orchestrator. Nova aims for structured project execution, explicit knowledge retention, and efficient task delegation.
 
-The core of Nova's knowledge management is the **Context Portal (ConPort)**, a project-specific database acting as the central memory and "single source of truth." This component is based on the open-source [Context Portal MCP server](https://github.com/GreatScottyMac/context-portal). Standardized **Workflows**, stored as Markdown files, define the processes that modes follow for specific tasks or project phases. The overall architecture and mode-based interaction patterns are designed for an execution environment like [Roo Code](https://docs.roocode.com/), leveraging custom system prompts which are an experimental feature (see [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)).
+The core of Nova's knowledge management is the **NovaPort-MCP** server, a project-specific database acting as the central memory and "single source of truth." This component is a from-the-ground-up rewrite of the original Context Portal, designed for stability and modern Python environments. Standardized **Workflows**, stored as Markdown files, define the processes that modes follow for specific tasks or project phases. The overall architecture and mode-based interaction patterns are designed for an execution environment like [Roo Code](https://docs.roocode.com/), leveraging custom system prompts which are an experimental feature (see [Important Considerations & Experimental Nature](#important-considerations--experimental-nature)).
 
 ## Core Concepts
 
@@ -233,7 +267,7 @@ graph TD
     end
 
     subgraph "Data & Knowledge Layer"
-        ConPort["Context Portal (ConPort)<br/><i>Project Memory</i>"]
+        NovaPortMCP["NovaPort-MCP Server<br/><i>Project Memory</i>"]
         subgraph "Database Backend"
             SQLite["SQLite<br/><i>Structured Data</i>"]
             ChromaDB["ChromaDB<br/><i>Vector Embeddings for RAG</i>"]
@@ -245,17 +279,17 @@ graph TD
     Orchestrator -- "Delegates Phase" --> LeadModes
     LeadModes -- "Delegates Sub-task" --> SpecializedModes
 
-    SpecializedModes -- "Reads/Writes Project Data" --> ConPort
-    LeadModes -- "Reads/Writes Project Data" --> ConPort
-    Orchestrator -- "Reads/Writes Project Data" --> ConPort
+    SpecializedModes -- "Reads/Writes Project Data" --> NovaPortMCP
+    LeadModes -- "Reads/Writes Project Data" --> NovaPortMCP
+    Orchestrator -- "Reads/Writes Project Data" --> NovaPortMCP
 
-    ConPort -- "Stores/Retrieves Structured Data" --> SQLite
-    ConPort -- "Stores/Retrieves Vectors" --> ChromaDB
+    NovaPortMCP -- "Stores/Retrieves Structured Data" --> SQLite
+    NovaPortMCP -- "Stores/Retrieves Vectors" --> ChromaDB
 ```
 
-### Context Portal (ConPort)
+### NovaPort-MCP (The Project Memory)
 
-ConPort is the backbone of the Nova system. It is a workspace-specific SQLite database (typically `context_portal/context.db`) that stores all project-related information, from high-level goals and architectural decisions to code snippets, bug reports, and configuration settings. All Nova modes interact with ConPort via a standardized Model Context Protocol (MCP) server (based on [github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal)) and its tools (primarily `use_mcp_tool`), ensuring consistency, traceability, and a shared understanding of the project state.
+NovaPort-MCP is the backbone of the Nova system. It is a workspace-specific database (typically creating a `.novaport_data` directory in your project) that stores all project-related information, from high-level goals and architectural decisions to code snippets, bug reports, and configuration settings. All Nova modes interact with NovaPort-MCP via its standardized Model Context Protocol (MCP) server and its tools (primarily `use_mcp_tool`), ensuring consistency, traceability, and a shared understanding of the project state.
 
 ### Nova Modes
 
@@ -270,26 +304,26 @@ Each mode operates sequentially; only one mode is active at any given time.
 
 ### Workflows
 
-Workflows are standardized, documented processes stored as Markdown files in the `.nova/workflows/` directory (with subdirectories per mode, e.g., `.nova/workflows/nova-orchestrator/`). They describe the steps, actors, triggers, ConPort interactions, and expected deliverables for executing complex tasks or project phases (e.g., setting up a new project, implementing a feature, resolving a bug). Modes (especially the Orchestrator and Leads) consult these workflows to guide their actions. The `DefinedWorkflows` category in ConPort stores metadata about these workflow files.
+Workflows are standardized, documented processes stored as Markdown files in the `.nova/workflows/` directory (with subdirectories per mode, e.g., `.nova/workflows/nova-orchestrator/`). They describe the steps, actors, triggers, database interactions, and expected deliverables for executing complex tasks or project phases (e.g., setting up a new project, implementing a feature, resolving a bug). Modes (especially the Orchestrator and Leads) consult these workflows to guide their actions. The `DefinedWorkflows` category in the database stores metadata about these workflow files.
 
 ### Delegation and Communication
 
 Communication and task delegation within Nova are structured to maximize clarity and reduce ambiguity.
 
-- **`new_task`:** The primary tool by which a higher-level mode (Orchestrator or Lead) delegates a task to a lower-level mode (Lead or Specialist). To ensure reliability, the `message` parameter MUST be a structured **`Subtask Briefing Object`** (in YAML or JSON format). This object explicitly defines the context, goals, specific instructions, input references (e.g., ConPort item keys), and expected deliverables for the (sub)task. This structured approach is a core principle of the Nova system's robustness.
-- **`attempt_completion`:** The standard way a mode (Lead or Specialist) reports the completion of its assigned (phase)task back to its calling mode. The `result` parameter contains a structured summary of outcomes, references to ConPort items created or modified, and any new issues discovered.
+- **`new_task`:** The primary tool by which a higher-level mode (Orchestrator or Lead) delegates a task to a lower-level mode (Lead or Specialist). To ensure reliability, the `message` parameter MUST be a structured **`Subtask Briefing Object`** (in YAML or JSON format). This object explicitly defines the context, goals, specific instructions, input references (e.g., database item keys), and expected deliverables for the (sub)task. This structured approach is a core principle of the Nova system's robustness.
+- **`attempt_completion`:** The standard way a mode (Lead or Specialist) reports the completion of its assigned (phase)task back to its calling mode. The `result` parameter contains a structured summary of outcomes, references to database items created or modified, and any new issues discovered.
 
 ### Workspace
 
-Each Nova project operates within a specific workspace, identified by `ACTUAL_WORKSPACE_ID` (typically the absolute path to the project directory). All file operations and ConPort interactions are relative to this workspace. ConPort creates a separate database and vector store for each workspace, ensuring data isolation.
+Each Nova project operates within a specific workspace, identified by `ACTUAL_WORKSPACE_ID` (typically the absolute path to the project directory). All file operations and NovaPort-MCP interactions are relative to this workspace. NovaPort-MCP creates a separate database and vector store for each workspace, ensuring data isolation.
 
 ### Knowledge Graph & RAG
 
-ConPort facilitates the creation of a project-specific **knowledge graph** by storing structured entities and allowing explicit, queryable relationships (`ContextLinks`) to be defined between them. This structured knowledge base, along with its Full-Text Search (FTS) and semantic search capabilities (powered by vector embeddings stored in ChromaDB), serves as a powerful backend for **Retrieval Augmented Generation (RAG)**. AI modes can fetch precise, up-to-date context from ConPort to augment their generative tasks, leading to more accurate and grounded outputs.
+NovaPort-MCP facilitates the creation of a project-specific **knowledge graph** by storing structured entities and allowing explicit, queryable relationships (`ContextLinks`) to be defined between them. This structured knowledge base, along with its Full-Text Search (FTS) and semantic search capabilities (powered by vector embeddings stored in ChromaDB), serves as a powerful backend for **Retrieval Augmented Generation (RAG)**. AI modes can fetch precise, up-to-date context from the database to augment their generative tasks, leading to more accurate and grounded outputs.
 
 ### Prompt Caching
 
-ConPort supports efficient prompt caching with compatible LLM providers. Structured, frequently accessed context (like `ProductContext`, `SystemPatterns`, or user-flagged `CustomData` items) can be identified by AI assistants (guided by `prompt_caching_strategies` in their instructions) and included in the cacheable prefix of prompts. This improves LLM interaction efficiency and cost-effectiveness.
+The NovaPort-MCP architecture supports efficient prompt caching with compatible LLM providers. Structured, frequently accessed context (like `ProductContext`, `SystemPatterns`, or user-flagged `CustomData` items) can be identified by AI assistants (guided by `prompt_caching_strategies` in their instructions) and included in the cacheable prefix of prompts. This improves LLM interaction efficiency and cost-effectiveness.
 
 ### Auditable Rationale (v3)
 
@@ -308,7 +342,7 @@ This creates a self-documenting "flight recorder" log of the agent's reasoning f
 - **Role:** The strategic Project CEO/CTO. Receives all user requests, performs initial triage, and coordinates complex, multi-phase projects.
 - **Responsibilities:**
   - Starts and ends user sessions (see [Session Management](#session-management)).
-  - Performs initial ConPort checks or delegates full project initialization (including `ProjectConfig` and `NovaSystemConfig`) to Nova-LeadArchitect for new workspaces.
+  - Performs initial database checks or delegates full project initialization (including `ProjectConfig` and `NovaSystemConfig`) to Nova-LeadArchitect for new workspaces.
   - Breaks down complex projects into logical, high-level phases.
   - Delegates these phases sequentially to the appropriate Lead Modes via `new_task`.
   - Monitors Lead Mode progress by analyzing their `attempt_completion` reports for entire phases.
@@ -316,7 +350,7 @@ This creates a self-documenting "flight recorder" log of the agent's reasoning f
   - Synthesizes final results for the user.
   - Can call `Nova-FlowAsk` for specific queries or summarizations.
   - Consults and initiates workflows from `.nova/workflows/nova-orchestrator/`.
-- **ConPort Interaction (Direct):** Primarily read-only to load context and perform DoR checks. May log/update its own top-level `Progress` items. Delegates most ConPort writes.
+- **Database Interaction (Direct):** Primarily read-only to load context and perform DoR checks. May log/update its own top-level `Progress` items. Delegates most database writes.
 
 ### Lead Modes
 
@@ -326,24 +360,24 @@ Lead Modes receive phase-tasks from the Orchestrator. They are responsible for t
 
 A fundamental change in v3 is how Lead Modes operate. They no longer create a large, upfront plan and execute it. Instead, they follow a more robust, iterative **Single-Step Loop**:
 
-1.  **High-Level Plan:** Upon receiving a phase-task, the Lead creates a _coarse-grained_ `LeadPhaseExecutionPlan` with only 2-4 major milestones and logs it to ConPort.
+1.  **High-Level Plan:** Upon receiving a phase-task, the Lead creates a _coarse-grained_ `LeadPhaseExecutionPlan` with only 2-4 major milestones and logs it to the database.
 2.  **Execution Loop:** The Lead then enters a loop:
     a. **Focus** on the current milestone.
     b. **Determine** the single, next, most logical, and atomic specialist sub-task required to make progress.
     c. **Delegate** only that single, atomic sub-task to the appropriate specialist via `new_task`.
-    d. **Await** the specialist's `attempt_completion`, process the result, update ConPort `Progress`, and handle any new suggested links.
+    d. **Await** the specialist's `attempt_completion`, process the result, update `Progress` in the database, and handle any new suggested links.
     e. **Return** to step (b) to determine the very next action.
 
 This "just-in-time" planning model is visualized in the following flowchart:
 
 ```mermaid
 flowchart TD
-    A["Start: Receive Phase-Task<br/>from Orchestrator"] --> B{"Create High-Level Plan<br/>in ConPort"};
+    A["Start: Receive Phase-Task<br/>from Orchestrator"] --> B{"Create High-Level Plan<br/>in Database"};
     B --> C["Start Loop: Focus on<br/>Next Milestone"];
     C --> D["Determine SINGLE, next,<br/>most logical, atomic sub-task"];
     D --> E["Delegate Sub-task to Specialist<br/>via `new_task`"];
     E --> F["Await `attempt_completion`<br/>from Specialist"];
-    F --> G["Process Specialist's Result<br/>and Update ConPort (e.g., Progress)"];
+    F --> G["Process Specialist's Result<br/>and Update Database (e.g., Progress)"];
     G --> H{Phase Goal Met?};
     H -- No --> C;
     H -- Yes --> I[End Loop];
@@ -356,11 +390,11 @@ flowchart TD
 - **Role:** Head of system design, project knowledge structure, and architectural strategy.
 - **Responsibilities:**
   - Defines and maintains the overall system architecture.
-  - Manages the `.nova/workflows/` directory (all subdirectories) and ensures workflows are documented in ConPort (`DefinedWorkflows`).
-  - Ensures ConPort integrity, schema, and standards, including the setup and management of `ProjectConfig:ActiveConfig` and `NovaSystemConfig:ActiveSettings`.
-  - Oversees impact analyses and ConPort health checks (often via its own workflows like `WF_ARCH_IMPACT_ANALYSIS_001_v1.md`).
-  - Ensures its team logs architectural `Decisions`, `SystemArchitecture`, `APIEndpoints`, `DBMigrations`, `ImpactAnalyses`, `RiskAssessment`, etc., in ConPort.
-- **Specialists:** Nova-SpecializedSystemDesigner, Nova-SpecializedConPortSteward, Nova-SpecializedWorkflowManager.
+  - Manages the `.nova/workflows/` directory (all subdirectories) and ensures workflows are documented in the database (`DefinedWorkflows`).
+  - Ensures database integrity, schema, and standards, including the setup and management of `ProjectConfig:ActiveConfig` and `NovaSystemConfig:ActiveSettings`.
+  - Oversees impact analyses and database health checks (often via its own workflows like `WF_ARCH_IMPACT_ANALYSIS_001_v1.md`).
+  - Ensures its team logs architectural `Decisions`, `SystemArchitecture`, `APIEndpoints`, `DBMigrations`, `ImpactAnalyses`, `RiskAssessment`, etc., in the database.
+- **Specialists:** Nova-SpecializedSystemDesigner, Nova-SpecializedNovaPortSteward, Nova-SpecializedWorkflowManager.
 
 #### Nova-LeadDeveloper
 
@@ -369,7 +403,7 @@ flowchart TD
   - Breaks down feature implementations or refactoring tasks into implementable components.
   - Ensures code quality (standards, unit/integration tests).
   - Manages technical documentation close to the code.
-  - Ensures its team logs implementation `Decisions`, `CodeSnippets`, `APIUsage`, code-related `ConfigSettings`, `TechDebtCandidates`, and detailed `Progress` in ConPort.
+  - Ensures its team logs implementation `Decisions`, `CodeSnippets`, `APIUsage`, code-related `ConfigSettings`, `TechDebtCandidates`, and detailed `Progress` in the database.
 - **Specialists:** Nova-SpecializedFeatureImplementer, Nova-SpecializedCodeRefactorer, Nova-SpecializedTestAutomator, Nova-SpecializedCodeDocumenter.
 
 #### Nova-LeadQA
@@ -379,22 +413,22 @@ flowchart TD
   - Develops and oversees the execution of test plans.
   - Coordinates bug investigations and verifications.
   - Ensures the quality of releases (e.g., via `WF_QA_RELEASE_CANDIDATE_VALIDATION_001_v1.md`).
-  - Ensures its team logs structured `ErrorLogs` and `LessonsLearned` in ConPort, and that `active_context.open_issues` is kept up-to-date (via coordination).
+  - Ensures its team logs structured `ErrorLogs` and `LessonsLearned` in the database, and that `active_context.open_issues` is kept up-to-date (via coordination).
 - **Specialists:** Nova-SpecializedBugInvestigator, Nova-SpecializedTestExecutor, Nova-SpecializedFixVerifier.
 
 ### Specialized Modes
 
-Each Specialized Mode has a highly focused role and operates under the direct instruction of its Lead Mode. They receive a `Subtask Briefing Object` for a small, specific task and report back with `attempt_completion`. They interact with ConPort and the file system using tools defined in their system prompts.
+Each Specialized Mode has a highly focused role and operates under the direct instruction of its Lead Mode. They receive a `Subtask Briefing Object` for a small, specific task and report back with `attempt_completion`. They interact with NovaPort-MCP and the file system using tools defined in their system prompts.
 
-#### Proactive ConPort Linking (v3)
+#### Proactive Linking (v3)
 
-A key improvement in v3 is that all Specialist Modes are now required to proactively contribute to the project's knowledge graph. In their `attempt_completion`, they MUST include a `Suggested_ConPort_Links` section, proposing logical links between the items they've created and other relevant items in ConPort. Their Lead is then responsible for reviewing and actioning these suggestions, ensuring the knowledge graph remains rich and interconnected.
+A key improvement in v3 is that all Specialist Modes are now required to proactively contribute to the project's knowledge graph. In their `attempt_completion`, they MUST include a `Suggested_ConPort_Links` section, proposing logical links between the items they've created and other relevant items in the database. Their Lead is then responsible for reviewing and actioning these suggestions, ensuring the knowledge graph remains rich and interconnected.
 
 #### Architect Team
 
-- **Nova-SpecializedSystemDesigner:** Focuses on detailed system and component design, API specifications, and data modeling. Logs `SystemArchitecture`, `APIEndpoints`, `DBMigrations` in ConPort.
-- **Nova-SpecializedConPortSteward:** Focuses on ConPort data integrity, quality, glossary management, and logging configurations (`ProjectConfig`, `NovaSystemConfig`), `ImpactAnalyses`, `RiskAssessment`, `ConPortSchema` proposals. Executes ConPort Health Checks.
-- **Nova-SpecializedWorkflowManager:** Focuses on creating, updating, and managing workflow `.md` files in `.nova/workflows/` and `.roo/` system prompts, and their corresponding `DefinedWorkflows` entries in ConPort.
+- **Nova-SpecializedSystemDesigner:** Focuses on detailed system and component design, API specifications, and data modeling. Logs `SystemArchitecture`, `APIEndpoints`, `DBMigrations` in the database.
+- **Nova-SpecializedNovaPortSteward:** Focuses on database data integrity, quality, glossary management, and logging configurations (`ProjectConfig`, `NovaSystemConfig`), `ImpactAnalyses`, `RiskAssessment`, `ConPortSchema` proposals. Executes database Health Checks.
+- **Nova-SpecializedWorkflowManager:** Focuses on creating, updating, and managing workflow `.md` files in `.nova/workflows/` and `.roo/` system prompts, and their corresponding `DefinedWorkflows` entries in the database.
 
 #### Developer Team
 
@@ -414,15 +448,15 @@ A key improvement in v3 is that all Specialist Modes are now required to proacti
 #### Nova-FlowAsk
 
 - **Role:** A specialized information retrieval and analysis agent.
-- **Responsibilities:** Answers specific questions, analyzes code (read-only), explains concepts, or summarizes provided text/ConPort data when a Lead Mode or Orchestrator delegates this. Can perform multi-step "graph-hop" queries in ConPort. Does not modify ConPort or project files (except for writing session summaries to `.nova/summary/` or digests to `.nova/reports/digests/` when tasked by Nova-Orchestrator).
+- **Responsibilities:** Answers specific questions, analyzes code (read-only), explains concepts, or summarizes provided text/database data when a Lead Mode or Orchestrator delegates this. Can perform multi-step "graph-hop" queries in the database. Does not modify the database or project files (except for writing session summaries to `.nova/summary/` or digests to `.nova/reports/digests/` when tasked by Nova-Orchestrator).
 
 ## Workflows (`.nova/workflows/`)
 
 Workflows are the backbone of standardized processes within Nova.
 
 - **Location:** Stored in `.nova/workflows/`, further subdivided by the mode that primarily executes or owns the workflow (e.g., `.nova/workflows/nova-orchestrator/`, `.nova/workflows/nova-leadarchitect/`).
-- **Format:** Markdown files detailing steps, actors, triggers, ConPort interactions, expected deliverables, and failure scenarios.
-- **Management:** Nova-LeadArchitect is responsible for the overall management of all workflow definitions, delegating file operations and ConPort `DefinedWorkflows` registration to Nova-SpecializedWorkflowManager.
+- **Format:** Markdown files detailing steps, actors, triggers, database interactions, expected deliverables, and failure scenarios.
+- **Management:** Nova-LeadArchitect is responsible for the overall management of all workflow definitions, delegating file operations and database `DefinedWorkflows` registration to Nova-SpecializedWorkflowManager.
 - **Usage:** Modes (especially Orchestrator and Leads) consult these workflows to structure their phases and ensure correct steps and delegations are performed.
 
 ### Orchestrator Workflows
@@ -436,7 +470,6 @@ These guide the overall project lifecycle or key cross-mode processes. Examples:
 - `WF_ORCH_CRITICAL_BUG_RESOLUTION_PROCESS_001_v1.md`: For expedited resolution of critical bugs.
 - `WF_ORCH_MANAGE_TECH_DEBT_ITEM_001_v1.md`: For addressing a prioritized technical debt item.
 - `WF_ORCH_TRIAGE_NEW_ISSUE_REPORTED_BY_LEAD_001_v1.md`: For processing new issues discovered by Lead modes.
-- `WF_ORCH_ANALYTICAL_GRAPH_QUERY_001_v1.md`: To direct `Nova-FlowAsk` for multi-hop graph analysis.
 - `WF_ORCH_GENERATE_PROJECT_DIGEST_001_v1.md`: Generates a high-level project summary report for stakeholders.
 - `WF_ORCH_SESSION_END_AND_SUMMARY_001_v1.md`: For ending a session and generating a summary.
 - `WF_PROJ_INIT_001_NewProjectBootstrap.md`: (Often initiated via LeadArchitect) For the very first setup of an empty workspace.
@@ -448,70 +481,47 @@ These guide the overall project lifecycle or key cross-mode processes. Examples:
 These describe processes specific to a Lead Mode's domain, used to guide their team of specialists. Examples:
 
 - **Nova-LeadArchitect:**
-  - `WF_ARCH_CONPORT_SCHEMA_PROPOSAL_001_v1.md`: For formally proposing ConPort schema changes.
-  - `WF_ARCH_CONPORT_HEALTH_CHECK_001_v1.md`: For periodic ConPort quality reviews.
+  - `WF_ARCH_NOVAPORT_MCP_SCHEMA_PROPOSAL_001_v1.md`: For formally proposing database schema changes.
+  - `WF_ARCH_NOVAPORT_MCP_HEALTH_CHECK_001_v1.md`: For periodic database quality reviews.
   - `WF_ARCH_IMPACT_ANALYSIS_001_v1.md`: For analyzing the impact of proposed changes.
   - `WF_ARCH_NEW_WORKFLOW_DEFINITION_001_v1.md`: For defining any new Nova workflow.
   - `WF_ARCH_SYSTEM_PROMPT_UPDATE_PROPOSAL_001_v1.md`: For managing changes to system prompts.
-  - `WF_ARCH_CREATE_MODULE_TEMPLATE_001_v1.md`: For creating reusable module templates.
-  - `WF_ARCH_PROJECT_CONFIG_SETUP_001_v1.md`: For setting up/updating `ProjectConfig` and `NovaSystemConfig`.
-  - `WF_ARCH_RISK_ASSESSMENT_AND_MITIGATION_PLANNING_001_v1.md`: For conducting risk assessments.
-  - `WF_ARCH_SYSTEM_DESIGN_PHASE_001_v1.md`: For managing a complete system design phase.
-  - `WF_ARCH_GENERATE_KNOWLEDGE_GRAPH_VISUALIZATION_001_v1.md`: For creating Mermaid diagrams of ConPort relationships.
-  - `WF_ARCH_GENERATE_CONPORT_CHEATSHEET_001_v1.md`: For generating a summary of ConPort usage.
-  - `WF_ARCH_CONPORT_DATA_HYGIENE_REVIEW_001_v1.md`: For identifying and archiving stale ConPort data.
-  - `WF_ARCH_VALIDATE_WORKFLOW_SIMULATION_001_v1.md`: For "dry-running" a workflow's logic.
-  - `WF_ARCH_CONPORT_SCHEMA_MIGRATION_001_v1.md`: For migrating ConPort data to a new schema.
 - **Nova-LeadDeveloper:**
-  - `WF_DEV_CODE_REVIEW_SIMULATION_001_v1.md`: For simulating code reviews.
-  - `WF_DEV_EXTERNAL_LIBRARY_INTEGRATION_001_v1.md`: For integrating external libraries.
   - `WF_DEV_FEATURE_IMPLEMENTATION_LIFECYCLE_001_v1.md`: For managing feature implementation.
-  - `WF_DEV_NEW_MODULE_SCAFFOLDING_AND_SETUP_001_v1.md`: For setting up new code modules.
   - `WF_DEV_TECHDEBT_REFACTOR_COMPONENT_001_v1.md`: For refactoring components to address tech debt.
-  - `WF_DEV_DEPENDENCY_UPDATE_AND_AUDIT_001_v1.md`: For managing project dependencies.
 - **Nova-LeadQA:**
   - `WF_QA_BUG_INVESTIGATION_TO_RESOLUTION_001_v1.md`: For managing a bug from investigation to resolution.
-  - `WF_QA_FULL_REGRESSION_TEST_CYCLE_001_v1.md`: For executing full regression tests.
-  - `WF_QA_PERFORMANCE_TEST_EXECUTION_001_v1.md`: For executing performance tests.
   - `WF_QA_RELEASE_CANDIDATE_VALIDATION_001_v1.md`: For validating release candidates.
-  - `WF_QA_SECURITY_VULNERABILITY_TESTING_BASIC_001_v1.md`: For basic security scans.
-  - `WF_QA_TEST_CASE_DESIGN_FROM_SPECS_001_v1.md`: For designing test cases.
-  - `WF_QA_TEST_STRATEGY_AND_PLAN_CREATION_001_v1.md`: For creating test strategies and plans.
 
-## Context Portal (ConPort) - The Memory
+## NovaPort-MCP - The Memory
 
 ### Purpose and Architecture
 
-ConPort is the central nervous system of Nova, a workspace-specific knowledge graph designed to enhance AI contextual understanding and enable powerful Retrieval Augmented Generation (RAG). It is based on the [Context Portal MCP server](https://github.com/GreatScottyMac/context-portal).
+NovaPort-MCP is the central nervous system of Nova, a workspace-specific knowledge graph designed to enhance AI contextual understanding and enable powerful Retrieval Augmented Generation (RAG). It is a from-the-ground-up rewrite of the original Context Portal, built with a modern Python stack for increased stability and maintainability.
 
-- **Core Technologies:** Python, FastAPI, Pydantic, SQLite, ChromaDB (for vector embeddings).
-- **Workspace-Specific:** Each project workspace has its own isolated ConPort database (`context_portal/context.db`) and vector store.
-- **Communication:** Interacted with via an MCP server, accessible locally via STDIO or remotely via HTTP.
+- **Core Technologies:** Python 3.11+, FastAPI, Pydantic, SQLAlchemy 2.0, Alembic, SQLite, ChromaDB (for vector embeddings).
+- **Workspace-Specific:** Each project workspace has its own isolated NovaPort-MCP database (in `.novaport_data/conport.db`) and vector store.
+- **Communication:** Interacted with via an MCP server, accessible locally via STDIO.
 - **Knowledge Graph:** Stores structured entities and allows explicit, queryable relationships (`ContextLinks`) between them.
 - **RAG Enablement:** Its rich querying (FTS, semantic search via vector embeddings, direct retrieval, graph traversal) provides the "Retrieval" mechanism for RAG, supplying AI modes with precise context.
 
-The following Entity Relationship Diagram (ERD) visualizes the core data entities within ConPort:
+The following Entity Relationship Diagram (ERD) visualizes the core data entities within NovaPort-MCP:
 
 ```mermaid
 erDiagram
     ProductContext {
-        string key PK
         json content
-        timestamp created_at
     }
     ActiveContext {
-        string key PK
-        json value
-        timestamp created_at
+        json content
     }
-    Decisions {
+    Decision {
         int id PK
         string summary
         text rationale
-        text implementation_details
         string tags
     }
-    Progress {
+    ProgressEntry {
         int id PK
         string description
         string status
@@ -522,7 +532,7 @@ erDiagram
         string key PK
         json value
     }
-    ContextLinks {
+    ContextLink {
         int id PK
         string source_item_type
         string source_item_id
@@ -531,37 +541,37 @@ erDiagram
         string relationship_type
     }
 
-    Progress }|--o{ Progress : "is parent of"
-    ProductContext ||--o{ ContextLinks : "can be linked"
-    ActiveContext ||--o{ ContextLinks : "can be-linked"
-    Decisions ||--o{ ContextLinks : "can be linked"
-    Progress ||--o{ ContextLinks : "can be linked"
-    CustomData ||--o{ ContextLinks : "can be linked"
+    ProgressEntry }|--o{ ProgressEntry : "is parent of"
+    ProductContext ||--o{ ContextLink : "can be linked"
+    ActiveContext ||--o{ ContextLink : "can be-linked"
+    Decision ||--o{ ContextLink : "can be linked"
+    ProgressEntry ||--o{ ContextLink : "can be linked"
+    CustomData ||--o{ ContextLink : "can be linked"
 ```
 
 ### Core Data Entities
 
-ConPort structures project knowledge into several key entities stored in SQLite tables:
+NovaPort-MCP structures project knowledge into several key entities stored in SQLite tables:
 
-1.  **`ProductContext` (key `product_context`):** High-level project information (goals, features). Versioned.
-2.  **`ActiveContext` (key `active_context`):** Dynamic session context (current focus, `state_of_the_union`, `open_issues`). Versioned.
-3.  **`Decisions` (integer `id`):** Significant architectural or implementation decisions with rationale and tags. Supports FTS.
-4.  **`Progress` (integer `id`):** Tracks tasks, status, and hierarchy.
-5.  **`SystemPatterns` (integer `id` or `name`):** Documents recurring architectural or design patterns.
-6.  **`CustomData` (category and key):** Arbitrary key-value data, categorized (e.g., `ProjectGlossary`, `APIEndpoints`, `SystemArchitecture`, `ErrorLogs`, `ProjectConfig`, `DefinedWorkflows`). Supports FTS.
-7.  **`ContextLinks` (integer `id`):** Defines explicit relationships between ConPort items, forming the knowledge graph edges.
-8.  **Vector Store (ChromaDB):** Stores vector embeddings of text content from various ConPort entities for semantic search, linked to SQLite data via item type and ID.
+1.  **`ProductContext`:** High-level project information (goals, features). Versioned.
+2.  **`ActiveContext`:** Dynamic session context (current focus, `state_of_the_union`, `open_issues`). Versioned.
+3.  **`Decision`:** Significant architectural or implementation decisions with rationale and tags. Supports FTS.
+4.  **`ProgressEntry`:** Tracks tasks, status, and hierarchy.
+5.  **`SystemPattern`:** Documents recurring architectural or design patterns.
+6.  **`CustomData`:** Arbitrary key-value data, categorized (e.g., `ProjectGlossary`, `APIEndpoints`, `SystemArchitecture`, `ErrorLogs`, `ProjectConfig`, `DefinedWorkflows`). Supports FTS.
+7.  **`ContextLink`:** Defines explicit relationships between items, forming the knowledge graph edges.
+8.  **Vector Store (ChromaDB):** Stores vector embeddings of text content from various entities for semantic search, linked to SQLite data via item type and ID.
 
-Pydantic models in ConPort's source (`src/context_portal_mcp/db/models.py`) mirror these structures. For detailed standard structures and guidelines for key `CustomData` entities like `ErrorLogs` and `LessonsLearned`, refer to `.nova/docs/conport_standards.md`.
+Pydantic models in NovaPort-MCP's source (`src/conport/db/models.py`) mirror these structures. For detailed standard structures and guidelines for key `CustomData` entities like `ErrorLogs` and `LessonsLearned`, refer to `.nova/docs/conport_standards.md`.
 
 ### Key Configuration Items
 
-- **`ProjectConfig:ActiveConfig`:** Crucial for tailoring Nova's actions to project-specific technologies and standards (e.g., primary language, testing frameworks, documentation styles, linter commands, dependency management). Managed by Nova-LeadArchitect's team (ConPortSteward) with user input.
-- **`NovaSystemConfig:ActiveSettings`:** Configures the behavior of Nova modes themselves (e.g., frequency of ConPort health checks, default DoR strictness, specific workflow triggers). Managed by Nova-LeadArchitect's team (ConPortSteward).
+- **`ProjectConfig:ActiveConfig`:** Crucial for tailoring Nova's actions to project-specific technologies and standards (e.g., primary language, testing frameworks, documentation styles, linter commands, dependency management). Managed by Nova-LeadArchitect's team (`Nova-SpecializedNovaPortSteward`) with user input.
+- **`NovaSystemConfig:ActiveSettings`:** Configures the behavior of Nova modes themselves (e.g., frequency of database health checks, default DoR strictness, specific workflow triggers). Managed by Nova-LeadArchitect's team.
 
 ### MCP Tool Interaction
 
-AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_product_context`, `log_decision`, `get_custom_data`, `link_conport_items`, `search_decisions_fts`). All tools require a `workspace_id` to target the correct project database. The ConPort MCP server documentation (see [Foundations and Acknowledgements](#foundations-and-acknowledgements)) details all available tools and their parameters.
+AI modes interact with NovaPort-MCP by calling its defined MCP tools (e.g., `get_product_context`, `log_decision`, `get_custom_data`, `link_conport_items`, `search_decisions_fts`). All tools require a `workspace_id` to target the correct project database. The NovaPort-MCP server's tool reference in each system prompt details all available tools and their parameters.
 
 ## Important Considerations & Experimental Nature
 
@@ -584,8 +594,8 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 - **Auditable Reasoning (v3):** All agents must document their reasoning (`Goal`, `Justification`, `Expectation`) before every tool call, creating a transparent execution log.
 - **Intelligent Batching and Verification (v3.1):** For multi-file operations (`read_file`, `apply_diff`), agents are instructed to operate on small, logical batches of files. After each `apply_diff` batch, a verification `read_file` step is mandatory to ensure changes were applied correctly, creating a robust, self-correcting loop.
 - **Sequential Processing & Explicit Delegation Flow (v3.1):** Only one AI mode is active at a time. A delegating agent explicitly pauses after a `new_task` call and understands that the subordinate's `attempt_completion` will be the `tool_output` it receives to continue its own process, preventing confusion and stalled loops.
-- **ConPort as Central Hub:** All significant information is logged to ConPort, serving as the collective memory.
-- **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented in ConPort and `.nova/` files.
+- **Database as Central Hub:** All significant information is logged to NovaPort-MCP, serving as the collective memory.
+- **Explicit Documentation:** Processes (workflows) and decisions are explicitly documented in the database and `.nova/` files.
 - **Specialization:** Modes have clearly defined roles and responsibilities.
 - **Definition of Done (DoD) / Definition of Ready (DoR):** The system uses these agile principles as automated or explicit checks to ensure the quality of deliverables and readiness for subsequent phases, preventing work from starting on an unstable foundation.
 - **Experimental Awareness:** Given the use of custom system prompts, users should be prepared for a higher degree of variability in mode behavior and may need to iterate on prompts or workflows more frequently.
@@ -593,14 +603,14 @@ AI modes interact with ConPort by calling its defined MCP tools (e.g., `get_prod
 ## Session Management
 
 - **Session Start:** Nova-Orchestrator executes `WF_ORCH_SESSION_STARTUP_AND_CONTEXT_RESUMPTION_001_v1.md`. This involves:
-  1.  Checking for an existing ConPort DB for the `ACTUAL_WORKSPACE_ID`.
+  1.  Checking for an existing database for the `ACTUAL_WORKSPACE_ID`.
   2.  If not present, asking the user to initialize and potentially delegating the full setup (including `ProjectConfig`, `NovaSystemConfig`) to Nova-LeadArchitect.
-  3.  If present, loading core context (`ProductContext`, `ActiveContext`, `ProjectConfig`, `NovaSystemConfig`, `DefinedWorkflows`, recent activity) from ConPort.
+  3.  If present, loading core context (`ProductContext`, `ActiveContext`, `ProjectConfig`, `NovaSystemConfig`, `DefinedWorkflows`, recent activity) from the database.
   4.  Reading the most recent session summary from `.nova/summary/` (and possibly having Nova-FlowAsk summarize it) to resume context.
   5.  Informing the user and awaiting their next instruction.
 - **Session End:** Nova-Orchestrator executes `WF_ORCH_SESSION_END_AND_SUMMARY_001_v1.md`. This involves:
   1.  Ensuring any active Lead Mode task reaches a logical pause point.
-  2.  Delegating to Nova-LeadArchitect to finalize `active_context.state_of_the_union` in ConPort.
+  2.  Delegating to Nova-LeadArchitect to finalize `active_context.state_of_the_union` in the database.
   3.  Delegating to Nova-FlowAsk to generate a Markdown summary of the session and save it to `.nova/summary/session_summary_[timestamp].md`.
   4.  Informing the user about the session closure and the location of the summary.
 
@@ -610,5 +620,5 @@ The Nova System is a derivative work based on concepts and files from the `RooFl
 
 Key technologies and other inspirations include:
 
-- **Context Portal (ConPort):** The MCP server providing the structured knowledge base is based on the open-source project: [https://github.com/GreatScottyMac/context-portal](https://github.com/GreatScottyMac/context-portal).
+- **NovaPort-MCP Server:** The MCP server providing the structured knowledge base is **Siroopfles/novaport-mcp**, a complete rewrite of the original [context-portal](https://github.com/GreatScottyMac/context-portal) project.
 - **Roo Code Execution Environment:** The concept of specialized AI modes and their interaction is designed for execution environments compatible with frameworks like [Roo Code](https://docs.roocode.com/). This configuration specifically uses **experimental custom system prompt features** of Roo Code, as detailed in its documentation ([Footgun Prompting](https://docs.roocode.com/features/footgun-prompting)).

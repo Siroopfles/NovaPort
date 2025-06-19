@@ -47,7 +47,7 @@
   3.  **Update Progress:** Update the main `Progress` item for the simulation to 'DONE'.
   4.  **Report Completion:** Report the outcome to `Nova-Orchestrator`.
 
-**Key ConPort Items Involved:**
+**Key NovaPort-MCP Items Involved:**
 
 - Progress (integer `id`)
 - Reads workflow `.md` files.
